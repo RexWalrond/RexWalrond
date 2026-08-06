@@ -7,26 +7,36 @@
 <meta name="description" content="A living, editable ranking of Zach Bryan's discography, plus what else is on rotation.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body class="mood-repeat">
 
-<div class="topo-bg" aria-hidden="true"></div>
+<div class="topo-bg" aria-hidden="true">
+  <div class="ridges">
+    <svg class="ridge-layer ridge-layer--1" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,320 L200,312 400,318 600,306 800,315 1000,304 1200,313 1440,308 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--2" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,345 L180,330 360,340 540,320 720,336 900,318 1080,332 1260,315 1440,328 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--3" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,365 L160,345 320,358 480,335 640,352 800,330 960,348 1120,328 1280,344 1440,332 1440,400 0,400 Z"/></svg>
+  </div>
+  <div class="mist mist--a"></div>
+  <div class="mist mist--b"></div>
+  <div class="mist mist--c"></div>
+  <div class="glow"></div>
+</div>
 
 <main class="wrap wrap--wide">
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
-  <div class="page-head">
+  <div class="page-head" data-reveal>
     <span class="status-tag">In progress</span>
     <h1>On Repeat</h1>
     <p>The same instinct that goes into ranking a stock, pointed at a discography instead. Drag a row, jump straight to a rank, or nudge with the arrows — the list below is mine, and it's built to keep moving.</p>
   </div>
 
-  <section class="pick-hero" aria-live="polite">
+  <section class="pick-hero" aria-live="polite" data-reveal>
     <span class="pick-eyebrow">Current No. 1</span>
     <h2 class="pick-name" id="pickName">—</h2>
     <p class="pick-meta" id="pickMeta">—</p>
   </section>
 
-  <section class="rank-section">
+  <section class="rank-section" data-reveal>
     <div class="rank-section-head">
       <h2>Zach Bryan, ranked</h2>
       <span class="rank-meta-count" id="rankCount">127 tracks</span>
@@ -71,14 +81,14 @@
     <p class="rank-storage-note">Reordering saves automatically to this browser only — it won't show up for other visitors or on another device yet, since this site doesn't have a backend. Use "Export" to grab the current order as text whenever you want to lock in a new baseline.</p>
   </section>
 
-  <div class="elevation elevation--sm" aria-hidden="true">
+  <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
     <svg viewBox="0 0 800 60" preserveAspectRatio="none">
-      <path class="fill" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32 800,60 0,60 Z"/>
-      <path class="line" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32"/>
+      <path class="fill" d="M0,42 L100,36 200,40 300,30 400,38 500,26 600,36 700,30 800,34 800,60 0,60 Z"/>
+      <path class="line" d="M0,42 L100,36 200,40 300,30 400,38 500,26 600,36 700,30 800,34"/>
     </svg>
   </div>
 
-  <section class="rank-section" style="border-top:none; padding-top:0; margin-top:0;">
+  <section class="rank-section" style="border-top:none; padding-top:0; margin-top:0;" data-reveal>
     <div class="rank-section-head">
       <h2>Also on rotation</h2>
       <span class="status-tag">Building</span>
@@ -89,6 +99,7 @@
   </section>
 </main>
 
+<script src="assets/reveal.js"></script>
 <script>
 (function () {
   "use strict";
