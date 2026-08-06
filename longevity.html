@@ -4,32 +4,145 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Log — Rex Walrond</title>
+<meta name="description" content="Daily nutrition, training, and sleep data, tracked and charted over time.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topo-bg" aria-hidden="true"></div>
+<div class="topo-bg" aria-hidden="true">
+  <div class="ridges">
+    <svg class="ridge-layer ridge-layer--1" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,260 L120,210 240,235 360,180 480,220 600,160 720,200 840,150 960,195 1080,140 1200,185 1320,155 1440,190 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--2" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,300 L100,240 220,270 320,200 440,255 560,180 660,230 780,170 900,225 1000,160 1120,215 1220,175 1320,225 1440,195 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--3" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,340 L80,260 160,300 260,220 340,290 420,200 520,270 600,210 700,280 800,190 900,260 1000,215 1100,275 1200,205 1300,265 1400,230 1440,250 1440,400 0,400 Z"/></svg>
+  </div>
+  <div class="mist mist--a"></div>
+  <div class="mist mist--b"></div>
+  <div class="mist mist--c"></div>
+  <div class="glow"></div>
+</div>
 
 <main class="wrap">
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
-  <div class="page-head">
+  <div class="page-head" data-reveal>
     <span class="status-tag">Building</span>
     <h1>The Log</h1>
     <p>Daily nutrition, training, and sleep data, tracked and charted over time — the same instinct that goes into a DCF, pointed at a body instead of a company.</p>
   </div>
 
-  <div class="stub-body">
-    <p>This page is under construction. It's planned to hold:</p>
-    <ul>
-      <li>Daily calories and macros, charted over time</li>
-      <li>A running training schedule and load</li>
-      <li>Sleep score trends</li>
-      <li>Periodic write-ups on what's changing and why</li>
-    </ul>
-    <p>This one needs an actual data backend (not just static pages) to update daily without manual rebuilds — worth building properly rather than rushing.</p>
+  <p class="cov-disclaimer" data-reveal>Sample instrument readout — the panel below shows placeholder numbers for a demo day, not a live feed. Real tracking is waiting on an actual backend (see note at the bottom).</p>
+
+  <section data-reveal>
+    <p class="trip-section-label">Sample day — 08.03</p>
+    <div class="gauge-rack">
+      <div class="gauge-wrap">
+        <div class="gauge" data-pct="94" style="--gauge-color:var(--ember)">
+          <div class="gauge-readout">
+            <span class="gauge-value">2,340</span>
+            <span class="gauge-unit">kcal</span>
+          </div>
+        </div>
+        <p class="gauge-label">Calories</p>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge" data-pct="84" style="--gauge-color:var(--ember)">
+          <div class="gauge-readout">
+            <span class="gauge-value">168g</span>
+            <span class="gauge-unit">protein</span>
+          </div>
+        </div>
+        <p class="gauge-label">Protein</p>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge" data-pct="82" style="--gauge-color:var(--blue)">
+          <div class="gauge-readout">
+            <span class="gauge-value">82</span>
+            <span class="gauge-unit">score</span>
+          </div>
+        </div>
+        <p class="gauge-label">Sleep</p>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge" data-pct="74" style="--gauge-color:var(--ink)">
+          <div class="gauge-readout">
+            <span class="gauge-value">74%</span>
+            <span class="gauge-unit">wk target</span>
+          </div>
+        </div>
+        <p class="gauge-label">Training load</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
+    <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+      <path class="fill" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32 800,60 0,60 Z"/>
+      <path class="line" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32"/>
+    </svg>
   </div>
+
+  <section data-reveal>
+    <div class="cov-section-head">
+      <h2>Notebook</h2>
+      <span class="cov-meta">5 sample entries</span>
+    </div>
+
+    <div class="log-list">
+      <div class="log-entry">
+        <div class="log-date">08.03</div>
+        <div class="log-body">
+          <div class="log-tags"><span class="log-tag log-tag--training">Training</span></div>
+          <p class="log-note">Placeholder note. Upper body + a short zone 2 row, felt heavy early and loosened up by set three.</p>
+        </div>
+      </div>
+      <div class="log-entry">
+        <div class="log-date">08.02</div>
+        <div class="log-body">
+          <div class="log-tags"><span class="log-tag log-tag--nutrition">Nutrition</span></div>
+          <p class="log-note">Placeholder note. Undershot protein again on a travel day — worth prepping a bar stash for the next trip.</p>
+        </div>
+      </div>
+      <div class="log-entry">
+        <div class="log-date">08.01</div>
+        <div class="log-body">
+          <div class="log-tags"><span class="log-tag">Sleep</span></div>
+          <p class="log-note">Placeholder note. Late film session pushed bedtime an hour — score dipped but recovered by the following night.</p>
+        </div>
+      </div>
+      <div class="log-entry">
+        <div class="log-date">07.31</div>
+        <div class="log-body">
+          <div class="log-tags"><span class="log-tag log-tag--training">Training</span></div>
+          <p class="log-note">Placeholder note. Long trail run — legs were the limiter well before lungs, which tracks with the last taper.</p>
+        </div>
+      </div>
+      <div class="log-entry">
+        <div class="log-date">07.30</div>
+        <div class="log-body">
+          <div class="log-tags"><span class="log-tag log-tag--nutrition">Nutrition</span></div>
+          <p class="log-note">Placeholder note. Clean macro day, on target across the board — the version of a day this panel should default to showing.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="trip-note">This entire page — gauges and notebook — needs an actual data backend to update daily without manual rebuilds. Worth building properly rather than rushing; what's here is the visual target, not the real log yet.</p>
+  </section>
 </main>
+
+<script src="assets/reveal.js"></script>
+<script>
+(function () {
+  "use strict";
+  var gauges = document.querySelectorAll(".gauge");
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      gauges.forEach(function (g) {
+        g.style.setProperty("--pct", g.getAttribute("data-pct"));
+      });
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
