@@ -1641,6 +1641,60 @@ body.mood-repeat .glow {
 
 .rank-add-form button:hover { background: var(--blue); color: var(--paper); }
 
+/* ---------------------------------- auth ---------------------------------- */
+
+.rank-auth {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+.rank-auth-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rank-auth-form input {
+  flex: 1 1 200px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 6px 2px;
+  outline: none;
+}
+
+.rank-auth-form input:focus { border-color: var(--gold); }
+
+.rank-auth-form button {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.rank-auth-form button:hover { background: var(--gold); color: var(--ink); }
+
+.rank-auth-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin: 10px 0 0;
+}
+
+.rank-auth-note.is-editor { color: var(--pine); font-weight: 600; }
+
 /* --------------------------------- export --------------------------------- */
 
 .rank-export {

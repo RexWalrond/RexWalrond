@@ -56,10 +56,19 @@
       </div>
       <div class="rank-actions">
         <button type="button" class="rank-text-btn" id="rankExportBtn">Export</button>
-        <button type="button" class="rank-text-btn" id="rankResetBtn">Reset</button>
+        <button type="button" class="rank-text-btn" id="rankResetBtn" hidden>Reset</button>
+        <button type="button" class="rank-text-btn" id="rankAuthToggle">Sign in</button>
       </div>
     </div>
     <p class="rank-filter-note" id="rankFilterNote"></p>
+
+    <div class="rank-auth" id="rankAuthPanel" hidden>
+      <form class="rank-auth-form" id="rankAuthForm">
+        <input type="email" id="rankAuthEmail" placeholder="you@email.com" required autocomplete="email">
+        <button type="submit">Send sign-in link</button>
+      </form>
+      <p class="rank-auth-note" id="rankAuthNote"></p>
+    </div>
 
     <textarea class="rank-export" id="rankExportBox" readonly style="display:none;"></textarea>
 
@@ -75,7 +84,7 @@
     <div class="rank-list" id="rankList" role="list" aria-label="Zach Bryan tracks, ranked"></div>
     <p class="rank-empty" id="rankEmpty" style="display:none;">No tracks match that search.</p>
 
-    <details class="rank-add">
+    <details class="rank-add" id="rankAddDetails" hidden>
       <summary>Add a track that's missing</summary>
       <form class="rank-add-form" id="rankAddForm">
         <input type="text" id="rankAddName" placeholder="Track name" required>
@@ -84,7 +93,7 @@
       </form>
     </details>
 
-    <p class="rank-storage-note">Reordering saves automatically to this browser only — it won't show up for other visitors or on another device yet, since this site doesn't have a backend. Use "Export" to grab the current order as text whenever you want to lock in a new baseline.</p>
+    <p class="rank-storage-note" id="rankStorageNote">Loading the live ranking…</p>
   </section>
 
   <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
@@ -105,6 +114,7 @@
   </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/reveal.js"></script>
 <script src="assets/parallax.js"></script>
 <script>
@@ -145,43 +155,100 @@
     "We're Onto Something (feat. Zach Bryan)": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9b/31/46/9b3146b3-83a2-5199-2b87-264ee6d6f505/00198704677748_Cover.jpg/600x600bb.jpg"
   };
 
-  var STORAGE_KEY = "zb-ranking-v1";
+  // ---- canonical-ranking backend ------------------------------------------
+  // The ranking is meant to be a single source of truth that only Rex can
+  // edit — everyone else sees it read-only. That needs a real backend
+  // (Supabase: Postgres + auth + row-level security), configured below.
+  // Until SUPABASE_URL/SUPABASE_ANON_KEY are filled in, this degrades
+  // gracefully to the original localStorage-per-visitor sandbox so the page
+  // never breaks — it just isn't "live" yet.
+  var SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+  var SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  var EDITOR_EMAIL = "rexwalrond@gmail.com";
+
+  var REMOTE_CONFIGURED = SUPABASE_URL.indexOf("YOUR_") !== 0 && SUPABASE_ANON_KEY.indexOf("YOUR_") !== 0;
+  var supabaseClient = (REMOTE_CONFIGURED && window.supabase)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  var CACHE_KEY = "zb-ranking-cache-v1";
+  var LEGACY_KEY = "zb-ranking-v1"; // pre-backend per-visitor sandbox key
   var REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var state = {
     tracks: [],
     filter: "all",
-    query: ""
+    query: "",
+    isEditor: false,
+    remoteLive: false
   };
 
-  function loadState() {
-    var saved = null;
+  function cloneOriginal() {
+    return ORIGINAL_TRACKS.map(function (t) { return Object.assign({}, t); });
+  }
+
+  function loadLocalBest() {
+    // Best guess before the network round-trip resolves: a cached copy of
+    // the last-seen canonical ranking, else the un-backed legacy sandbox
+    // copy (for anyone who used the site before the backend existed), else
+    // the seed list.
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) saved = JSON.parse(raw);
-    } catch (e) {
-      saved = null;
+      var cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        var parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch (e) {}
+    if (!supabaseClient) {
+      try {
+        var legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy) {
+          var parsedLegacy = JSON.parse(legacy);
+          if (Array.isArray(parsedLegacy) && parsedLegacy.length) return parsedLegacy;
+        }
+      } catch (e) {}
     }
-    if (saved && Array.isArray(saved) && saved.length) {
-      state.tracks = saved;
-    } else {
-      state.tracks = ORIGINAL_TRACKS.map(function (t) { return Object.assign({}, t); });
-    }
+    return cloneOriginal();
+  }
+
+  function cacheLocally() {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(state.tracks)); } catch (e) {}
   }
 
   function persist() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tracks));
-    } catch (e) {
-      /* storage unavailable — ranking still works for this session */
+    // No backend configured: fall back to the original per-visitor sandbox
+    // behavior exactly as before, so the page still works standalone.
+    try { localStorage.setItem(LEGACY_KEY, JSON.stringify(state.tracks)); } catch (e) {}
+  }
+
+  function pushRemote() {
+    if (!supabaseClient || !state.isEditor) return;
+    supabaseClient
+      .from("ranking_state")
+      .update({ tracks: state.tracks, updated_at: new Date().toISOString() })
+      .eq("id", 1)
+      .then(function (res) {
+        if (res.error) console.error("Ranking sync failed:", res.error.message);
+      })
+      .catch(function (err) { console.error("Ranking sync failed:", err); });
+  }
+
+  function saveState() {
+    cacheLocally();
+    if (supabaseClient) {
+      pushRemote();
+    } else {
+      persist();
     }
   }
 
   function resetState() {
-    var ok = confirm("Reset to the original ranking? This clears any reordering and removes tracks you've added.");
+    if (!state.isEditor && supabaseClient) return; // UI already prevents this
+    var ok = confirm("Reset to the original ranking? This clears any reordering and removes tracks that were added.");
     if (!ok) return;
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-    state.tracks = ORIGINAL_TRACKS.map(function (t) { return Object.assign({}, t); });
+    try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
+    state.tracks = cloneOriginal();
+    saveState();
     render(true);
   }
 
@@ -212,6 +279,13 @@
     return state.filter !== "all" || state.query.length > 0;
   }
 
+  function isLocked() {
+    // Once a backend is configured, only the verified editor session may
+    // reorder — everyone else gets a read-only view. Without a backend,
+    // preserve the original everyone-can-play-with-their-own-copy behavior.
+    return !!supabaseClient && !state.isEditor;
+  }
+
   function rowHTML(t, rank, total) {
     var tags = "";
     if (t.live) tags += '<span class="rank-tag rank-tag--live">Live</span>';
@@ -224,7 +298,7 @@
     var sub = subParts.join(" · ");
 
     var topClass = rank <= 3 ? " rank-row--top" : "";
-    var disabled = isFiltering();
+    var disabled = isFiltering() || isLocked();
 
     var art = ALBUM_ART[t.album];
     var artHTML = art
@@ -247,7 +321,7 @@
           '<button type="button" data-dir="up" aria-label="Move up" ' + (disabled || rank <= 1 ? "disabled" : "") + '>&#9650;</button>' +
           '<button type="button" data-dir="down" aria-label="Move down" ' + (disabled || rank >= total ? "disabled" : "") + '>&#9660;</button>' +
         '</div>' +
-        (t.custom ? '<button type="button" class="rank-del" aria-label="Remove ' + escAttr(t.name) + '">&times;</button>' : '') +
+        (t.custom && !disabled ? '<button type="button" class="rank-del" aria-label="Remove ' + escAttr(t.name) + '">&times;</button>' : '') +
       '</div>'
     );
   }
@@ -355,7 +429,6 @@
 
     if (prevRects) playFlip(prevRects);
     updatePick();
-    persist();
   }
 
   function moveTrack(id, toIndex) {
@@ -365,11 +438,13 @@
     if (toIndex === from) return;
     var item = state.tracks.splice(from, 1)[0];
     state.tracks.splice(toIndex, 0, item);
+    saveState();
     render(true);
   }
 
   function removeTrack(id) {
     state.tracks = state.tracks.filter(function (t) { return t.id !== id; });
+    saveState();
     render(true);
   }
 
@@ -404,7 +479,7 @@
   // drag and drop (desktop)
   listEl.addEventListener("dragstart", function (e) {
     var row = e.target.closest(".rank-row");
-    if (!row || isFiltering()) return;
+    if (!row || isFiltering() || isLocked()) return;
     dragId = row.getAttribute("data-id");
     row.classList.add("is-dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -420,7 +495,7 @@
   });
 
   listEl.addEventListener("dragover", function (e) {
-    if (!dragId || isFiltering()) return;
+    if (!dragId || isFiltering() || isLocked()) return;
     e.preventDefault();
     var row = e.target.closest(".rank-row");
     if (!row) return;
@@ -431,7 +506,7 @@
   });
 
   listEl.addEventListener("drop", function (e) {
-    if (!dragId || isFiltering()) return;
+    if (!dragId || isFiltering() || isLocked()) return;
     e.preventDefault();
     var row = e.target.closest(".rank-row");
     if (!row) return;
@@ -482,6 +557,7 @@
     });
     nameEl.value = "";
     albumEl.value = "";
+    saveState();
     render(false);
   });
 
@@ -504,8 +580,123 @@
     }
   });
 
-  loadState();
-  render(false);
+  // ---- auth UI + remote sync ----------------------------------------------
+
+  var authToggleBtn = document.getElementById("rankAuthToggle");
+  var authPanelEl = document.getElementById("rankAuthPanel");
+  var authFormEl = document.getElementById("rankAuthForm");
+  var authNoteEl = document.getElementById("rankAuthNote");
+  var addDetailsEl = document.getElementById("rankAddDetails");
+  var resetBtnEl = document.getElementById("rankResetBtn");
+  var storageNoteEl = document.getElementById("rankStorageNote");
+
+  function updateStorageNote() {
+    if (!supabaseClient) {
+      storageNoteEl.textContent = "Reordering saves automatically to this browser only — it won't show up for other visitors or on another device, since this copy isn't connected to a backend yet. Use \"Export\" to grab the current order as text.";
+    } else if (state.isEditor) {
+      storageNoteEl.textContent = "You're signed in — reordering saves live for every visitor. \"Reset\" and \"Add a track\" are unlocked below.";
+    } else {
+      storageNoteEl.textContent = "This is Rex's live ranking — only he can reorder it. Use \"Export\" to grab the current order as text.";
+    }
+  }
+
+  function updateAuthUI(session) {
+    var signedIn = !!(session && session.user);
+    state.isEditor = signedIn && session.user.email === EDITOR_EMAIL;
+
+    addDetailsEl.hidden = !state.isEditor;
+    resetBtnEl.hidden = !state.isEditor;
+
+    authNoteEl.classList.toggle("is-editor", state.isEditor);
+
+    if (state.isEditor) {
+      authToggleBtn.textContent = "Sign out";
+      authPanelEl.hidden = true;
+      authNoteEl.textContent = "Signed in as the site owner — editing live.";
+    } else if (signedIn) {
+      authToggleBtn.textContent = "Sign out";
+      authNoteEl.textContent = "Signed in, but not as the site owner — viewing read-only.";
+    } else {
+      authToggleBtn.textContent = "Sign in";
+    }
+
+    updateStorageNote();
+  }
+
+  if (supabaseClient) {
+    authToggleBtn.addEventListener("click", function () {
+      supabaseClient.auth.getSession().then(function (res) {
+        var session = res.data && res.data.session;
+        if (session) {
+          supabaseClient.auth.signOut();
+        } else {
+          authPanelEl.hidden = !authPanelEl.hidden;
+        }
+      });
+    });
+
+    authFormEl.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("rankAuthEmail").value.trim();
+      if (!email) return;
+      authNoteEl.textContent = "Sending link…";
+      supabaseClient.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: window.location.href.split("#")[0] }
+      }).then(function (res) {
+        authNoteEl.textContent = res.error
+          ? "Couldn't send that: " + res.error.message
+          : "Check " + email + " for a sign-in link.";
+      }).catch(function (err) {
+        authNoteEl.textContent = "Couldn't send that: " + err.message;
+      });
+    });
+
+    supabaseClient.auth.onAuthStateChange(function (event, session) {
+      updateAuthUI(session);
+      // clear the auth token fragment Supabase leaves in the URL after a
+      // magic-link redirect, so it doesn't linger in the address bar
+      if (window.location.hash.indexOf("access_token") !== -1) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      render(false);
+    });
+  }
+
+  function boot() {
+    state.tracks = loadLocalBest();
+    render(false);
+    updateStorageNote();
+
+    if (!supabaseClient) {
+      // no backend configured — original everyone-can-edit sandbox behavior
+      addDetailsEl.hidden = false;
+      resetBtnEl.hidden = false;
+      authToggleBtn.hidden = true;
+      return;
+    }
+
+    supabaseClient
+      .from("ranking_state")
+      .select("tracks")
+      .eq("id", 1)
+      .single()
+      .then(function (res) {
+        if (!res.error && res.data && Array.isArray(res.data.tracks) && res.data.tracks.length) {
+          state.tracks = res.data.tracks;
+          cacheLocally();
+          render(false);
+        }
+      })
+      .catch(function (err) { console.error("Couldn't load live ranking, showing cached copy:", err); });
+
+    supabaseClient.auth.getSession().then(function (res) {
+      updateAuthUI(res.data && res.data.session);
+      render(false);
+    }).catch(function (err) { console.error("Auth check failed:", err); });
+  }
+
+  boot();
 })();
 </script>
 

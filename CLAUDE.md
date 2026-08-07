@@ -81,11 +81,18 @@ like an analyst's coverage sheet:
 - Search + Studio/Live filter segmented control
 - "Add a track that's missing" form for filling in discography gaps
 - Export button dumps the current order as plain text
-- **State is stored in `localStorage` only** (key `zb-ranking-v1`) — it is
-  NOT shared across visitors or devices, since this is a static site with no
-  backend. This is a known, accepted limitation, not a bug to fix casually —
-  if asked to make rankings visible to visitors, that requires an actual
-  backend/database decision, don't silently bolt one on.
+- **Ranking now has a real backend (Supabase)**: a single-row `ranking_state`
+  table (`supabase/schema.sql`) holds the canonical track order as JSONB.
+  Row-level security makes it public-read / owner-write — only a session
+  signed in as `EDITOR_EMAIL` (set in music.html, currently
+  `rexwalrond@gmail.com`) can push reorders; everyone else gets a read-only
+  view (drag/rank-jump/arrows/add/remove/reset all disabled). Sign-in is
+  passwordless (Supabase magic link) via the "Sign in" control near
+  Export/Reset. `SUPABASE_URL`/`SUPABASE_ANON_KEY` in music.html are
+  placeholders until the project exists — until filled in, the page
+  degrades gracefully to the original everyone-can-reorder-their-own-copy
+  `localStorage` sandbox (key `zb-ranking-v1`), so it's never broken either
+  way. Don't remove that fallback path.
 
 A future addition (not started): a "monthly top songs/artists/albums" section
 on this same page, blocked on Rex exporting his Spotify Extended Streaming
