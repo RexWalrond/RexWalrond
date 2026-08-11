@@ -1129,6 +1129,290 @@ footer .dot { color: var(--ink-faint); }
   .log-date { flex-basis: 46px; font-size: 11px; }
 }
 
+/* ====================== On Repeat: primary tab bar ====================== */
+/* Two top-level sections. Deliberately an underline/ink-bar treatment
+   rather than another pill, so it reads as a level above the pill
+   toggles nested inside each pane. */
+
+.tabbar {
+  position: relative;
+  display: flex;
+  gap: 34px;
+  border-bottom: 1px solid var(--line);
+  margin: 6px 0 0;
+}
+
+.tabbar-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  background: none;
+  border: none;
+  padding: 4px 0 16px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink-faint);
+  transition: color 0.25s ease;
+}
+
+.tabbar-btn:hover { color: var(--ink-soft); }
+.tabbar-btn.is-active { color: var(--ink); }
+
+.tabbar-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.tabbar-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(19px, 2.6vw, 24px);
+  line-height: 1.1;
+  color: inherit;
+}
+
+.tabbar-meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* sliding ink bar; JS sets --ink-x / --ink-w from the active button */
+.tabbar-ink {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ember);
+  transform: translateX(var(--ink-x, 0));
+  width: var(--ink-w, 0);
+  transition: transform 0.42s cubic-bezier(.65,0,.35,1), width 0.42s cubic-bezier(.65,0,.35,1);
+}
+
+.tabbar[data-tab="listening"] .tabbar-ink { background: var(--blue); }
+
+.tabpane { animation: tab-in 0.4s cubic-bezier(.2,.7,.3,1); }
+
+@keyframes tab-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar-ink, .tabbar-btn { transition: none; }
+  .tabpane { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .tabbar { gap: 20px; }
+  .tabbar-label { font-size: 17px; }
+  .tabbar-meta { font-size: 9.5px; letter-spacing: 0.06em; }
+}
+
+/* ==================== On Repeat: listening snapshot ==================== */
+/* A hairline stat strip under the page head — real counts pulled from the
+   Spotify export, not decoration. Tabular numerals so the row reads as data. */
+
+.listen-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 34px;
+  padding: 20px 0 22px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 4px 0 0;
+}
+
+.listen-stat { display: flex; flex-direction: column; gap: 3px; }
+
+.listen-stat strong {
+  font-family: var(--font-mono);
+  font-size: 21px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.listen-stat small {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.listen-stat--accent strong { color: var(--ember); }
+
+.listen-window {
+  flex: 1 1 100%;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  margin: 4px 0 0;
+}
+
+@media (max-width: 640px) {
+  .listen-strip { gap: 20px 26px; }
+  .listen-stat strong { font-size: 18px; }
+}
+
+/* ==================== On Repeat: top-artists list ==================== */
+/* The minutes bar is a real proportion of the top entry, so row length
+   encodes listening time at a glance. */
+
+.rota-lede {
+  color: var(--ink-soft);
+  max-width: 60ch;
+  margin: 10px 0 22px;
+}
+
+.rota-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+
+.rota-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  margin: 0 -8px;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+/* proportional listening-time bar behind the row content */
+.rota-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(181,101,47,0.16), rgba(201,154,53,0.05));
+  width: 0;
+  z-index: 0;
+  transition: width 0.9s cubic-bezier(.2,.7,.3,1);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .rota-bar { transition: none; }
+}
+
+.rota-rank {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 26px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.rota-row--top .rota-rank {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ember);
+}
+
+
+.rota-art {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+  background: var(--line);
+}
+
+.rota-art--artist { border-radius: 50%; }
+
+.rota-art--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--ink-faint);
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.rota-info {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rota-name {
+  display: block;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rota-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rota-metric {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.rota-metric strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.rota-metric small {
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 640px) {
+  .rota-art { flex-basis: 38px; width: 38px; height: 38px; }
+  .rota-name { font-size: 14px; }
+  .rota-row { gap: 11px; }
+}
+
 /* -------------------- On Repeat: open-plains mood -------------------- */
 /* Same ridge/mist/glow system, tuned for this page only: flatter horizon
    instead of peaks (open space over dramatic terrain), a cooler dusk
@@ -1171,6 +1455,14 @@ body.mood-repeat .glow {
 }
 
 .rank-section:first-of-type {
+  margin-top: 0;
+}
+
+/* inside a tab pane the tab label is already the heading, so the section
+   sheds its own top rule and title */
+.rank-section--flush {
+  border-top: none;
+  padding-top: 0;
   margin-top: 0;
 }
 
