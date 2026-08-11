@@ -4,30 +4,205 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Work — Rex Walrond</title>
+<meta name="description" content="Healthcare-sector coverage from Fighting Irish Capital, plus personal quantitative projects.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topo-bg" aria-hidden="true"></div>
+<div class="topo-bg" aria-hidden="true">
+  <div class="ridges">
+    <svg class="ridge-layer ridge-layer--1" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,260 L120,210 240,235 360,180 480,220 600,160 720,200 840,150 960,195 1080,140 1200,185 1320,155 1440,190 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--2" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,300 L100,240 220,270 320,200 440,255 560,180 660,230 780,170 900,225 1000,160 1120,215 1220,175 1320,225 1440,195 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--3" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,340 L80,260 160,300 260,220 340,290 420,200 520,270 600,210 700,280 800,190 900,260 1000,215 1100,275 1200,205 1300,265 1400,230 1440,250 1440,400 0,400 Z"/></svg>
+  </div>
+  <div class="mist mist--a"></div>
+  <div class="mist mist--b"></div>
+  <div class="mist mist--c"></div>
+  <div class="glow"></div>
+</div>
 
-<main class="wrap">
+<main class="wrap wrap--wide">
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
-  <div class="page-head">
+  <div class="page-head" data-reveal>
     <span class="status-tag">Building</span>
     <h1>The Work</h1>
     <p>Stock pitches and analysis from Fighting Irish Capital, alongside personal quantitative projects — diet and sleep data pulled apart the way I'd pull apart a 10-K.</p>
   </div>
 
-  <div class="stub-body">
-    <p>This page is under construction. Planned content:</p>
-    <ul>
-      <li>Write-ups of healthcare-sector stock pitches: thesis, valuation, risks</li>
-      <li>Personal data projects — diet and sleep analysis, backtests, models</li>
-      <li>Charts and notebooks behind each project, not just conclusions</li>
-    </ul>
+  <p class="cov-disclaimer" data-reveal>Placeholder coverage sheet — the tickers, ratings, and figures below are structural examples for the design, not real FICF calls or investment advice.</p>
+
+  <section data-reveal>
+    <div class="cov-section-head">
+      <h2>Healthcare coverage</h2>
+      <span class="cov-meta">4 template slots</span>
+    </div>
+
+    <div class="cov-col-head" aria-hidden="true">
+      <span>Ticker</span><span>Sector</span><span>Rating</span><span>Thesis</span><span>Trend</span><span></span>
+    </div>
+
+    <div class="cov-list" id="covList">
+      <div class="cov-row">
+        <button type="button" class="cov-row-summary" aria-expanded="false">
+          <span class="cov-ticker">[A]</span>
+          <span class="cov-sector">Specialty Pharma</span>
+          <span class="cov-rating cov-rating--buy">Buy — sample</span>
+          <span class="cov-thesis-snip">One-line thesis goes here — replace with real coverage.</span>
+          <svg class="cov-spark" viewBox="0 0 64 24" preserveAspectRatio="none"><path d="M0,16 L8,10 16,14 24,6 32,12 40,4 48,10 56,7 64,11"/></svg>
+          <span class="cov-chevron">&#9660;</span>
+        </button>
+        <div class="cov-detail">
+          <div class="cov-detail-inner">
+            <div class="cov-detail-body">
+              <p>Placeholder thesis paragraph. This is where the real write-up goes: the setup, the catalyst, and why the market is mispricing it.</p>
+              <div class="cov-detail-grid">
+                <div><strong>Valuation</strong><span>Placeholder — e.g. multiple vs. peer set</span></div>
+                <div><strong>Risks</strong><span>Placeholder — e.g. pipeline or regulatory risk</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cov-row">
+        <button type="button" class="cov-row-summary" aria-expanded="false">
+          <span class="cov-ticker">[B]</span>
+          <span class="cov-sector">Medical Devices</span>
+          <span class="cov-rating cov-rating--watch">Watch — sample</span>
+          <span class="cov-thesis-snip">One-line thesis goes here — replace with real coverage.</span>
+          <svg class="cov-spark" viewBox="0 0 64 24" preserveAspectRatio="none"><path d="M0,10 L8,14 16,9 24,15 32,8 40,13 48,6 56,10 64,5"/></svg>
+          <span class="cov-chevron">&#9660;</span>
+        </button>
+        <div class="cov-detail">
+          <div class="cov-detail-inner">
+            <div class="cov-detail-body">
+              <p>Placeholder thesis paragraph. Sits here until a real device-sector write-up replaces it — unit economics, reimbursement path, adoption curve.</p>
+              <div class="cov-detail-grid">
+                <div><strong>Valuation</strong><span>Placeholder — e.g. EV/sales vs. growth</span></div>
+                <div><strong>Risks</strong><span>Placeholder — e.g. reimbursement change</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cov-row">
+        <button type="button" class="cov-row-summary" aria-expanded="false">
+          <span class="cov-ticker">[C]</span>
+          <span class="cov-sector">Healthcare Services</span>
+          <span class="cov-rating cov-rating--buy">Buy — sample</span>
+          <span class="cov-thesis-snip">One-line thesis goes here — replace with real coverage.</span>
+          <svg class="cov-spark" viewBox="0 0 64 24" preserveAspectRatio="none"><path d="M0,18 L8,15 16,16 24,11 32,13 40,7 48,9 56,4 64,6"/></svg>
+          <span class="cov-chevron">&#9660;</span>
+        </button>
+        <div class="cov-detail">
+          <div class="cov-detail-inner">
+            <div class="cov-detail-body">
+              <p>Placeholder thesis paragraph. Services roll-up logic, margin trajectory, and payer mix would live here in a real pitch.</p>
+              <div class="cov-detail-grid">
+                <div><strong>Valuation</strong><span>Placeholder — e.g. sum-of-parts</span></div>
+                <div><strong>Risks</strong><span>Placeholder — e.g. labor cost inflation</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cov-row">
+        <button type="button" class="cov-row-summary" aria-expanded="false">
+          <span class="cov-ticker">[D]</span>
+          <span class="cov-sector">Diagnostics &amp; Life Sciences Tools</span>
+          <span class="cov-rating cov-rating--watch">Watch — sample</span>
+          <span class="cov-thesis-snip">One-line thesis goes here — replace with real coverage.</span>
+          <svg class="cov-spark" viewBox="0 0 64 24" preserveAspectRatio="none"><path d="M0,8 L8,12 16,10 24,16 32,11 40,17 48,13 56,19 64,15"/></svg>
+          <span class="cov-chevron">&#9660;</span>
+        </button>
+        <div class="cov-detail">
+          <div class="cov-detail-inner">
+            <div class="cov-detail-body">
+              <p>Placeholder thesis paragraph. Testing volume trends, gross margin recovery, and capital allocation notes would go here.</p>
+              <div class="cov-detail-grid">
+                <div><strong>Valuation</strong><span>Placeholder — e.g. FCF yield</span></div>
+                <div><strong>Risks</strong><span>Placeholder — e.g. volume normalization</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
+    <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+      <path class="fill" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32 800,60 0,60 Z"/>
+      <path class="line" d="M0,45 L100,30 200,42 300,20 400,38 500,15 600,35 700,22 800,32"/>
+    </svg>
   </div>
+
+  <section data-reveal>
+    <div class="cov-section-head">
+      <h2>Personal projects</h2>
+      <span class="cov-meta">3 sample entries</span>
+    </div>
+
+    <div class="qp-cards">
+      <article class="qp-card">
+        <div class="qp-card-head">
+          <h3>Macros vs. Sleep Score</h3>
+          <span class="trip-tag">Sample</span>
+        </div>
+        <div class="qp-stats">
+          <span><strong>180 days</strong><small>sample</small></span>
+          <span><strong>R² 0.34</strong><small>fit</small></span>
+          <span><strong>30d</strong><small>rolling window</small></span>
+        </div>
+        <p class="qp-blurb">Placeholder. A regression of nightly macro intake against next-day sleep score, logged from The Log — real numbers once that page has a backend.</p>
+      </article>
+
+      <article class="qp-card">
+        <div class="qp-card-head">
+          <h3>Simple Momentum Screen</h3>
+          <span class="trip-tag">Sample</span>
+        </div>
+        <div class="qp-stats">
+          <span><strong>1.1</strong><small>sharpe</small></span>
+          <span><strong>50</strong><small>universe</small></span>
+          <span><strong>5y</strong><small>backtest window</small></span>
+        </div>
+        <p class="qp-blurb">Placeholder. A 12-1 month momentum screen backtested against a healthcare-sector universe, with the usual survivorship-bias caveats.</p>
+      </article>
+
+      <article class="qp-card">
+        <div class="qp-card-head">
+          <h3>FICF Sector Rotation Model</h3>
+          <span class="trip-tag">Sample</span>
+        </div>
+        <div class="qp-stats">
+          <span><strong>58%</strong><small>hit rate</small></span>
+          <span><strong>Monthly</strong><small>rebalance</small></span>
+          <span><strong>12mo</strong><small>lookback</small></span>
+        </div>
+        <p class="qp-blurb">Placeholder. A signal for rotating healthcare sub-sector weight based on relative strength — notebook and charts to come.</p>
+      </article>
+    </div>
+  </section>
 </main>
+
+<script src="assets/reveal.js"></script>
+<script src="assets/parallax.js"></script>
+<script>
+(function () {
+  "use strict";
+  document.querySelectorAll(".cov-row-summary").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var row = btn.closest(".cov-row");
+      var open = row.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+})();
+</script>
 
 </body>
 </html>

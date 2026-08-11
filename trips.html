@@ -4,32 +4,250 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Field Notes — Rex Walrond</title>
+<meta name="description" content="Trip reports from backpacking routes and dive sites — conditions, gear, and whether it's worth the trip.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topo-bg" aria-hidden="true"></div>
+<div class="topo-bg" aria-hidden="true">
+  <div class="ridges">
+    <svg class="ridge-layer ridge-layer--1" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,260 L120,210 240,235 360,180 480,220 600,160 720,200 840,150 960,195 1080,140 1200,185 1320,155 1440,190 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--2" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,300 L100,240 220,270 320,200 440,255 560,180 660,230 780,170 900,225 1000,160 1120,215 1220,175 1320,225 1440,195 1440,400 0,400 Z"/></svg>
+    <svg class="ridge-layer ridge-layer--3" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,340 L80,260 160,300 260,220 340,290 420,200 520,270 600,210 700,280 800,190 900,260 1000,215 1100,275 1200,205 1300,265 1400,230 1440,250 1440,400 0,400 Z"/></svg>
+  </div>
+  <div class="mist mist--a"></div>
+  <div class="mist mist--b"></div>
+  <div class="mist mist--c"></div>
+  <div class="glow"></div>
+</div>
 
 <main class="wrap">
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
-  <div class="page-head">
+  <div class="page-head" data-reveal>
     <span class="status-tag">Building</span>
     <h1>Field Notes</h1>
     <p>Trip reports and reviews from backpacking routes and dive sites — route conditions, gear that earned its weight, and whether a spot actually lives up to the photos.</p>
   </div>
 
-  <div class="stub-body">
-    <p>This page is under construction. It'll eventually hold write-ups organized by trip, each with:</p>
-    <ul>
-      <li>Route or dive site name, location, and difficulty</li>
-      <li>Conditions — weather, trail state, visibility, water temp</li>
-      <li>Gear notes: what earned its spot in the pack, what didn't</li>
-      <li>An honest rating and whether it's worth the trip</li>
-      <li>Photos from the field</li>
-    </ul>
+  <div class="trip-toggle" data-scene="mountain" role="tablist" aria-label="Trip category" data-reveal>
+    <span class="trip-toggle-thumb" aria-hidden="true"></span>
+    <button type="button" class="trip-toggle-btn is-active" data-scene-btn="mountain" role="tab" aria-selected="true">Mountains</button>
+    <button type="button" class="trip-toggle-btn" data-scene-btn="dive" role="tab" aria-selected="false">Dive</button>
+  </div>
+
+  <div class="trip-stage" data-scene="mountain" data-reveal>
+    <div class="trip-stage-bg" aria-hidden="true"></div>
+
+    <div class="trip-panel trip-panel--mountain" role="tabpanel" aria-label="Mountains">
+      <svg class="trip-motif" viewBox="0 0 132 132" aria-hidden="true">
+        <path class="m-line" d="M66,50 L78,54 L82,66 L74,78 L60,80 L50,70 L52,56 Z"/>
+        <path class="m-line" d="M66,34 L90,42 L96,66 L84,90 L58,96 L36,82 L34,54 L48,36 Z"/>
+        <path class="m-line" d="M66,16 L100,28 L116,60 L104,98 L70,116 L34,108 L14,76 L18,40 L40,18 Z"/>
+      </svg>
+
+      <p class="trip-section-label">Backpacking &amp; mountaineering</p>
+
+      <div class="trip-cards">
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Four Pass Loop</h3>
+            <span class="trip-tag">Write-up pending</span>
+          </div>
+          <p class="trip-loc">Maroon Bells–Snowmass Wilderness, CO</p>
+          <div class="trip-stats">
+            <span><strong>8,050 ft</strong><small>gain</small></span>
+            <span><strong>27.5 mi</strong><small>distance</small></span>
+            <span><strong>Strenuous</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Four passes over 12,400 ft in one loop — permit logistics, altitude, and which direction around actually goes here.</p>
+          <p class="trip-conditions">Conditions — afternoon thunderstorm risk above treeline, high-altitude passes, permit zone</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Mt Rainier, Disappointment Cleaver</h3>
+            <span class="trip-tag trip-tag--summited">Summited</span>
+          </div>
+          <p class="trip-loc">Mount Rainier NP, WA</p>
+          <div class="trip-stats">
+            <span><strong>9,000 ft</strong><small>gain</small></span>
+            <span><strong>16 mi</strong><small>distance</small></span>
+            <span><strong>Glaciated</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Camp Muir, the Cleaver, and what it actually takes to stand on the crater rim before the glacier softens.</p>
+          <p class="trip-conditions">Conditions — glacier travel, crevasse hazard, pre-dawn summit push</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Half Dome</h3>
+            <span class="trip-tag">Write-up pending</span>
+          </div>
+          <p class="trip-loc">Yosemite NP, CA</p>
+          <div class="trip-stats">
+            <span><strong>4,800 ft</strong><small>gain</small></span>
+            <span><strong>14.2 mi</strong><small>distance</small></span>
+            <span><strong>Strenuous</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. The cables permit lottery, and whether the sub-dome switchbacks or the final pitch is the real crux.</p>
+          <p class="trip-conditions">Conditions — cables permit required, exposed granite, afternoon storm risk</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Grand Teton, Owen–Spalding</h3>
+            <span class="trip-tag">Write-up pending</span>
+          </div>
+          <p class="trip-loc">Grand Teton NP, WY</p>
+          <div class="trip-stats">
+            <span><strong>7,000 ft</strong><small>gain</small></span>
+            <span><strong>13 mi</strong><small>distance</small></span>
+            <span><strong>Technical</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. High camp at the Lower Saddle, the Crawl, and the exposure on the rappel down — this is where the real notes go.</p>
+          <p class="trip-conditions">Conditions — technical climbing, exposed rappel, narrow weather window</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Highline Trail</h3>
+            <span class="trip-tag">Write-up pending</span>
+          </div>
+          <p class="trip-loc">Glacier NP, MT</p>
+          <div class="trip-stats">
+            <span><strong>2,020 ft</strong><small>gain</small></span>
+            <span><strong>11.8 mi</strong><small>distance</small></span>
+            <span><strong>Moderate</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. The Garden Wall traverse, wildlife encounters, and whether the ledge is really as exposed as the photos make it look.</p>
+          <p class="trip-conditions">Conditions — cliff-edge traverse, grizzly country, Logan Pass shuttle logistics</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Mt Whitney, Main Trail</h3>
+            <span class="trip-tag trip-tag--summited">Summited</span>
+          </div>
+          <p class="trip-loc">Sequoia NP, CA</p>
+          <div class="trip-stats">
+            <span><strong>6,100 ft</strong><small>gain</small></span>
+            <span><strong>22 mi</strong><small>distance</small></span>
+            <span><strong>Strenuous</strong><small>difficulty</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Highest point in the contiguous US — permit odds, altitude, and whether to push it as one long day or split it.</p>
+          <p class="trip-conditions">Conditions — permit lottery, high altitude, long single-push option</p>
+        </article>
+      </div>
+
+      <p class="trip-note">Locations are real, write-ups aren't yet — this panel is a structure waiting on real trip reports.</p>
+    </div>
+
+    <div class="trip-panel trip-panel--dive" role="tabpanel" aria-label="Dive" aria-hidden="true">
+      <svg class="trip-motif" viewBox="0 0 132 132" aria-hidden="true">
+        <circle class="m-line" cx="66" cy="66" r="20"/>
+        <circle class="m-line" cx="66" cy="66" r="36"/>
+        <circle class="m-line" cx="66" cy="66" r="52"/>
+        <circle class="m-line" cx="66" cy="66" r="64"/>
+        <line class="m-line" x1="66" y1="2" x2="66" y2="14"/>
+        <line class="m-line" x1="66" y1="118" x2="66" y2="130"/>
+        <line class="m-line" x1="2" y1="66" x2="14" y2="66"/>
+        <line class="m-line" x1="118" y1="66" x2="130" y2="66"/>
+      </svg>
+
+      <div class="bubble" style="left:8%; width:5px; height:5px; animation-duration:9s; animation-delay:0s;"></div>
+      <div class="bubble" style="left:19%; width:8px; height:8px; animation-duration:12s; animation-delay:2.4s;"></div>
+      <div class="bubble" style="left:31%; width:4px; height:4px; animation-duration:7.5s; animation-delay:5s;"></div>
+      <div class="bubble" style="left:44%; width:6px; height:6px; animation-duration:10.5s; animation-delay:1.2s;"></div>
+      <div class="bubble" style="left:57%; width:5px; height:5px; animation-duration:8.5s; animation-delay:6.5s;"></div>
+      <div class="bubble" style="left:69%; width:7px; height:7px; animation-duration:11.5s; animation-delay:3.6s;"></div>
+      <div class="bubble" style="left:81%; width:4px; height:4px; animation-duration:9.5s; animation-delay:7.8s;"></div>
+      <div class="bubble" style="left:92%; width:6px; height:6px; animation-duration:13s; animation-delay:0.8s;"></div>
+
+      <p class="trip-section-label">Scuba diving</p>
+
+      <div class="trip-cards">
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>USS Spiegel Grove</h3>
+            <span class="trip-tag">Sample</span>
+          </div>
+          <p class="trip-loc">Key Largo, FL</p>
+          <div class="trip-stats">
+            <span><strong>130 ft</strong><small>max depth</small></span>
+            <span><strong>28 min</strong><small>bottom time</small></span>
+            <span><strong>79°F</strong><small>water temp</small></span>
+            <span><strong>60 ft</strong><small>visibility</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Wreck penetration notes, current at depth, and whether the deco stops were worth planning around.</p>
+          <p class="trip-conditions">Conditions — moderate current, wreck interior, deco dive</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Blue Corner</h3>
+            <span class="trip-tag">Sample</span>
+          </div>
+          <p class="trip-loc">Palau</p>
+          <div class="trip-stats">
+            <span><strong>90 ft</strong><small>max depth</small></span>
+            <span><strong>45 min</strong><small>bottom time</small></span>
+            <span><strong>82°F</strong><small>water temp</small></span>
+            <span><strong>100 ft</strong><small>visibility</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Reef hook technique, what actually showed up in the blue, and drift-dive logistics with the boat.</p>
+          <p class="trip-conditions">Conditions — strong drift, reef hook required, big pelagics</p>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-card-head">
+            <h3>Devil's Den</h3>
+            <span class="trip-tag">Sample</span>
+          </div>
+          <p class="trip-loc">Williston, FL</p>
+          <div class="trip-stats">
+            <span><strong>55 ft</strong><small>max depth</small></span>
+            <span><strong>40 min</strong><small>bottom time</small></span>
+            <span><strong>72°F</strong><small>water temp</small></span>
+            <span><strong>80 ft</strong><small>visibility</small></span>
+          </div>
+          <p class="trip-blurb">Placeholder write-up. Cavern entry, thermocline layers, and whether the fossil-strewn floor is as good as the photos suggest.</p>
+          <p class="trip-conditions">Conditions — spring-fed, clear, cavern light beams</p>
+        </article>
+      </div>
+
+      <p class="trip-note">Sample entries — this panel is a structure waiting on real trip write-ups, not a finished log.</p>
+    </div>
   </div>
 </main>
+
+<script src="assets/reveal.js"></script>
+<script src="assets/parallax.js"></script>
+<script>
+(function () {
+  "use strict";
+  var toggle = document.querySelector(".trip-toggle");
+  var stage = document.querySelector(".trip-stage");
+  var btns = document.querySelectorAll(".trip-toggle-btn");
+  var mountainPanel = document.querySelector(".trip-panel--mountain");
+  var divePanel = document.querySelector(".trip-panel--dive");
+
+  btns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var scene = btn.getAttribute("data-scene-btn");
+      toggle.setAttribute("data-scene", scene);
+      stage.setAttribute("data-scene", scene);
+      btns.forEach(function (b) {
+        var active = b === btn;
+        b.classList.toggle("is-active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      mountainPanel.setAttribute("aria-hidden", scene === "dive" ? "true" : "false");
+      divePanel.setAttribute("aria-hidden", scene === "dive" ? "false" : "true");
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
