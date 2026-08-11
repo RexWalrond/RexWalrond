@@ -30,25 +30,19 @@
     <p>The same instinct that goes into ranking a stock, pointed at a discography instead. Drag a row, jump straight to a rank, or nudge with the arrows — the list below is mine, and it's built to keep moving.</p>
   </div>
 
-  <section class="listen-strip" data-reveal aria-label="Listening summary">
-    <div class="listen-stat">
-      <strong id="lsHours">—</strong>
-      <small>hours listened</small>
-    </div>
-    <div class="listen-stat">
-      <strong id="lsArtists">—</strong>
-      <small>artists</small>
-    </div>
-    <div class="listen-stat">
-      <strong id="lsTracks">—</strong>
-      <small>distinct tracks</small>
-    </div>
-    <div class="listen-stat listen-stat--accent">
-      <strong id="lsZb">—</strong>
-      <small>of it Zach Bryan</small>
-    </div>
-    <p class="listen-window" id="lsWindow"></p>
-  </section>
+  <nav class="tabbar" role="tablist" aria-label="Sections" data-tab="ranking" data-reveal>
+    <button type="button" class="tabbar-btn is-active" data-tab-btn="ranking" role="tab" aria-selected="true" aria-controls="tabRanking">
+      <span class="tabbar-label">Zach Bryan, ranked</span>
+      <span class="tabbar-meta" id="tabRankCount">—</span>
+    </button>
+    <button type="button" class="tabbar-btn" data-tab-btn="listening" role="tab" aria-selected="false" aria-controls="tabListening">
+      <span class="tabbar-label">Listening history</span>
+      <span class="tabbar-meta" id="tabListenMeta">—</span>
+    </button>
+    <span class="tabbar-ink" aria-hidden="true"></span>
+  </nav>
+
+  <div class="tabpane" id="tabRanking" role="tabpanel" aria-label="Zach Bryan ranking">
 
   <section class="pick-hero" aria-live="polite" data-reveal>
     <div class="pick-art-wrap">
@@ -61,14 +55,10 @@
     </div>
   </section>
 
-  <section class="rank-section" data-reveal>
-    <div class="rank-section-head">
-      <h2>Zach Bryan, ranked</h2>
-      <span class="rank-meta-count" id="rankCount">127 tracks</span>
-    </div>
-
+  <section class="rank-section rank-section--flush" data-reveal>
     <div class="rank-controls-bar">
       <input type="text" class="rank-search" id="rankSearch" placeholder="Search tracks or albums…" autocomplete="off">
+      <span class="rank-meta-count" id="rankCount">247 tracks</span>
       <div class="rank-seg" role="group" aria-label="Filter tracks">
         <button type="button" class="is-active" data-filter="all">All</button>
         <button type="button" data-filter="studio">Studio</button>
@@ -116,19 +106,36 @@
     <p class="rank-storage-note" id="rankStorageNote">Loading the live ranking…</p>
   </section>
 
-  <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
-    <svg viewBox="0 0 800 60" preserveAspectRatio="none">
-      <path class="fill" d="M0,42 L100,36 200,40 300,30 400,38 500,26 600,36 700,30 800,34 800,60 0,60 Z"/>
-      <path class="line" d="M0,42 L100,36 200,40 300,30 400,38 500,26 600,36 700,30 800,34"/>
-    </svg>
-  </div>
+  </div><!-- /tabRanking -->
 
-  <section class="rank-section" style="border-top:none; padding-top:0; margin-top:0;" data-reveal>
+  <div class="tabpane" id="tabListening" role="tabpanel" aria-label="Listening history" hidden>
+
+  <section class="listen-strip" aria-label="Listening summary">
+    <div class="listen-stat">
+      <strong id="lsHours">—</strong>
+      <small>hours listened</small>
+    </div>
+    <div class="listen-stat">
+      <strong id="lsArtists">—</strong>
+      <small>artists</small>
+    </div>
+    <div class="listen-stat">
+      <strong id="lsTracks">—</strong>
+      <small>distinct tracks</small>
+    </div>
+    <div class="listen-stat listen-stat--accent">
+      <strong id="lsZb">—</strong>
+      <small>of it Zach Bryan</small>
+    </div>
+    <p class="listen-window" id="lsWindow"></p>
+  </section>
+
+  <section class="rank-section" style="border-top:none; padding-top:26px; margin-top:0;">
     <div class="rank-section-head">
       <h2>Everything else</h2>
       <span class="rank-meta-count" id="rotaMeta"></span>
     </div>
-    <p class="rota-lede">Zach Bryan is about a sixth of what actually gets played. This is the other five-sixths — counted straight off my own listening history, no editorializing.</p>
+    <p class="rota-lede">Zach Bryan is about a sixth of what actually gets played. This is the rest of it — counted straight off my own listening history, no editorializing.</p>
 
     <div class="rota-toggle" data-scene="artists" role="tablist" aria-label="Top artists or tracks">
       <span class="rota-toggle-thumb" aria-hidden="true"></span>
@@ -147,6 +154,8 @@
 
     <p class="rank-storage-note" id="rotaNote"></p>
   </section>
+
+  </div><!-- /tabListening -->
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -468,8 +477,8 @@
     },
     {
       "name": "beabadoobee",
-      "minutes": 722,
-      "plays": 284,
+      "minutes": 649,
+      "plays": 247,
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/78/fa/f7/78faf7a9-97c0-5aa7-df1e-547da9703178/196922946356_Cover.jpg/400x400bb.jpg"
     },
     {
@@ -479,28 +488,10 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/84/cb/c7/84cbc7b4-0b88-038a-87c8-3fa6f5df09cd/199350437694.jpg/400x400bb.jpg"
     },
     {
-      "name": "khai dreams",
-      "minutes": 519,
-      "plays": 227,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/78/ec/c1/78ecc173-093d-2a32-ac69-7914d00bd4a5/192378576802_1.jpg/400x400bb.jpg"
-    },
-    {
       "name": "Bright Eyes",
-      "minutes": 504,
-      "plays": 144,
+      "minutes": 450,
+      "plays": 123,
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/0d/83/fd/0d83fd2e-1cb5-7965-b392-f91f80188290/508.jpg/400x400bb.jpg"
-    },
-    {
-      "name": "Clairo",
-      "minutes": 464,
-      "plays": 165,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f2/47/06/f24706bc-a90c-f730-bd8a-586ddde8af3e/829299184631.jpg/400x400bb.jpg"
-    },
-    {
-      "name": "atlas",
-      "minutes": 447,
-      "plays": 201,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f7/20/e7/f720e755-fe64-a306-78f0-fbbe1346a296/13UAAIM83462.rgb.jpg/400x400bb.jpg"
     },
     {
       "name": "The Long Faces",
@@ -519,30 +510,34 @@
       "minutes": 339,
       "plays": 104,
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/3c/1e/ac/3c1eac17-35cc-90f3-fe8e-9f50ac456d33/193436413701_HILLSANDHOLLERS.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "hey, nothing",
+      "minutes": 311,
+      "plays": 79,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/19/ab/0d/19ab0daf-c525-75b8-b841-5d126faba95e/25UMGIM40064.rgb.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Ole 60",
+      "minutes": 290,
+      "plays": 80,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4b/71/13/4b711305-0d7c-343c-f5fb-1075804156b7/659459517333.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Faye Webster",
+      "minutes": 285,
+      "plays": 104,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/10/e1/3f/10e13f32-7d89-4092-ec35-fc6f6e19a291/656605041261.jpg/400x400bb.jpg"
     }
   ];
 
   var TOP_TRACKS = [
-    {
-      "name": "Bubble Gum",
-      "artist": "Clairo",
-      "plays": 150,
-      "minutes": 425,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/9b/f8/54/9bf854d7-cfec-6e5e-d42f-97a77fd358bb/5059033334878_cover.jpg/400x400bb.jpg"
-    },
     {
       "name": "Jane!",
       "artist": "The Long Faces",
       "plays": 144,
       "minutes": 434,
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5d/9e/05/5d9e0523-b030-a338-97e1-03d300855092/840091606282_Cover.jpg/400x400bb.jpg"
-    },
-    {
-      "name": "Apostate Of Hate | Gabriel's Sanctuary (ULTRAKILL FAN PROJECT)",
-      "artist": "ArcanedOne",
-      "plays": 123,
-      "minutes": 294,
-      "art": null
     },
     {
       "name": "Promise",
@@ -559,25 +554,11 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/f8/20/18f82045-d853-08ad-75bb-94446b96a15d/199738627488.jpg/400x400bb.jpg"
     },
     {
-      "name": "valentine (prod. flavors)",
-      "artist": "atlas",
-      "plays": 91,
-      "minutes": 183,
-      "art": null
-    },
-    {
       "name": "Come Home",
       "artist": "Jace June",
       "plays": 88,
       "minutes": 215,
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b4/35/38/b4353849-493f-cbaa-266f-45429526b181/608926.jpg/400x400bb.jpg"
-    },
-    {
-      "name": "Solo",
-      "artist": "Samsa",
-      "plays": 79,
-      "minutes": 236,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/cc/83/02/cc830256-bc38-7d23-7e6f-331054d08b90/8445162624657.jpg/400x400bb.jpg"
     },
     {
       "name": "Rose",
@@ -587,13 +568,6 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4b/71/13/4b711305-0d7c-343c-f5fb-1075804156b7/659459517333.jpg/400x400bb.jpg"
     },
     {
-      "name": "Ultimately",
-      "artist": "Dream Easy Collective",
-      "plays": 77,
-      "minutes": 171,
-      "art": null
-    },
-    {
       "name": "Maine",
       "artist": "hey, nothing",
       "plays": 76,
@@ -601,15 +575,50 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/19/ab/0d/19ab0daf-c525-75b8-b841-5d126faba95e/25UMGIM40064.rgb.jpg/400x400bb.jpg"
     },
     {
-      "name": "you're my world",
-      "artist": "atlas",
-      "plays": 71,
-      "minutes": 170,
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/da/80/67/da80675b-dc98-4707-70d3-0719b23cfd09/478.jpg/400x400bb.jpg"
+      "name": "505",
+      "artist": "Arctic Monkeys",
+      "plays": 68,
+      "minutes": 251,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/82/90/14/829014ad-a301-62ab-bee6-f4cca4457411/mzi.hozudery.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Bubblegum Bitch / We Fell Apart - Hardstyle",
+      "artist": "BAKI",
+      "plays": 67,
+      "minutes": 97,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/83/42/e3/8342e33a-e2fc-b1b5-5ab6-da7eca1471d2/5063535372733_cover.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "A Quick One Before the Eternal Worm Devours Appalachia",
+      "artist": "Lizard in the Spring",
+      "plays": 67,
+      "minutes": 346,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/33/f6/81/33f6814a-b588-4262-d5d4-fae0cb202b70/artwork.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Sweater Weather",
+      "artist": "The Neighbourhood",
+      "plays": 66,
+      "minutes": 219,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/28/71/00/287100fb-5c31-0195-5343-e6b3625886d0/886443969834.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Cowpoke",
+      "artist": "Isaiah Sheffield",
+      "plays": 62,
+      "minutes": 86,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/d3/c5/fb/d3c5fb68-f239-f8e5-8a9f-2016a8f9a35d/artwork.jpg/400x400bb.jpg"
+    },
+    {
+      "name": "Peppermint Smiles",
+      "artist": "tiffi",
+      "plays": 61,
+      "minutes": 182,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/87/6d/5d/876d5dd4-edd3-051b-e66a-203d5dab4cc5/78045.jpg/400x400bb.jpg"
     }
   ];
 
-  var LISTEN_SUMMARY = {"first": "2025-06-09", "last": "2026-08-08", "totalHours": 701, "zbHours": 105, "zbPct": 15.0, "artistCount": 1103, "trackCount": 2231};
+  var LISTEN_SUMMARY = {"first": "2025-06-09", "last": "2026-08-08", "totalHours": 623, "zbHours": 105, "zbPct": 16.9, "artistCount": 1071, "trackCount": 2147};
 
   // ---- canonical-ranking backend ------------------------------------------
   // The ranking is meant to be a single source of truth that only Rex can
@@ -881,6 +890,8 @@
     listEl.innerHTML = html;
     emptyEl.style.display = visibleCount === 0 ? "block" : "none";
     countEl.textContent = total + " track" + (total === 1 ? "" : "s") + (isFiltering() ? " · " + visibleCount + " shown" : "");
+    var trc = document.getElementById("tabRankCount");
+    if (trc) trc.textContent = total + " tracks, ranked";
     filterNoteEl.textContent = isFiltering() ? "Clear the search and filters to reorder — drag, arrows, and rank jumps only work on the full list." : "";
 
     if (prevRects) playFlip(prevRects);
@@ -1232,7 +1243,14 @@
       "Artists are ranked by total listening time, tracks by play count — so a long " +
       "record and a short one on repeat get judged on their own terms.";
 
-    // let the bars grow in once laid out
+    var lm = document.getElementById("tabListenMeta");
+    if (lm) lm.textContent = LISTEN_SUMMARY.totalHours.toLocaleString("en-US") + " hrs · " +
+                             LISTEN_SUMMARY.artistCount.toLocaleString("en-US") + " artists";
+  }
+
+  // Bars can only be measured once their pane is actually visible, so this
+  // runs on tab-in rather than at render time.
+  function growBars() {
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         Array.prototype.forEach.call(document.querySelectorAll(".rota-bar"), function (b) {
@@ -1241,6 +1259,55 @@
       });
     });
   }
+
+  // ----------------------------- primary tabs -----------------------------
+
+  var tabbar = document.querySelector(".tabbar");
+  var tabInk = document.querySelector(".tabbar-ink");
+  var tabBtns = document.querySelectorAll(".tabbar-btn");
+  var panes = { ranking: document.getElementById("tabRanking"),
+                listening: document.getElementById("tabListening") };
+
+  function moveInk() {
+    var active = document.querySelector(".tabbar-btn.is-active");
+    if (!active || !tabInk) return;
+    tabInk.style.setProperty("--ink-x", active.offsetLeft + "px");
+    tabInk.style.setProperty("--ink-w", active.offsetWidth + "px");
+  }
+
+  function selectTab(name, focus) {
+    tabbar.setAttribute("data-tab", name);
+    Array.prototype.forEach.call(tabBtns, function (b) {
+      var on = b.getAttribute("data-tab-btn") === name;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      if (on && focus) b.focus();
+    });
+    Object.keys(panes).forEach(function (k) {
+      if (panes[k]) panes[k].hidden = (k !== name);
+    });
+    moveInk();
+    if (name === "listening") growBars();
+    try { history.replaceState(null, "", "#" + name); } catch (e) {}
+  }
+
+  Array.prototype.forEach.call(tabBtns, function (btn) {
+    btn.addEventListener("click", function () {
+      selectTab(btn.getAttribute("data-tab-btn"), false);
+    });
+    btn.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      var names = ["ranking", "listening"];
+      var i = names.indexOf(btn.getAttribute("data-tab-btn"));
+      selectTab(names[(i + (e.key === "ArrowRight" ? 1 : -1) + names.length) % names.length], true);
+    });
+  });
+
+  window.addEventListener("resize", moveInk);
+  window.addEventListener("load", moveInk);
+  // the display webfont reflows the tab labels, so re-measure once it lands
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInk);
 
   Array.prototype.forEach.call(document.querySelectorAll(".rota-toggle-btn"), function (btn) {
     btn.addEventListener("click", function () {
@@ -1259,6 +1326,7 @@
 
   renderSummary();
   renderRotation();
+  selectTab(window.location.hash === "#listening" ? "listening" : "ranking", false);
   boot();
 })();
 </script>

@@ -1129,6 +1129,93 @@ footer .dot { color: var(--ink-faint); }
   .log-date { flex-basis: 46px; font-size: 11px; }
 }
 
+/* ====================== On Repeat: primary tab bar ====================== */
+/* Two top-level sections. Deliberately an underline/ink-bar treatment
+   rather than another pill, so it reads as a level above the pill
+   toggles nested inside each pane. */
+
+.tabbar {
+  position: relative;
+  display: flex;
+  gap: 34px;
+  border-bottom: 1px solid var(--line);
+  margin: 6px 0 0;
+}
+
+.tabbar-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  background: none;
+  border: none;
+  padding: 4px 0 16px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink-faint);
+  transition: color 0.25s ease;
+}
+
+.tabbar-btn:hover { color: var(--ink-soft); }
+.tabbar-btn.is-active { color: var(--ink); }
+
+.tabbar-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.tabbar-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(19px, 2.6vw, 24px);
+  line-height: 1.1;
+  color: inherit;
+}
+
+.tabbar-meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* sliding ink bar; JS sets --ink-x / --ink-w from the active button */
+.tabbar-ink {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ember);
+  transform: translateX(var(--ink-x, 0));
+  width: var(--ink-w, 0);
+  transition: transform 0.42s cubic-bezier(.65,0,.35,1), width 0.42s cubic-bezier(.65,0,.35,1);
+}
+
+.tabbar[data-tab="listening"] .tabbar-ink { background: var(--blue); }
+
+.tabpane { animation: tab-in 0.4s cubic-bezier(.2,.7,.3,1); }
+
+@keyframes tab-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar-ink, .tabbar-btn { transition: none; }
+  .tabpane { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .tabbar { gap: 20px; }
+  .tabbar-label { font-size: 17px; }
+  .tabbar-meta { font-size: 9.5px; letter-spacing: 0.06em; }
+}
+
 /* ==================== On Repeat: listening snapshot ==================== */
 /* A hairline stat strip under the page head — real counts pulled from the
    Spotify export, not decoration. Tabular numerals so the row reads as data. */
@@ -1438,6 +1525,14 @@ body.mood-repeat .glow {
 }
 
 .rank-section:first-of-type {
+  margin-top: 0;
+}
+
+/* inside a tab pane the tab label is already the heading, so the section
+   sheds its own top rule and title */
+.rank-section--flush {
+  border-top: none;
+  padding-top: 0;
   margin-top: 0;
 }
 
