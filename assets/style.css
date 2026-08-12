@@ -791,9 +791,12 @@ footer .dot { color: var(--ink-faint); }
 }
 
 .site-row:hover {
-  background: rgba(60, 90, 115, 0.05);
+  background: rgba(30, 43, 38, 0.045);
   padding-left: 12px;
 }
+
+.trip-panel--dive .site-row:hover { background: rgba(60, 90, 115, 0.05); }
+.trip-panel--ski .site-row:hover { background: rgba(47, 92, 74, 0.05); }
 
 @media (prefers-reduced-motion: reduce) {
   .site-row { transition: none; }
@@ -847,9 +850,13 @@ footer .dot { color: var(--ink-faint); }
   top: 0.45em;
   width: 7px;
   height: 7px;
-  border: 1px solid var(--blue);
+  border: 1px solid var(--ember);
   border-radius: 50%;
 }
+
+/* the marker follows the panel's accent, same as the type badge */
+.trip-panel--dive .site-group--wish .site-name::before { border-color: var(--blue); }
+.trip-panel--ski .site-group--wish .site-name::before { border-color: var(--pine); }
 
 .site-group--wish .site-type { color: var(--ink-soft); }
 
