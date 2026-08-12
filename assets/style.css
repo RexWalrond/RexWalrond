@@ -699,11 +699,140 @@ footer .dot { color: var(--ink-faint); }
   color: var(--ink-faint);
 }
 
+/* ---------------------------- dive site lists ---------------------------- */
+/* Two groups (logged / wishlist) as compact hairline rows rather than full
+   cards — there are no per-dive stats yet, so a list reads honestly where a
+   card would look like it's withholding something. */
+
+.dive-group { margin-bottom: 40px; }
+.dive-group:last-of-type { margin-bottom: 0; }
+
+.dive-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+}
+
+.dive-group-head h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 21px;
+  margin: 0;
+  color: var(--ink);
+}
+
+.dive-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.dive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dive-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 6px;
+  margin: 0 -6px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.18s ease, padding-left 0.18s ease;
+}
+
+.dive-row:hover {
+  background: rgba(60, 90, 115, 0.05);
+  padding-left: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dive-row { transition: none; }
+  .dive-row:hover { padding-left: 6px; }
+}
+
+.dive-name {
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--ink);
+}
+
+.dive-loc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.dive-type {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--blue);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 3px 7px;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+/* The wishlist reads as intent, not record. Distinguish it by weight and a
+   hollow marker rather than by fading the text — these rows scroll over the
+   darker ridge art, where low-contrast type stops being legible. */
+.dive-group--wish .dive-name {
+  font-weight: 500;
+  color: var(--ink);
+  position: relative;
+  padding-left: 16px;
+}
+
+.dive-group--wish .dive-name::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--blue);
+  border-radius: 50%;
+}
+
+.dive-group--wish .dive-type { color: var(--ink-soft); }
+
+.dive-note {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  max-width: 58ch;
+  margin: 16px 0 0;
+}
+
+@media (max-width: 640px) {
+  .dive-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 4px;
+  }
+  .dive-name { grid-column: 1; }
+  .dive-type { grid-column: 2; grid-row: 1; }
+  .dive-loc { grid-column: 1 / -1; }
+}
+
 .trip-note {
   margin-top: 28px;
   font-family: var(--font-mono);
   font-size: 10.5px;
-  color: var(--ink-faint);
+  color: var(--ink-soft);
   line-height: 1.7;
   max-width: 56ch;
 }
