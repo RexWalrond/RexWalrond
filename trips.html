@@ -34,6 +34,7 @@
     <span class="trip-toggle-thumb" aria-hidden="true"></span>
     <button type="button" class="trip-toggle-btn is-active" data-scene-btn="mountain" role="tab" aria-selected="true">Backcountry</button>
     <button type="button" class="trip-toggle-btn" data-scene-btn="dive" role="tab" aria-selected="false">Dive</button>
+    <button type="button" class="trip-toggle-btn" data-scene-btn="ski" role="tab" aria-selected="false">Ski</button>
   </div>
 
   <div class="trip-stage" data-scene="mountain" data-reveal>
@@ -162,97 +163,160 @@
 
       <p class="trip-section-label">Scuba diving</p>
 
-      <div class="dive-group">
-        <div class="dive-group-head">
+      <div class="site-group">
+        <div class="site-group-head">
           <h3>Logged</h3>
-          <span class="dive-count">8 sites</span>
+          <span class="site-count">8 sites</span>
         </div>
-        <ul class="dive-list">
-          <li class="dive-row">
-            <span class="dive-name">Devil&rsquo;s Den</span>
-            <span class="dive-loc">Williston, FL</span>
-            <span class="dive-type">Spring &middot; cavern</span>
+        <ul class="site-list">
+          <li class="site-row">
+            <span class="site-name">Devil&rsquo;s Den</span>
+            <span class="site-loc">Williston, FL</span>
+            <span class="site-type">Spring &middot; cavern</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Blue Grotto</span>
-            <span class="dive-loc">Williston, FL</span>
-            <span class="dive-type">Spring &middot; cavern</span>
+          <li class="site-row">
+            <span class="site-name">Blue Grotto</span>
+            <span class="site-loc">Williston, FL</span>
+            <span class="site-type">Spring &middot; cavern</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Ginnie Springs</span>
-            <span class="dive-loc">High Springs, FL</span>
-            <span class="dive-type">Spring &middot; cavern system</span>
+          <li class="site-row">
+            <span class="site-name">Ginnie Springs</span>
+            <span class="site-loc">High Springs, FL</span>
+            <span class="site-type">Spring &middot; cavern system</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Troy Spring</span>
-            <span class="dive-loc">Branford, FL</span>
-            <span class="dive-type">Spring &middot; Suwannee River</span>
+          <li class="site-row">
+            <span class="site-name">Troy Spring</span>
+            <span class="site-loc">Branford, FL</span>
+            <span class="site-type">Spring &middot; Suwannee River</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Royal Spring</span>
-            <span class="dive-loc">Live Oak, FL</span>
-            <span class="dive-type">Spring &middot; Suwannee River</span>
+          <li class="site-row">
+            <span class="site-name">Royal Spring</span>
+            <span class="site-loc">Live Oak, FL</span>
+            <span class="site-type">Spring &middot; Suwannee River</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Paradise Spring</span>
-            <span class="dive-loc">Ocala, FL</span>
-            <span class="dive-type">Spring &middot; cavern</span>
+          <li class="site-row">
+            <span class="site-name">Paradise Spring</span>
+            <span class="site-loc">Ocala, FL</span>
+            <span class="site-type">Spring &middot; cavern</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Hudson Grotto</span>
-            <span class="dive-loc">Hudson, FL</span>
-            <span class="dive-type">Spring &middot; cavern</span>
+          <li class="site-row">
+            <span class="site-name">Hudson Grotto</span>
+            <span class="site-loc">Hudson, FL</span>
+            <span class="site-type">Spring &middot; cavern</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Catalina Island</span>
-            <span class="dive-loc">California</span>
-            <span class="dive-type">Kelp forest &middot; open water</span>
+          <li class="site-row">
+            <span class="site-name">Catalina Island</span>
+            <span class="site-loc">California</span>
+            <span class="site-type">Kelp forest &middot; open water</span>
           </li>
         </ul>
-        <p class="dive-note">Mostly Florida karst &mdash; freshwater springs and cavern systems, which is its own discipline: cold, clear, overhead, and nothing like reef diving. Catalina is the outlier and the only saltwater entry so far.</p>
+        <p class="site-note">Mostly Florida karst &mdash; freshwater springs and cavern systems, which is its own discipline: cold, clear, overhead, and nothing like reef diving. Catalina is the outlier and the only saltwater entry so far.</p>
       </div>
 
-      <div class="dive-group dive-group--wish">
-        <div class="dive-group-head">
+      <div class="site-group site-group--wish">
+        <div class="site-group-head">
           <h3>On the list</h3>
-          <span class="dive-count">6 sites</span>
+          <span class="site-count">6 sites</span>
         </div>
-        <ul class="dive-list">
-          <li class="dive-row">
-            <span class="dive-name">Silfra fissure</span>
-            <span class="dive-loc">Þingvellir, Iceland</span>
-            <span class="dive-type">Between two plates</span>
+        <ul class="site-list">
+          <li class="site-row">
+            <span class="site-name">Silfra fissure</span>
+            <span class="site-loc">Þingvellir, Iceland</span>
+            <span class="site-type">Between two plates</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">King crab dive</span>
-            <span class="dive-loc">Alaska</span>
-            <span class="dive-type">Cold water</span>
+          <li class="site-row">
+            <span class="site-name">King crab dive</span>
+            <span class="site-loc">Alaska</span>
+            <span class="site-type">Cold water</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Kelp forests</span>
-            <span class="dive-loc">South Africa</span>
-            <span class="dive-type">Cold water &middot; kelp</span>
+          <li class="site-row">
+            <span class="site-name">Kelp forests</span>
+            <span class="site-loc">South Africa</span>
+            <span class="site-type">Cold water &middot; kelp</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Manta ray night dive</span>
-            <span class="dive-loc">Kona, Hawaii</span>
-            <span class="dive-type">Night &middot; pelagics</span>
+          <li class="site-row">
+            <span class="site-name">Manta ray night dive</span>
+            <span class="site-loc">Kona, Hawaii</span>
+            <span class="site-type">Night &middot; pelagics</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Great Blue Hole</span>
-            <span class="dive-loc">Lighthouse Reef, Belize</span>
-            <span class="dive-type">Blue hole &middot; deep</span>
+          <li class="site-row">
+            <span class="site-name">Great Blue Hole</span>
+            <span class="site-loc">Lighthouse Reef, Belize</span>
+            <span class="site-type">Blue hole &middot; deep</span>
           </li>
-          <li class="dive-row">
-            <span class="dive-name">Kelp &amp; eelgrass beds</span>
-            <span class="dive-loc">Newfoundland, Canada</span>
-            <span class="dive-type">Cold water &middot; kelp</span>
+          <li class="site-row">
+            <span class="site-name">Kelp &amp; eelgrass beds</span>
+            <span class="site-loc">Newfoundland, Canada</span>
+            <span class="site-type">Cold water &middot; kelp</span>
           </li>
         </ul>
-        <p class="dive-note">Weighted toward cold water and structure over warm reefs &mdash; which follows from spending most of my logged time in Florida springs rather than on coral.</p>
+        <p class="site-note">Weighted toward cold water and structure over warm reefs &mdash; which follows from spending most of my logged time in Florida springs rather than on coral.</p>
       </div>
 
     </div>
+    <div class="trip-panel trip-panel--ski" role="tabpanel" aria-label="Ski" aria-hidden="true">
+      <svg class="trip-motif" viewBox="0 0 132 132" aria-hidden="true">
+        <path class="m-line" d="M12,118 L52,34 L74,72 L92,50 L120,118"/>
+        <path class="m-line" d="M30,96 Q46,88 58,96 T88,96"/>
+        <path class="m-line" d="M22,108 Q42,98 60,108 T104,108"/>
+      </svg>
+
+      <div class="flake" style="left:10%; width:4px; height:4px; animation-duration:14s; animation-delay:0s;"></div>
+      <div class="flake" style="left:23%; width:6px; height:6px; animation-duration:19s; animation-delay:3.2s;"></div>
+      <div class="flake" style="left:37%; width:3px; height:3px; animation-duration:12s; animation-delay:6.1s;"></div>
+      <div class="flake" style="left:49%; width:5px; height:5px; animation-duration:17s; animation-delay:1.5s;"></div>
+      <div class="flake" style="left:62%; width:4px; height:4px; animation-duration:15s; animation-delay:8.4s;"></div>
+      <div class="flake" style="left:76%; width:6px; height:6px; animation-duration:21s; animation-delay:4.7s;"></div>
+      <div class="flake" style="left:88%; width:3px; height:3px; animation-duration:13s; animation-delay:10.2s;"></div>
+
+      <p class="trip-section-label">Skiing</p>
+
+      <div class="site-group">
+        <div class="site-group-head">
+          <h3>Mountains skied</h3>
+          <span class="site-count">7 resorts</span>
+        </div>
+        <ul class="site-list">
+          <li class="site-row">
+            <span class="site-name">Alta</span>
+            <span class="site-loc">Little Cottonwood Canyon, UT</span>
+            <span class="site-type">Skiers only</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Snowbird</span>
+            <span class="site-loc">Little Cottonwood Canyon, UT</span>
+            <span class="site-type">Steep &middot; deep</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Deer Valley</span>
+            <span class="site-loc">Park City, UT</span>
+            <span class="site-type">Skiers only &middot; groomed</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Park City</span>
+            <span class="site-loc">Park City, UT</span>
+            <span class="site-type">Sprawling</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Vail</span>
+            <span class="site-loc">Vail, CO</span>
+            <span class="site-type">Back Bowls</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Telluride</span>
+            <span class="site-loc">Telluride, CO</span>
+            <span class="site-type">San Juans &middot; steep</span>
+          </li>
+          <li class="site-row">
+            <span class="site-name">Sun Valley</span>
+            <span class="site-loc">Ketchum, ID</span>
+            <span class="site-type">Bald Mountain</span>
+          </li>
+        </ul>
+        <p class="site-note">Weighted to Utah &mdash; four of the seven, and two of those, Alta and Snowbird, sit at the top of the same canyon road. Alta and Deer Valley are both still skiers-only mountains, which is a shrinking category.</p>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -263,24 +327,56 @@
   "use strict";
   var toggle = document.querySelector(".trip-toggle");
   var stage = document.querySelector(".trip-stage");
-  var btns = document.querySelectorAll(".trip-toggle-btn");
-  var mountainPanel = document.querySelector(".trip-panel--mountain");
-  var divePanel = document.querySelector(".trip-panel--dive");
+  var thumb = document.querySelector(".trip-toggle-thumb");
+  var btns = Array.prototype.slice.call(document.querySelectorAll(".trip-toggle-btn"));
+  var panels = {
+    mountain: document.querySelector(".trip-panel--mountain"),
+    dive: document.querySelector(".trip-panel--dive"),
+    ski: document.querySelector(".trip-panel--ski")
+  };
+
+  // The labels are different lengths, so the sliding thumb is measured off
+  // the active button rather than assuming equal thirds.
+  function moveThumb() {
+    var active = toggle.querySelector(".trip-toggle-btn.is-active");
+    if (!active || !thumb) return;
+    thumb.style.width = active.offsetWidth + "px";
+    thumb.style.transform = "translateX(" + (active.offsetLeft - active.parentNode.clientLeft) + "px)";
+  }
+
+  function select(scene) {
+    toggle.setAttribute("data-scene", scene);
+    stage.setAttribute("data-scene", scene);
+    btns.forEach(function (b) {
+      var on = b.getAttribute("data-scene-btn") === scene;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    Object.keys(panels).forEach(function (k) {
+      if (panels[k]) panels[k].setAttribute("aria-hidden", k === scene ? "false" : "true");
+    });
+    moveThumb();
+  }
 
   btns.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var scene = btn.getAttribute("data-scene-btn");
-      toggle.setAttribute("data-scene", scene);
-      stage.setAttribute("data-scene", scene);
-      btns.forEach(function (b) {
-        var active = b === btn;
-        b.classList.toggle("is-active", active);
-        b.setAttribute("aria-selected", active ? "true" : "false");
-      });
-      mountainPanel.setAttribute("aria-hidden", scene === "dive" ? "true" : "false");
-      divePanel.setAttribute("aria-hidden", scene === "dive" ? "false" : "true");
+      select(btn.getAttribute("data-scene-btn"));
+    });
+    btn.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      var i = btns.indexOf(btn);
+      var next = btns[(i + (e.key === "ArrowRight" ? 1 : -1) + btns.length) % btns.length];
+      select(next.getAttribute("data-scene-btn"));
+      next.focus();
     });
   });
+
+  window.addEventListener("resize", moveThumb);
+  window.addEventListener("load", moveThumb);
+  // the display webfont reflows the labels, so re-measure once it lands
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveThumb);
+  moveThumb();
 })();
 </script>
 

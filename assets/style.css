@@ -463,22 +463,24 @@ footer .dot { color: var(--ink-faint); }
   background: var(--paper);
 }
 
+/* Width and offset are set by JS from the active button — the three labels
+   are different lengths, so equal-thirds math would misalign the thumb. */
 .trip-toggle-thumb {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: calc(50% - 3px);
+  width: 0;
   height: calc(100% - 6px);
   border-radius: 999px;
   background: var(--ink);
-  transition: transform 0.45s cubic-bezier(.65,0,.35,1), background 0.45s ease;
+  transition: transform 0.45s cubic-bezier(.65,0,.35,1),
+              width 0.45s cubic-bezier(.65,0,.35,1),
+              background 0.45s ease;
   z-index: 0;
 }
 
-.trip-toggle[data-scene="dive"] .trip-toggle-thumb {
-  transform: translateX(100%);
-  background: var(--blue);
-}
+.trip-toggle[data-scene="dive"] .trip-toggle-thumb { background: var(--blue); }
+.trip-toggle[data-scene="ski"] .trip-toggle-thumb { background: var(--pine); }
 
 .trip-toggle-btn {
   position: relative;
@@ -523,6 +525,11 @@ footer .dot { color: var(--ink-faint); }
               linear-gradient(180deg, rgba(60,90,115,0.08), transparent 70%);
 }
 
+.trip-stage[data-scene="ski"] .trip-stage-bg {
+  background: radial-gradient(120% 100% at 50% 0%, rgba(47,92,74,0.13), transparent 62%),
+              linear-gradient(180deg, rgba(47,92,74,0.07), transparent 70%);
+}
+
 .trip-panel {
   grid-row: 1;
   grid-column: 1;
@@ -532,9 +539,19 @@ footer .dot { color: var(--ink-faint); }
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.trip-panel--dive { opacity: 0; transform: translateY(10px); pointer-events: none; }
-.trip-stage[data-scene="dive"] .trip-panel--mountain { opacity: 0; transform: translateY(-10px); pointer-events: none; }
-.trip-stage[data-scene="dive"] .trip-panel--dive { opacity: 1; transform: none; pointer-events: auto; }
+/* Three panels share one grid cell. Only the active scene is visible and
+   interactive; the other two sit hidden underneath it. */
+.trip-panel--dive,
+.trip-panel--ski { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+.trip-stage[data-scene="dive"] .trip-panel--mountain,
+.trip-stage[data-scene="ski"] .trip-panel--mountain { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+
+.trip-stage[data-scene="ski"] .trip-panel--dive { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+.trip-stage[data-scene="dive"] .trip-panel--ski { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+.trip-stage[data-scene="dive"] .trip-panel--dive,
+.trip-stage[data-scene="ski"] .trip-panel--ski { opacity: 1; transform: none; pointer-events: auto; }
 
 .trip-panel--mountain { pointer-events: auto; }
 
@@ -557,6 +574,7 @@ footer .dot { color: var(--ink-faint); }
 
 .trip-motif .m-line { fill: none; stroke: var(--ember); stroke-width: 1; }
 .trip-panel--dive .trip-motif .m-line { stroke: var(--blue); }
+.trip-panel--ski .trip-motif .m-line { stroke: var(--pine); }
 
 .bubble {
   position: absolute;
@@ -574,6 +592,27 @@ footer .dot { color: var(--ink-faint); }
   10% { opacity: 0.65; }
   90% { opacity: 0.35; }
   100% { transform: translateY(-320px) translateX(6px); opacity: 0; }
+}
+
+/* ski: the dive panel's ambient particles, inverted — falling instead of
+   rising, and drifting sideways on the way down */
+.flake {
+  position: absolute;
+  top: 0;
+  border-radius: 50%;
+  background: rgba(47,92,74,0.3);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flake { animation: flake-fall linear infinite; }
+}
+
+@keyframes flake-fall {
+  0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+  12% { opacity: 0.6; }
+  88% { opacity: 0.32; }
+  100% { transform: translateY(340px) translateX(-14px); opacity: 0; }
 }
 
 .trip-section-label {
@@ -704,10 +743,10 @@ footer .dot { color: var(--ink-faint); }
    cards — there are no per-dive stats yet, so a list reads honestly where a
    card would look like it's withholding something. */
 
-.dive-group { margin-bottom: 40px; }
-.dive-group:last-of-type { margin-bottom: 0; }
+.site-group { margin-bottom: 40px; }
+.site-group:last-of-type { margin-bottom: 0; }
 
-.dive-group-head {
+.site-group-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -717,7 +756,7 @@ footer .dot { color: var(--ink-faint); }
   margin-bottom: 2px;
 }
 
-.dive-group-head h3 {
+.site-group-head h3 {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: 21px;
@@ -725,7 +764,7 @@ footer .dot { color: var(--ink-faint); }
   color: var(--ink);
 }
 
-.dive-count {
+.site-count {
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
@@ -734,13 +773,13 @@ footer .dot { color: var(--ink-faint); }
   white-space: nowrap;
 }
 
-.dive-list {
+.site-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.dive-row {
+.site-row {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
   gap: 14px;
@@ -751,34 +790,34 @@ footer .dot { color: var(--ink-faint); }
   transition: background 0.18s ease, padding-left 0.18s ease;
 }
 
-.dive-row:hover {
+.site-row:hover {
   background: rgba(60, 90, 115, 0.05);
   padding-left: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dive-row { transition: none; }
-  .dive-row:hover { padding-left: 6px; }
+  .site-row { transition: none; }
+  .site-row:hover { padding-left: 6px; }
 }
 
-.dive-name {
+.site-name {
   font-weight: 600;
   font-size: 15.5px;
   color: var(--ink);
 }
 
-.dive-loc {
+.site-loc {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--ink-soft);
 }
 
-.dive-type {
+.site-type {
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--blue);
+  color: var(--ink-soft);
   border: 1px solid var(--line);
   border-radius: 2px;
   padding: 3px 7px;
@@ -786,17 +825,22 @@ footer .dot { color: var(--ink-faint); }
   justify-self: end;
 }
 
+/* the accent follows the panel, so the shared list reads as part of
+   whichever scene it's in */
+.trip-panel--dive .site-type { color: var(--blue); }
+.trip-panel--ski .site-type { color: var(--pine); }
+
 /* The wishlist reads as intent, not record. Distinguish it by weight and a
    hollow marker rather than by fading the text — these rows scroll over the
    darker ridge art, where low-contrast type stops being legible. */
-.dive-group--wish .dive-name {
+.site-group--wish .site-name {
   font-weight: 500;
   color: var(--ink);
   position: relative;
   padding-left: 16px;
 }
 
-.dive-group--wish .dive-name::before {
+.site-group--wish .site-name::before {
   content: '';
   position: absolute;
   left: 0;
@@ -807,9 +851,9 @@ footer .dot { color: var(--ink-faint); }
   border-radius: 50%;
 }
 
-.dive-group--wish .dive-type { color: var(--ink-soft); }
+.site-group--wish .site-type { color: var(--ink-soft); }
 
-.dive-note {
+.site-note {
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--ink-soft);
@@ -819,13 +863,13 @@ footer .dot { color: var(--ink-faint); }
 }
 
 @media (max-width: 640px) {
-  .dive-row {
+  .site-row {
     grid-template-columns: 1fr auto;
     row-gap: 4px;
   }
-  .dive-name { grid-column: 1; }
-  .dive-type { grid-column: 2; grid-row: 1; }
-  .dive-loc { grid-column: 1 / -1; }
+  .site-name { grid-column: 1; }
+  .site-type { grid-column: 2; grid-row: 1; }
+  .site-loc { grid-column: 1 / -1; }
 }
 
 .trip-note {
@@ -840,6 +884,17 @@ footer .dot { color: var(--ink-faint); }
 @media (max-width: 640px) {
   .trip-motif { display: none; }
   .trip-stats { gap: 16px; }
+
+  /* three fixed-width pills overflow the content column on phones, so let
+     the toggle fill the width and split into equal thirds instead */
+  .trip-toggle { display: flex; width: 100%; }
+  .trip-toggle-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 4px;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
 }
 
 /* =====================================================================
