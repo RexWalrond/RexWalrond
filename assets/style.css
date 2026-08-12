@@ -1298,6 +1298,16 @@ footer .dot { color: var(--ink-faint); }
 
 .chart-dot { stroke: var(--paper); stroke-width: 1.5; }
 
+.sleep-pending {
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin: 22px 0 0;
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  max-width: 62ch;
+}
+
 .chart-empty {
   font-family: var(--font-mono);
   font-size: 11px;

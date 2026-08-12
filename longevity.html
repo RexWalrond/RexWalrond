@@ -25,12 +25,12 @@
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
   <div class="page-head" data-reveal>
-    <span class="status-tag" id="logStatus">Sample data</span>
+    <span class="status-tag" id="logStatus">Imported</span>
     <h1>The Log</h1>
     <p>Daily nutrition and sleep, tracked and charted over time &mdash; the same instinct that goes into a DCF, pointed at a body instead of a company.</p>
   </div>
 
-  <p class="cov-disclaimer" id="logNotice" data-reveal>Everything below is synthetic placeholder data, not real tracking. It switches to live numbers automatically once the daily feed is connected.</p>
+  <p class="cov-disclaimer" id="logNotice" data-reveal></p>
 
   <div class="range-bar" data-reveal>
     <div class="range-seg" role="group" aria-label="Time range">
@@ -62,6 +62,7 @@
       <h2>Sleep</h2>
       <span class="cov-meta" id="sleepMeta"></span>
     </div>
+    <p class="sleep-pending" id="sleepPending" hidden>Not connected yet. Sleep comes from AutoSleep by way of Apple Health, and needs the daily feed running before there's anything to chart. Nutrition above is real.</p>
     <div class="chart-grid chart-grid--sleep" id="sleepCharts"></div>
   </section>
 
@@ -69,7 +70,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/log-sample.js"></script>
+<script src="assets/log-data.js"></script>
 <script src="assets/reveal.js"></script>
 <script src="assets/parallax.js"></script>
 <script>
@@ -99,11 +100,12 @@
 
   var state = { rows: [], range: 30, live: false };
 
-  function fromSample() {
-    var f = window.LOG_SAMPLE.fields;
-    return window.LOG_SAMPLE.rows.map(function (r) {
+  function fromLocal() {
+    var src = window.LOG_DATA;
+    if (!src) return [];
+    return src.rows.map(function (r) {
       var o = {};
-      f.forEach(function (name, i) { o[name] = r[i]; });
+      src.fields.forEach(function (name, i) { o[name] = r[i]; });
       return o;
     });
   }
@@ -288,11 +290,18 @@
                   bucket(rows, m.key, target), m.color);
     }).join("");
 
-    document.getElementById("sleepCharts").innerHTML =
-      card("Sleep score", "score", stats(values(rows, "sleepScore")),
-           bucket(rows, "sleepScore", target), "var(--blue)") +
-      card("Time asleep", "hrs", stats(values(rows, "sleepHours")),
-           bucket(rows, "sleepHours", target), "var(--pine)");
+    // Sleep only renders when there is sleep to render; two permanently empty
+    // charts would imply the feed is broken rather than not built yet.
+    var hasSleep = values(state.rows, "sleepScore").length > 0 ||
+                   values(state.rows, "sleepHours").length > 0;
+    document.getElementById("sleepPending").hidden = hasSleep;
+    document.getElementById("sleepCharts").hidden = !hasSleep;
+    document.getElementById("sleepCharts").innerHTML = hasSleep
+      ? card("Sleep score", "score", stats(values(rows, "sleepScore")),
+             bucket(rows, "sleepScore", target), "var(--blue)") +
+        card("Time asleep", "hrs", stats(values(rows, "sleepHours")),
+             bucket(rows, "sleepHours", target), "var(--pine)")
+      : "";
 
     var first = rows.length ? rows[0].date : null;
     var last = rows.length ? rows[rows.length - 1].date : null;
@@ -302,13 +311,13 @@
     var kcal = stats(values(rows, "kcal"));
     document.getElementById("nutritionMeta").textContent =
       kcal ? fmt(kcal.avg, "kcal") + " kcal/day average" : "";
-    var sc = stats(values(rows, "sleepScore"));
-    document.getElementById("sleepMeta").textContent =
-      sc ? fmt(sc.avg) + " average score" : "";
+    var sc = stats(values(rows, "sleepScore")) || stats(values(rows, "sleepHours"));
+    document.getElementById("sleepMeta").textContent = hasSleep && sc
+      ? fmt(sc.avg) + " average" : "awaiting feed";
 
     document.getElementById("logFooter").textContent = state.live
-      ? "Nutrition comes from MyFitnessPal and sleep from AutoSleep, both by way of Apple Health. Long ranges are averaged into buckets so a year of days stays readable; gaps are days that were never logged."
-      : "Placeholder data, generated to exercise the charts — not real tracking. Long ranges are averaged into buckets so a year of days stays readable; gaps are days that were never logged.";
+      ? "Nutrition comes from MyFitnessPal and sleep from AutoSleep, both by way of Apple Health, updated daily. Long ranges are averaged into buckets so a year of days stays readable; gaps are days that were never logged."
+      : "Nutrition is a static MyFitnessPal export covering January to June 2026 — accurate, but it stops there until the daily feed is connected. Long ranges are averaged into buckets so a year of days stays readable.";
 
     if (!REDUCE_MOTION) {
       Array.prototype.forEach.call(document.querySelectorAll(".chart-line"), function (p) {
@@ -341,12 +350,19 @@
 
   function setLive(on) {
     state.live = on;
-    document.getElementById("logStatus").textContent = on ? "Live" : "Sample data";
+    var src = window.LOG_DATA;
+    document.getElementById("logStatus").textContent = on ? "Live" : "Imported";
     document.getElementById("logNotice").hidden = on;
+    if (!on && src) {
+      document.getElementById("logNotice").textContent =
+        "Nutrition below is real — a " + src.source + " covering " + src.span +
+        ". It's a one-time import rather than a live feed, so it ends in June and " +
+        "sleep isn't in it yet. Both are fixed by connecting the daily sync.";
+    }
   }
 
   function boot() {
-    state.rows = fromSample();
+    state.rows = fromLocal();
     setLive(false);
     render();
 
