@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Log — Rex Walrond</title>
-<meta name="description" content="Daily nutrition, training, and sleep data, tracked and charted over time.">
+<meta name="description" content="Daily nutrition and sleep data, tracked and charted over time.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -21,57 +21,33 @@
   <div class="glow"></div>
 </div>
 
-<main class="wrap">
+<main class="wrap wrap--wide">
   <a class="back-link" href="index.html">&larr; Rex Walrond</a>
 
   <div class="page-head" data-reveal>
-    <span class="status-tag">Building</span>
+    <span class="status-tag" id="logStatus">Sample data</span>
     <h1>The Log</h1>
-    <p>Daily nutrition, training, and sleep data, tracked and charted over time — the same instinct that goes into a DCF, pointed at a body instead of a company.</p>
+    <p>Daily nutrition and sleep, tracked and charted over time &mdash; the same instinct that goes into a DCF, pointed at a body instead of a company.</p>
   </div>
 
-  <p class="cov-disclaimer" data-reveal>Sample instrument readout — the panel below shows placeholder numbers for a demo day, not a live feed. Real tracking is waiting on an actual backend (see note at the bottom).</p>
+  <p class="cov-disclaimer" id="logNotice" data-reveal>Everything below is synthetic placeholder data, not real tracking. It switches to live numbers automatically once the daily feed is connected.</p>
 
-  <section data-reveal>
-    <p class="trip-section-label">Sample day — 08.03</p>
-    <div class="gauge-rack">
-      <div class="gauge-wrap">
-        <div class="gauge" data-pct="94" style="--gauge-color:var(--ember)">
-          <div class="gauge-readout">
-            <span class="gauge-value">2,340</span>
-            <span class="gauge-unit">kcal</span>
-          </div>
-        </div>
-        <p class="gauge-label">Calories</p>
-      </div>
-      <div class="gauge-wrap">
-        <div class="gauge" data-pct="84" style="--gauge-color:var(--ember)">
-          <div class="gauge-readout">
-            <span class="gauge-value">168g</span>
-            <span class="gauge-unit">protein</span>
-          </div>
-        </div>
-        <p class="gauge-label">Protein</p>
-      </div>
-      <div class="gauge-wrap">
-        <div class="gauge" data-pct="82" style="--gauge-color:var(--blue)">
-          <div class="gauge-readout">
-            <span class="gauge-value">82</span>
-            <span class="gauge-unit">score</span>
-          </div>
-        </div>
-        <p class="gauge-label">Sleep</p>
-      </div>
-      <div class="gauge-wrap">
-        <div class="gauge" data-pct="74" style="--gauge-color:var(--gold)">
-          <div class="gauge-readout">
-            <span class="gauge-value">74%</span>
-            <span class="gauge-unit">wk target</span>
-          </div>
-        </div>
-        <p class="gauge-label">Training load</p>
-      </div>
+  <div class="range-bar" data-reveal>
+    <div class="range-seg" role="group" aria-label="Time range">
+      <button type="button" class="range-btn" data-range="7">Week</button>
+      <button type="button" class="range-btn is-active" data-range="30">Month</button>
+      <button type="button" class="range-btn" data-range="365">Year</button>
+      <button type="button" class="range-btn" data-range="all">All time</button>
     </div>
+    <span class="range-meta" id="rangeMeta"></span>
+  </div>
+
+  <section class="log-section" data-reveal>
+    <div class="cov-section-head">
+      <h2>Nutrition</h2>
+      <span class="cov-meta" id="nutritionMeta"></span>
+    </div>
+    <div class="chart-grid" id="macroCharts"></div>
   </section>
 
   <div class="elevation elevation--sm" aria-hidden="true" data-reveal>
@@ -81,67 +57,315 @@
     </svg>
   </div>
 
-  <section data-reveal>
+  <section class="log-section" data-reveal>
     <div class="cov-section-head">
-      <h2>Notebook</h2>
-      <span class="cov-meta">5 sample entries</span>
+      <h2>Sleep</h2>
+      <span class="cov-meta" id="sleepMeta"></span>
     </div>
-
-    <div class="log-list">
-      <div class="log-entry">
-        <div class="log-date">08.03</div>
-        <div class="log-body">
-          <div class="log-tags"><span class="log-tag log-tag--training">Training</span></div>
-          <p class="log-note">Placeholder note. Upper body + a short zone 2 row, felt heavy early and loosened up by set three.</p>
-        </div>
-      </div>
-      <div class="log-entry">
-        <div class="log-date">08.02</div>
-        <div class="log-body">
-          <div class="log-tags"><span class="log-tag log-tag--nutrition">Nutrition</span></div>
-          <p class="log-note">Placeholder note. Undershot protein again on a travel day — worth prepping a bar stash for the next trip.</p>
-        </div>
-      </div>
-      <div class="log-entry">
-        <div class="log-date">08.01</div>
-        <div class="log-body">
-          <div class="log-tags"><span class="log-tag">Sleep</span></div>
-          <p class="log-note">Placeholder note. Late film session pushed bedtime an hour — score dipped but recovered by the following night.</p>
-        </div>
-      </div>
-      <div class="log-entry">
-        <div class="log-date">07.31</div>
-        <div class="log-body">
-          <div class="log-tags"><span class="log-tag log-tag--training">Training</span></div>
-          <p class="log-note">Placeholder note. Long trail run — legs were the limiter well before lungs, which tracks with the last taper.</p>
-        </div>
-      </div>
-      <div class="log-entry">
-        <div class="log-date">07.30</div>
-        <div class="log-body">
-          <div class="log-tags"><span class="log-tag log-tag--nutrition">Nutrition</span></div>
-          <p class="log-note">Placeholder note. Clean macro day, on target across the board — the version of a day this panel should default to showing.</p>
-        </div>
-      </div>
-    </div>
-
-    <p class="trip-note">This entire page — gauges and notebook — needs an actual data backend to update daily without manual rebuilds. Worth building properly rather than rushing; what's here is the visual target, not the real log yet.</p>
+    <div class="chart-grid chart-grid--sleep" id="sleepCharts"></div>
   </section>
+
+  <p class="trip-note" data-reveal id="logFooter"></p>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/log-sample.js"></script>
 <script src="assets/reveal.js"></script>
 <script src="assets/parallax.js"></script>
 <script>
 (function () {
   "use strict";
-  var gauges = document.querySelectorAll(".gauge");
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () {
-      gauges.forEach(function (g) {
-        g.style.setProperty("--pct", g.getAttribute("data-pct"));
+
+  // ---- data source ---------------------------------------------------------
+  // Reads the live daily_log table when it has rows; otherwise falls back to
+  // the synthetic sample so the page is never empty while the feed is being
+  // set up. Same Supabase project as the music ranking.
+  var SUPABASE_URL = "https://cyegtrjfnzuzjiqrbbyg.supabase.co";
+  var SUPABASE_ANON_KEY = "sb_publishable_vG9vyR5cHYveiEzT77VdXQ_j2Uiq-Uw";
+
+  var client = window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  var REDUCE_MOTION = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var MACROS = [
+    { key: "protein", label: "Protein", unit: "g", color: "var(--ember)" },
+    { key: "carbs",   label: "Carbs",   unit: "g", color: "var(--gold)" },
+    { key: "fat",     label: "Fat",     unit: "g", color: "var(--blue)" },
+    { key: "kcal",    label: "Calories", unit: "kcal", color: "var(--pine)" }
+  ];
+
+  var state = { rows: [], range: 30, live: false };
+
+  function fromSample() {
+    var f = window.LOG_SAMPLE.fields;
+    return window.LOG_SAMPLE.rows.map(function (r) {
+      var o = {};
+      f.forEach(function (name, i) { o[name] = r[i]; });
+      return o;
+    });
+  }
+
+  function fromRemote(rows) {
+    return rows.map(function (r) {
+      return {
+        date: r.day,
+        kcal: r.kcal,
+        protein: r.protein_g,
+        carbs: r.carbs_g,
+        fat: r.fat_g,
+        sleepScore: r.sleep_score,
+        sleepHours: r.sleep_hours == null ? null : Number(r.sleep_hours)
+      };
+    });
+  }
+
+  // ---- math ----------------------------------------------------------------
+
+  function inRange(rows, range) {
+    if (range === "all") return rows.slice();
+    var last = rows.length ? new Date(rows[rows.length - 1].date) : new Date();
+    var cutoff = new Date(last);
+    cutoff.setDate(cutoff.getDate() - (Number(range) - 1));
+    return rows.filter(function (r) { return new Date(r.date) >= cutoff; });
+  }
+
+  function values(rows, key) {
+    return rows.map(function (r) { return r[key]; })
+               .filter(function (v) { return typeof v === "number" && !isNaN(v); });
+  }
+
+  function stats(vals) {
+    if (!vals.length) return null;
+    var sorted = vals.slice().sort(function (a, b) { return a - b; });
+    var sum = vals.reduce(function (a, b) { return a + b; }, 0);
+    var mid = Math.floor(sorted.length / 2);
+    return {
+      avg: sum / vals.length,
+      min: sorted[0],
+      max: sorted[sorted.length - 1],
+      median: sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2,
+      n: vals.length
+    };
+  }
+
+  // Long ranges get bucketed so a year doesn't try to draw 365 spikes.
+  function bucket(rows, key, targetPoints) {
+    var pts = rows.map(function (r) {
+      return { date: r.date, v: typeof r[key] === "number" ? r[key] : null };
+    });
+    if (pts.length <= targetPoints) return pts;
+    var size = Math.ceil(pts.length / targetPoints);
+    var out = [];
+    for (var i = 0; i < pts.length; i += size) {
+      var slice = pts.slice(i, i + size);
+      var nums = slice.map(function (p) { return p.v; })
+                      .filter(function (v) { return v != null; });
+      out.push({
+        date: slice[0].date,
+        v: nums.length ? nums.reduce(function (a, b) { return a + b; }, 0) / nums.length : null
       });
+    }
+    return out;
+  }
+
+  function fmt(n, unit) {
+    if (n == null) return "—";
+    var v = unit === "kcal" || n >= 100 ? Math.round(n) : Math.round(n * 10) / 10;
+    return v.toLocaleString("en-US");
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  // ---- chart ---------------------------------------------------------------
+  // Hand-rolled SVG: the site has no build step and no charting library, and
+  // a line + area is all this needs.
+
+  var W = 640, H = 150, PAD_T = 12, PAD_B = 18, PAD_L = 4, PAD_R = 4;
+
+  function chartSVG(points, color, id) {
+    var nums = points.map(function (p) { return p.v; })
+                     .filter(function (v) { return v != null; });
+    if (!nums.length) return '<p class="chart-empty">No data in this range.</p>';
+
+    var min = Math.min.apply(null, nums);
+    var max = Math.max.apply(null, nums);
+    if (min === max) { min -= 1; max += 1; }
+    var pad = (max - min) * 0.12;
+    min -= pad; max += pad;
+
+    var innerW = W - PAD_L - PAD_R, innerH = H - PAD_T - PAD_B;
+    var stepX = points.length > 1 ? innerW / (points.length - 1) : 0;
+
+    function x(i) { return PAD_L + i * stepX; }
+    function y(v) { return PAD_T + innerH - ((v - min) / (max - min)) * innerH; }
+
+    // break the line across gaps rather than interpolating over missing days
+    var segs = [], cur = [];
+    points.forEach(function (p, i) {
+      if (p.v == null) { if (cur.length) { segs.push(cur); cur = []; } return; }
+      cur.push([x(i), y(p.v)]);
+    });
+    if (cur.length) segs.push(cur);
+
+    var line = segs.map(function (seg) {
+      return "M" + seg.map(function (pt) {
+        return pt[0].toFixed(1) + "," + pt[1].toFixed(1);
+      }).join("L");
+    }).join(" ");
+
+    var area = segs.filter(function (s) { return s.length > 1; }).map(function (seg) {
+      var base = PAD_T + innerH;
+      return "M" + seg[0][0].toFixed(1) + "," + base +
+             "L" + seg.map(function (pt) {
+               return pt[0].toFixed(1) + "," + pt[1].toFixed(1);
+             }).join("L") +
+             "L" + seg[seg.length - 1][0].toFixed(1) + "," + base + "Z";
+    }).join(" ");
+
+    var lastPt = null;
+    for (var i = points.length - 1; i >= 0; i--) {
+      if (points[i].v != null) { lastPt = [x(i), y(points[i].v)]; break; }
+    }
+
+    var avg = nums.reduce(function (a, b) { return a + b; }, 0) / nums.length;
+
+    return (
+      '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" ' +
+        'role="img" aria-label="Trend chart">' +
+        '<line class="chart-avg" x1="' + PAD_L + '" x2="' + (W - PAD_R) + '" ' +
+              'y1="' + y(avg).toFixed(1) + '" y2="' + y(avg).toFixed(1) + '"/>' +
+        '<path class="chart-area" d="' + area + '" style="fill:' + color + '"/>' +
+        '<path class="chart-line" d="' + line + '" style="stroke:' + color + '"/>' +
+        (lastPt
+          ? '<circle class="chart-dot" cx="' + lastPt[0].toFixed(1) + '" cy="' +
+            lastPt[1].toFixed(1) + '" r="3" style="fill:' + color + '"/>'
+          : "") +
+      "</svg>"
+    );
+  }
+
+  function statRow(s, unit) {
+    if (!s) return "";
+    return (
+      '<div class="chart-stats">' +
+        '<span><strong>' + fmt(s.avg, unit) + '</strong><small>avg</small></span>' +
+        '<span><strong>' + fmt(s.median, unit) + '</strong><small>median</small></span>' +
+        '<span><strong>' + fmt(s.min, unit) + '</strong><small>low</small></span>' +
+        '<span><strong>' + fmt(s.max, unit) + '</strong><small>high</small></span>' +
+        '<span><strong>' + s.n + '</strong><small>days</small></span>' +
+      "</div>"
+    );
+  }
+
+  function card(title, unit, s, points, color) {
+    return (
+      '<figure class="chart-card">' +
+        '<figcaption class="chart-head">' +
+          '<span class="chart-title">' + esc(title) + '</span>' +
+          '<span class="chart-unit">' + esc(unit) + '</span>' +
+        "</figcaption>" +
+        chartSVG(points, color, title) +
+        statRow(s, unit) +
+      "</figure>"
+    );
+  }
+
+  // ---- render --------------------------------------------------------------
+
+  function render() {
+    var rows = inRange(state.rows, state.range);
+    var target = state.range === 7 ? 7 : state.range === 30 ? 30 : 60;
+
+    document.getElementById("macroCharts").innerHTML = MACROS.map(function (m) {
+      return card(m.label, m.unit, stats(values(rows, m.key)),
+                  bucket(rows, m.key, target), m.color);
+    }).join("");
+
+    document.getElementById("sleepCharts").innerHTML =
+      card("Sleep score", "score", stats(values(rows, "sleepScore")),
+           bucket(rows, "sleepScore", target), "var(--blue)") +
+      card("Time asleep", "hrs", stats(values(rows, "sleepHours")),
+           bucket(rows, "sleepHours", target), "var(--pine)");
+
+    var first = rows.length ? rows[0].date : null;
+    var last = rows.length ? rows[rows.length - 1].date : null;
+    document.getElementById("rangeMeta").textContent =
+      rows.length ? rows.length + " logged days · " + first + " to " + last : "no data";
+
+    var kcal = stats(values(rows, "kcal"));
+    document.getElementById("nutritionMeta").textContent =
+      kcal ? fmt(kcal.avg, "kcal") + " kcal/day average" : "";
+    var sc = stats(values(rows, "sleepScore"));
+    document.getElementById("sleepMeta").textContent =
+      sc ? fmt(sc.avg) + " average score" : "";
+
+    document.getElementById("logFooter").textContent = state.live
+      ? "Nutrition comes from MyFitnessPal and sleep from AutoSleep, both by way of Apple Health. Long ranges are averaged into buckets so a year of days stays readable; gaps are days that were never logged."
+      : "Placeholder data, generated to exercise the charts — not real tracking. Long ranges are averaged into buckets so a year of days stays readable; gaps are days that were never logged.";
+
+    if (!REDUCE_MOTION) {
+      Array.prototype.forEach.call(document.querySelectorAll(".chart-line"), function (p) {
+        var len = p.getTotalLength ? p.getTotalLength() : 0;
+        if (!len) return;
+        p.style.transition = "none";
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            p.style.transition = "stroke-dashoffset 0.9s cubic-bezier(.4,0,.2,1)";
+            p.style.strokeDashoffset = "0";
+          });
+        });
+      });
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".range-btn"), function (btn) {
+    btn.addEventListener("click", function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".range-btn"), function (b) {
+        b.classList.remove("is-active");
+      });
+      btn.classList.add("is-active");
+      var r = btn.getAttribute("data-range");
+      state.range = r === "all" ? "all" : Number(r);
+      render();
     });
   });
+
+  function setLive(on) {
+    state.live = on;
+    document.getElementById("logStatus").textContent = on ? "Live" : "Sample data";
+    document.getElementById("logNotice").hidden = on;
+  }
+
+  function boot() {
+    state.rows = fromSample();
+    setLive(false);
+    render();
+
+    if (!client) return;
+    client.from("daily_log")
+      .select("day,kcal,protein_g,carbs_g,fat_g,sleep_score,sleep_hours")
+      .order("day", { ascending: true })
+      .then(function (res) {
+        if (res.error || !res.data || !res.data.length) return;
+        state.rows = fromRemote(res.data);
+        setLive(true);
+        render();
+      })
+      .catch(function (e) {
+        console.error("Couldn't load the live log, showing sample data:", e);
+      });
+  }
+
+  boot();
 })();
 </script>
 
