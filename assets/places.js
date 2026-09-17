@@ -142,6 +142,5 @@ window.PLACES = [
 window.PLACE_VIEWS = [
   { id: "world",   label: "World",        bounds: null },
   { id: "west",    label: "Western US",   bounds: [-125.5, 32.0, -104.0, 49.5] },
-  { id: "springs", label: "Florida",      bounds: [-83.6, 27.9, -81.6, 30.6] },
-  { id: "wasatch", label: "Wasatch",      bounds: [-111.95, 40.42, -111.30, 40.78] }
+  { id: "springs", label: "Florida",      bounds: [-83.6, 27.9, -81.6, 30.6] }
 ];

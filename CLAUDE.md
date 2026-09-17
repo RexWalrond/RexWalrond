@@ -6,19 +6,27 @@ assets/style.css. Keep it that way unless explicitly asked to add tooling.
 
 ## Who this is for
 
-Rex Walrond — MSF candidate at Notre Dame, healthcare analyst at Fighting Irish
-Capital Fund (student-managed equity fund), co-founder of Norr Wellness (a
-prestige oral care startup, early-stage/pre-launch), former neuroscience
-researcher (McKnight Brain Institute, Romark Labs). Site needs to be
-professional enough to link from LinkedIn and job applications, while still
-having real personality (music, backpacking, diving, training data).
+Rex Walrond — co-founder of Norr Wellness (a prestige oral care startup,
+early-stage/pre-launch), former neuroscience researcher (McKnight Brain
+Institute, Romark Labs), with healthcare equity research experience. Site needs
+to be professional enough to link from LinkedIn and job applications, while
+still having real personality (music, backpacking, diving, training data).
+
+**Do not name a school, degree programme, or employer on this site.** Rex asked
+for his former programme and the student fund he worked with to come off
+entirely, and this file is checked in and public, so don't restate them here
+either. The equity research experience can be described as the work it is,
+never attributed to a named organisation. If a rewrite seems to need an
+affiliation, ask rather than reaching for the old one.
 
 **Positioning goal (important, still being refined):** the site should read as
 pointing toward venture/growth investing in healthcare — WITHOUT ever claiming
 that identity directly, since Rex isn't there yet professionally. The signal
-should come from the combination of experience already on the page (public
-equity research + hands-on startup operating + hard science background), not
-from adding a label like "aspiring VC." Be very cautious with any copy that
+should come from the combination of experience already on the page (equity
+research + hands-on startup operating + hard science background), not from
+adding a label like "aspiring VC." Note that the research leg is now described
+without naming where it happened, which makes it carry less weight than it did
+— worth revisiting with Rex rather than compensating with stronger claims. Be very cautious with any copy that
 edges toward claiming investing credentials he doesn't have. As of this file's
 writing, three bio/tagline rewrite options were drafted but not yet approved —
 check with Rex before changing index.html's bio or tagline copy.
@@ -32,9 +40,9 @@ check with Rex before changing index.html's bio or tagline copy.
   built (see below)
 - `longevity.html` ("The Log") — nutrition/training/sleep tracking, real
   charted data from a MyFitnessPal export, with a live Supabase path
-- `quant.html` ("The Work") — FICF stock pitches + personal quant projects.
-  Structurally built; the coverage rows are still clearly-labelled placeholders
-  waiting on real calls.
+- `quant.html` ("The Work") — healthcare equity research + personal quant
+  projects. Structurally built; the coverage rows are still clearly-labelled
+  placeholders waiting on real calls.
 - `Rex_Walrond_Resume.pdf` — linked from the hub page
 
 ### assets/
@@ -77,15 +85,16 @@ generated in CSS and JS. Do not re-add an external background image reference.
 
 Two themes off one set of tokens: **light** (alpine mist paper) and **dusk**
 (the same landscape after sundown — ridges go to silhouette, the sunrise glow
-becomes moonlight, stars appear). Dusk applies from `prefers-color-scheme`
-unless the reader has pinned light, and the toggle in the top-right cycles
-system → light → dusk, stored in `localStorage` under `rw-theme`. A small
-inline script in each page's `<head>` applies the stored theme before first
-paint so a pinned dusk theme doesn't flash light.
+becomes moonlight, stars appear).
 
-The dusk values appear **twice** in style.css — once under the media query and
-once under `:root[data-theme="dusk"]`. CSS can't share a body between those
-without a preprocessor and there's no build step, so edit both or neither.
+**Which one shows is decided solely by `prefers-color-scheme`.** There is no
+in-page toggle and nothing is stored. A browser that reports no preference
+doesn't match the dark query and keeps light, which is the intended fallback.
+This is deliberate: a site that remembers a choice made months ago is a site
+that stops matching the reader's system when they switch it. `chrome.js` clears
+the old `rw-theme` key on load so anyone who pinned a theme under the previous
+build isn't stuck with it — that cleanup can be dropped once enough time has
+passed.
 
 **All colour must go through tokens.** A literal like `rgba(30,43,38,.045)`
 is a tint of ink that darkens the dark theme instead of lifting it. Use
@@ -146,6 +155,12 @@ animation and leave every reveal element fully visible.
   does nothing.
 - Only points inside the frame take part in clustering — an off-canvas cluster
   is invisible but still focusable, and its count describes places you can't see.
+- **Navigation**: drag to pan, double-click or the +/- buttons to zoom, and the
+  reset button returns to the world view. The reset matters — drilling into a
+  cluster used to be a one-way trip with no way back out. Panning only starts
+  once the pointer passes a 4px threshold, and the click that ends a drag is
+  swallowed, so a drag can't fire a marker underneath it. Escape clears the
+  selection. There is no wheel zoom on purpose: it hijacks page scroll.
 - Markers carry `id="place-<id>"` counterparts on the trip cards and site rows;
   "Read the write-up" dispatches `fieldmap:jump`, which trips.html uses to open
   the right tab before scrolling.

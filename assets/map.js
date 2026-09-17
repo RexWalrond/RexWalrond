@@ -109,6 +109,50 @@
 
   var WORLD = [-180, -86, 180, 84];
 
+  /* Zoom and pan operate on the view box in degrees, then re-fit. Limits keep
+     you from zooming past the point where the baked 110m coastline has any
+     detail left, or panning off into blank sea with no way back. */
+  var MIN_SPAN = 0.02;     // degrees of longitude across the plate
+  var MAX_SPAN = 360;
+
+  function clampBounds(b) {
+    var w = b[0], s = b[1], e = b[2], n = b[3];
+    var spanX = Math.min(MAX_SPAN, Math.max(MIN_SPAN, e - w));
+    var spanY = Math.min(178, Math.max(MIN_SPAN * 0.6, n - s));
+
+    var cx = (w + e) / 2, cy = (s + n) / 2;
+    // keep the centre on the globe, so the map can always be recovered
+    cx = Math.max(-180, Math.min(180, cx));
+    cy = Math.max(-88, Math.min(86, cy));
+    return [cx - spanX / 2, cy - spanY / 2, cx + spanX / 2, cy + spanY / 2];
+  }
+
+  function zoomBy(factor, originX, originY) {
+    var b = view.bounds;
+    var w = b[0], s = b[1], e = b[2], n = b[3];
+
+    // Anchor on a screen point when given one (double-click), else the centre.
+    var ax = originX == null ? 0.5 : originX / W;
+    var ay = originY == null ? 0.5 : originY / H;
+    var lon = w + (e - w) * ax;
+    var lat = n - (n - s) * ay;
+
+    var spanX = (e - w) / factor;
+    var spanY = (n - s) / factor;
+    setBounds(clampBounds([
+      lon - spanX * ax,       lat - spanY * (1 - ay),
+      lon + spanX * (1 - ax), lat + spanY * ay
+    ]), true);
+  }
+
+  function setBounds(b, animate) {
+    state.view = "auto";
+    syncViewButtons();
+    if (animate) flyTo(b);
+    else { view = fitView(b); render(); }
+    syncZoomButtons();
+  }
+
   /* ------------------------------- geometry ------------------------------- */
 
   function ringsToPath(groups) {
@@ -253,6 +297,35 @@
 
     stage.appendChild(svg);
 
+    /* Zoom and reset. Before these existed you could drill into a cluster and
+       then had no way back out except picking a preset — the map was a
+       one-way trip. */
+    var zoomBox = document.createElement("div");
+    zoomBox.className = "fmap-zoom";
+    [
+      ["in",    "\u002b", "Zoom in",  function () { zoomBy(1.8); }],
+      ["out",   "\u2212", "Zoom out", function () { zoomBy(1 / 1.8); }],
+      ["reset", "\u21ba", "Reset to the whole world", function () {
+        state.view = "world";
+        syncViewButtons();
+        select(null);
+        flyTo(WORLD);
+      }]
+    ].forEach(function (spec) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "fmap-zoom-btn fmap-zoom-btn--" + spec[0];
+      b.setAttribute("data-zoom", spec[0]);
+      b.setAttribute("aria-label", spec[2]);
+      b.setAttribute("title", spec[2]);
+      b.textContent = spec[1];
+      b.addEventListener("click", spec[3]);
+      zoomBox.appendChild(b);
+    });
+    stage.appendChild(zoomBox);
+
+    initPan(stage);
+
     tip = document.createElement("div");
     tip.className = "fmap-tip";
     tip.setAttribute("role", "status");
@@ -281,6 +354,7 @@
     render();
     select(null);
     syncViewButtons();
+    syncZoomButtons();
   }
 
   /* Recompute the plate's shape and the pixel-to-viewBox ratio for the current
@@ -303,6 +377,85 @@
       hideTip();
     }, 140);
   }, { passive: true });
+
+  /* Drag to pan. A drag has to out-compete a marker click, so nothing moves
+     until the pointer has travelled past a threshold; past it, the pointer is
+     captured and the click that follows is swallowed. Pointer events cover
+     mouse and touch with one path. */
+  function initPan(stage) {
+    var dragging = false, moved = false, startX = 0, startY = 0, startBounds = null;
+
+    stage.addEventListener("pointerdown", function (e) {
+      if (e.button != null && e.button !== 0) return;
+      if (e.target.closest(".fmap-zoom")) return;     // the buttons are not canvas
+      dragging = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      startBounds = view.bounds.slice();
+    });
+
+    stage.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 4) return;   // still a click, not a drag
+
+      if (!moved) {
+        moved = true;
+        stage.classList.add("is-panning");
+        hideTip();
+        if (stage.setPointerCapture) { try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
+        if (state.frame) { cancelAnimationFrame(state.frame); state.frame = null; }
+      }
+      e.preventDefault();
+
+      // screen pixels -> degrees, using the scale the drag started at
+      var t = fitView(startBounds);
+      var px = W / (stage.clientWidth || W);
+      var dLon = -(dx * px) / t.sx;
+      var dLat = (dy * px) / t.sy;
+
+      view = fitView(clampBounds([
+        startBounds[0] + dLon, startBounds[1] + dLat,
+        startBounds[2] + dLon, startBounds[3] + dLat
+      ]));
+      render();
+    });
+
+    function end(e) {
+      if (!dragging) return;
+      dragging = false;
+      if (moved) {
+        stage.classList.remove("is-panning");
+        state.view = "auto";
+        syncViewButtons();
+        syncZoomButtons();
+        if (stage.releasePointerCapture) { try { stage.releasePointerCapture(e.pointerId); } catch (err) {} }
+      }
+    }
+    stage.addEventListener("pointerup", end);
+    stage.addEventListener("pointercancel", end);
+
+    // a drag ends on a marker often enough that the click must be suppressed
+    stage.addEventListener("click", function (e) {
+      if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+    }, true);
+
+    stage.addEventListener("dblclick", function (e) {
+      if (e.target.closest(".fmap-zoom")) return;
+      var r = stage.getBoundingClientRect();
+      zoomBy(2, (e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H);
+    });
+  }
+
+  /* Grey out a zoom button once it can no longer do anything, so the limits are
+     visible rather than a dead click. */
+  function syncZoomButtons() {
+    if (!view) return;
+    var span = view.bounds[2] - view.bounds[0];
+    var zi = host.querySelector('[data-zoom="in"]');
+    var zo = host.querySelector('[data-zoom="out"]');
+    if (zi) zi.disabled = span <= MIN_SPAN * 1.02;
+    if (zo) zo.disabled = span >= MAX_SPAN * 0.999;
+  }
 
   function syncViewButtons() {
     host.querySelectorAll(".fmap-view").forEach(function (b) {
@@ -637,7 +790,7 @@
   function flyTo(bounds) {
     if (state.frame) { cancelAnimationFrame(state.frame); state.frame = null; }
 
-    if (REDUCED) { view = fitView(bounds); render(); return; }
+    if (REDUCED) { view = fitView(bounds); render(); syncZoomButtons(); return; }
 
     var from = view.bounds.slice();
     var to = bounds.slice();
@@ -655,6 +808,7 @@
       view = fitView(b);
       render();
       state.frame = k < 1 ? requestAnimationFrame(step) : null;
+      if (!state.frame) syncZoomButtons();
     }
     state.frame = requestAnimationFrame(step);
   }
@@ -760,6 +914,7 @@
   // keyboard users can tour the map without tabbing through everything.
 
   host.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && state.selected) { select(null); return; }
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     var focused = markers.filter(function (m) { return m.node === document.activeElement; })[0];
     if (!focused) return;

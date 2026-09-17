@@ -7,17 +7,6 @@
 <meta name="description" content="Daily nutrition and sleep data, tracked and charted over time.">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script>
-/* Theme, applied before first paint. chrome.js owns the toggle and re-applies
-   this on load; doing it here too stops a pinned dusk theme flashing light
-   while the rest of the page and its scripts arrive. */
-(function () {
-  try {
-    var t = localStorage.getItem('rw-theme');
-    if (t === 'light' || t === 'dusk') document.documentElement.setAttribute('data-theme', t);
-  } catch (e) {}
-})();
-</script>
 </head>
 <body data-scene="plot">
 
