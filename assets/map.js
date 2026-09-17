@@ -1,0 +1,786 @@
+/* Field Notes — "The Ground Covered".
+ *
+ * An interactive map of every place in assets/places.js, drawn from the baked
+ * coastlines in assets/geo.js. No mapping library, no tiles, no network: the
+ * whole thing is inline SVG in the site palette.
+ *
+ * Projection is equidistant cylindrical with a standard parallel — plate
+ * carrée with the x axis compressed by cos(lat0). That makes it an affine
+ * transform of a single set of lon/lat paths, so geometry is built once at
+ * startup and every view change (and every frame of a fly-to) is just a new
+ * transform string on one <g>. Markers are positioned in screen space so their
+ * glyphs never stretch.
+ */
+(function () {
+  "use strict";
+
+  var host = document.getElementById("fieldMap");
+  if (!host || !window.PLACES || !window.GEO) return;
+
+  var REDUCED = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var NS = "http://www.w3.org/2000/svg";
+  // 1000x520 is close to the world view's own aspect at these bounds, so the
+  // default framing fills the plate instead of floating in dead sea. On a phone
+  // the plate goes taller, because a 2:1 map inside a 366px column is 180px of
+  // nothing.
+  var W = 1000, H = 520, PAD = 26;
+
+  /* viewBox units per CSS pixel. Marker glyphs, hit areas and the clustering
+     and separation distances are all authored in screen pixels and multiplied
+     by this, so a marker is the same size under the finger on a phone as it is
+     under the cursor on a desktop. Without it everything is specified in
+     viewBox units and shrinks with the canvas: at 366px wide, a 6.6-unit
+     marker renders 2.4px across. */
+  var UI = 1;
+  var DEG = Math.PI / 180;
+
+  var KINDS = {
+    backcountry: { label: "Backcountry", plural: "routes" },
+    dive:        { label: "Dive",        plural: "dive sites" },
+    ski:         { label: "Ski",         plural: "mountains" }
+  };
+
+  var state = {
+    kind: "all",        // all | backcountry | dive | ski
+    wish: true,         // show the on-the-list places
+    view: "world",
+    selected: null,
+    frame: null
+  };
+
+  /* ------------------------------ projection ------------------------------ */
+  // Geometry is stored as x = lon, y = -lat. A view is a lon/lat box; fitting
+  // it yields the scale and offset that turn that box into the viewBox.
+
+  function fitView(bounds) {
+    var w = bounds[0], s = bounds[1], e = bounds[2], n = bounds[3];
+    var lat0 = (s + n) / 2;
+    var cos = Math.max(0.08, Math.cos(lat0 * DEG));
+
+    var spanX = (e - w) * cos;
+    var spanY = (n - s);
+    var k = Math.min((W - PAD * 2) / spanX, (H - PAD * 2) / spanY);
+
+    var sx = k * cos, sy = k;
+    // centre of the box, in geometry space, mapped to the centre of the canvas
+    var cx = (w + e) / 2, cy = -(s + n) / 2;
+    return {
+      sx: sx, sy: sy,
+      tx: W / 2 - cx * sx,
+      ty: H / 2 - cy * sy,
+      bounds: bounds.slice()
+    };
+  }
+
+  function toScreen(t, lon, lat) {
+    return [lon * t.sx + t.tx, -lat * t.sy + t.ty];
+  }
+
+  /* Fit a box to some places. `padFactor` is a share of the box's own span, not
+     a fixed number of degrees — a fixed pad that frames six western states
+     sensibly is absurd around two ski resorts a mile apart. `minSpan` is the
+     floor, and it has to be small: zooming a two-marker cluster has to actually
+     separate those two markers, or clicking it does nothing and the cluster
+     can never be opened. */
+  function boundsOf(list, padFactor, minSpan) {
+    if (!list.length) return WORLD.slice();
+
+    var w = 180, s = 90, e = -180, n = -90;
+    list.forEach(function (p) {
+      if (p.lon < w) w = p.lon;
+      if (p.lon > e) e = p.lon;
+      if (p.lat < s) s = p.lat;
+      if (p.lat > n) n = p.lat;
+    });
+
+    var floor = minSpan == null ? 0.06 : minSpan;     // ~6 km
+    if (e - w < floor) { var mx = (w + e) / 2; w = mx - floor / 2; e = mx + floor / 2; }
+    if (n - s < floor * 0.6) { var my = (s + n) / 2; s = my - floor * 0.3; n = my + floor * 0.3; }
+
+    var f = padFactor == null ? 0.18 : padFactor;
+    var padX = (e - w) * f, padY = (n - s) * f;
+    return [
+      Math.max(-180, w - padX), Math.max(-89, s - padY),
+      Math.min(180, e + padX),  Math.min(89, n + padY)
+    ];
+  }
+
+  var WORLD = [-180, -86, 180, 84];
+
+  /* ------------------------------- geometry ------------------------------- */
+
+  function ringsToPath(groups) {
+    var d = "";
+    groups.forEach(function (rings) {
+      rings.forEach(function (r) {
+        for (var i = 0; i < r.length; i += 2) {
+          d += (i ? "L" : "M") + r[i] + "," + (-r[i + 1]);
+        }
+        d += "Z";
+      });
+    });
+    return d;
+  }
+
+  function graticulePath(stepLon, stepLat) {
+    var d = "", lon, lat;
+    for (lon = -180; lon <= 180; lon += stepLon) {
+      d += "M" + lon + ",-84";
+      for (lat = -82; lat <= 84; lat += 4) d += "L" + lon + "," + (-lat);
+    }
+    for (lat = -80; lat <= 80; lat += stepLat) {
+      d += "M-180," + (-lat) + "L180," + (-lat);
+    }
+    return d;
+  }
+
+  /* -------------------------------- markers -------------------------------- */
+  // Each kind gets its own glyph so the map reads without leaning on colour
+  // alone: a peak for backcountry, a dive-flag roundel, a chevron for ski.
+  // Wishlist places are the same glyph, hollow.
+
+  function glyph(kind) {
+    if (kind === "backcountry") return "M0,-8.4 L7.6,6 L-7.6,6 Z";
+    if (kind === "ski")         return "M0,-8.2 L8,6.4 L0,2.2 L-8,6.4 Z";
+    return null;                 // dive uses a circle
+  }
+
+  function el(name, attrs) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* --------------------------------- build --------------------------------- */
+
+  var svg, gGeo, gMark, gClust, tip, card, markers = [], view;
+
+  function build() {
+    host.innerHTML = "";
+    host.classList.add("fmap");
+
+    // ---- controls
+    var bar = document.createElement("div");
+    bar.className = "fmap-bar";
+
+    var chips = document.createElement("div");
+    chips.className = "fmap-chips";
+    chips.setAttribute("role", "group");
+    chips.setAttribute("aria-label", "Filter places by kind");
+    [["all", "All"]].concat(Object.keys(KINDS).map(function (k) {
+      return [k, KINDS[k].label];
+    })).forEach(function (pair) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "fmap-chip" + (pair[0] === state.kind ? " is-active" : "");
+      b.setAttribute("data-kind", pair[0]);
+      b.setAttribute("aria-pressed", String(pair[0] === state.kind));
+      b.textContent = pair[1];
+      b.addEventListener("click", function () { setKind(pair[0]); });
+      chips.appendChild(b);
+    });
+
+    var wishBtn = document.createElement("button");
+    wishBtn.type = "button";
+    wishBtn.className = "fmap-chip fmap-chip--wish is-active";
+    wishBtn.setAttribute("aria-pressed", "true");
+    wishBtn.innerHTML = '<span class="fmap-chip-dot" aria-hidden="true"></span>On the list';
+    wishBtn.addEventListener("click", function () {
+      state.wish = !state.wish;
+      wishBtn.classList.toggle("is-active", state.wish);
+      wishBtn.setAttribute("aria-pressed", String(state.wish));
+      if (!state.wish && state.selected && state.selected.status === "wish") select(null);
+      render();
+      flyTo(boundsFor());
+    });
+    chips.appendChild(wishBtn);
+
+    var views = document.createElement("div");
+    views.className = "fmap-views";
+    views.setAttribute("role", "group");
+    views.setAttribute("aria-label", "Map framing");
+    window.PLACE_VIEWS.forEach(function (v) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "fmap-view" + (v.id === state.view ? " is-active" : "");
+      b.setAttribute("data-view", v.id);
+      b.textContent = v.label;
+      b.addEventListener("click", function () {
+        state.view = v.id;
+        syncViewButtons();
+        flyTo(v.bounds || WORLD);
+      });
+      views.appendChild(b);
+    });
+
+    bar.appendChild(chips);
+    bar.appendChild(views);
+    host.appendChild(bar);
+
+    // ---- canvas
+    var stage = document.createElement("div");
+    stage.className = "fmap-stage";
+
+    svg = el("svg", {
+      viewBox: "0 0 " + W + " " + H,
+      class: "fmap-svg",
+      role: "img",
+      "aria-label": "Map of logged trips, dive sites and ski mountains, with places still on the list"
+    });
+
+    var defs = el("defs");
+    var grad = el("radialGradient", { id: "fmapSea", cx: "50%", cy: "42%", r: "72%" });
+    grad.appendChild(el("stop", { offset: "0%", "stop-color": "var(--fmap-sea-hi)" }));
+    grad.appendChild(el("stop", { offset: "100%", "stop-color": "var(--fmap-sea-lo)" }));
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+
+    svg.appendChild(el("rect", { x: 0, y: 0, width: W, height: H, class: "fmap-sea", fill: "url(#fmapSea)" }));
+
+    gGeo = el("g", { class: "fmap-geo" });
+    gGeo.appendChild(el("path", { class: "fmap-grat", d: graticulePath(30, 15) }));
+    gGeo.appendChild(el("path", { class: "fmap-land", d: ringsToPath(window.GEO.land) }));
+    gGeo.appendChild(el("path", { class: "fmap-states", d: ringsToPath(window.GEO.states) }));
+    svg.appendChild(gGeo);
+
+    gMark = el("g", { class: "fmap-markers" });
+    svg.appendChild(gMark);
+
+    gClust = el("g", { class: "fmap-clusters" });
+    svg.appendChild(gClust);
+
+    stage.appendChild(svg);
+
+    tip = document.createElement("div");
+    tip.className = "fmap-tip";
+    tip.setAttribute("role", "status");
+    tip.hidden = true;
+    stage.appendChild(tip);
+
+    host.appendChild(stage);
+
+    // ---- readout
+    card = document.createElement("div");
+    card.className = "fmap-card";
+    host.appendChild(card);
+
+    var legend = document.createElement("p");
+    legend.className = "fmap-legend";
+    legend.innerHTML =
+      '<span><svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="' + glyph("backcountry") + '"/></svg>Backcountry</span>' +
+      '<span><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="6.6"/></svg>Dive</span>' +
+      '<span><svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="' + glyph("ski") + '"/></svg>Ski</span>' +
+      '<span class="is-wish"><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="6.2"/></svg>On the list</span>';
+    host.appendChild(legend);
+
+    buildMarkers();
+    layout();
+    view = fitView(WORLD);
+    render();
+    select(null);
+    syncViewButtons();
+  }
+
+  /* Recompute the plate's shape and the pixel-to-viewBox ratio for the current
+     container width. Called at build and on resize. */
+  function layout() {
+    var px = host.clientWidth || W;
+    UI = W / px;
+    H = px < 560 ? 700 : 520;
+    if (svg) svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  }
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var prev = view ? view.bounds : WORLD;
+      layout();
+      view = fitView(prev);
+      render();
+      hideTip();
+    }, 140);
+  }, { passive: true });
+
+  function syncViewButtons() {
+    host.querySelectorAll(".fmap-view").forEach(function (b) {
+      var on = b.getAttribute("data-view") === state.view;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-current", on ? "true" : "false");
+    });
+  }
+
+  function buildMarkers() {
+    markers = window.PLACES.map(function (p) {
+      var g = el("g", {
+        class: "fmap-pin fmap-pin--" + p.kind + (p.status === "wish" ? " is-wish" : "") +
+               (p.summited ? " is-summited" : ""),
+        tabindex: "0",
+        role: "button",
+        "aria-label": p.name + " — " + p.where + (p.status === "wish" ? " (on the list)" : "")
+      });
+
+      // A leader back to the true position, for pins the separation pass had
+      // to nudge. Hidden until it has somewhere to point.
+      var leader = el("line", { class: "fmap-leader", x1: 0, y1: 0, x2: 0, y2: 0 });
+      var anchor = el("circle", { class: "fmap-anchor", r: 1.5 });
+      g.appendChild(leader);
+      g.appendChild(anchor);
+
+      // The body carries the displacement, so the group stays on the true point.
+      var body = el("g", { class: "fmap-pin-body" });
+      body.appendChild(el("circle", { class: "fmap-hit", r: 11 }));
+      if (p.summited) body.appendChild(el("circle", { class: "fmap-halo", r: 12 }));
+
+      var d = glyph(p.kind);
+      body.appendChild(d ? el("path", { class: "fmap-glyph", d: d })
+                         : el("circle", { class: "fmap-glyph", r: 6.6 }));
+      g.appendChild(body);
+
+      g.addEventListener("mouseenter", function () { showTip(p, g); });
+      g.addEventListener("mouseleave", hideTip);
+      g.addEventListener("focus", function () { showTip(p, g); select(p, true); });
+      g.addEventListener("blur", hideTip);
+      g.addEventListener("click", function () { select(p); });
+      g.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(p); }
+      });
+
+      gMark.appendChild(g);
+      return { place: p, node: g, body: body, leader: leader, anchor: anchor,
+               x: 0, y: 0, dx: 0, dy: 0 };
+    });
+  }
+
+  /* -------------------------------- filtering -------------------------------- */
+
+  function visible(p) {
+    if (state.kind !== "all" && p.kind !== state.kind) return false;
+    if (!state.wish && p.status === "wish") return false;
+    return true;
+  }
+
+  function shown() { return window.PLACES.filter(visible); }
+
+  function boundsFor() {
+    if (state.view !== "auto") {
+      var v = window.PLACE_VIEWS.filter(function (x) { return x.id === state.view; })[0];
+      if (v) return v.bounds || WORLD;
+    }
+    return boundsOf(shown(), 0.14);
+  }
+
+  function setKind(kind) {
+    state.kind = kind;
+    host.querySelectorAll(".fmap-chip[data-kind]").forEach(function (b) {
+      var on = b.getAttribute("data-kind") === kind;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    if (state.selected && !visible(state.selected)) select(null);
+    render();
+
+    // Filtering to one kind implies you want to see it, so reframe to fit.
+    state.view = "auto";
+    syncViewButtons();
+    flyTo(boundsOf(shown(), kind === "all" ? 0.16 : 0.13));
+  }
+
+  /* --------------------------------- render --------------------------------- */
+
+  /* Clustering, then displacement.
+   *
+   * Real sites cluster hard — eight Florida springs inside two degrees, Alta
+   * and Snowbird a mile apart. Two different problems at two different zooms:
+   *
+   *   At world scale, thirty-two markers inside North America cannot each have
+   *   their own spot. Spreading them would draw a blob over the continent and
+   *   put Ginnie Springs somewhere in Kansas, which is a lie. So points that
+   *   fall within a short screen distance collapse into one disc carrying a
+   *   count; clicking it flies in, and the group resolves into real markers.
+   *
+   *   Once zoomed in, only a few pins still overlap, and those get nudged
+   *   apart with a leader line back to true position — displacement, which is
+   *   visible and honest, rather than a stack you cannot click.
+   */
+
+  // All in CSS pixels; scaled into viewBox units by UI at use.
+  var CLUSTER_R = 20;    // below this, points collapse into one disc
+  var SEP = 27;          // and between CLUSTER_R and this, they get nudged apart
+  var SEP_ROUNDS = 14;
+  var MAX_SHIFT = 26;    // a pin nudged further than this stops meaning anything
+  var MARGIN = 14;       // how far outside the frame still counts as on it
+
+  function clusterize(list) {
+    var groups = [];
+    list.forEach(function (m) {
+      for (var i = 0; i < groups.length; i++) {
+        var g = groups[i];
+        if (Math.hypot(m.x - g.x, m.y - g.y) <= CLUSTER_R * UI) {
+          g.members.push(m);
+          // running centroid, so a chain of near points stays one group
+          g.x += (m.x - g.x) / g.members.length;
+          g.y += (m.y - g.y) / g.members.length;
+          return;
+        }
+      }
+      groups.push({ x: m.x, y: m.y, members: [m] });
+    });
+    return groups;
+  }
+
+  function separate(list) {
+    list.forEach(function (m) { m.dx = 0; m.dy = 0; });
+
+    for (var round = 0; round < SEP_ROUNDS; round++) {
+      var moved = false;
+      for (var i = 0; i < list.length; i++) {
+        for (var j = i + 1; j < list.length; j++) {
+          var a = list[i], b = list[j];
+          var dx = (b.x + b.dx) - (a.x + a.dx);
+          var dy = (b.y + b.dy) - (a.y + a.dy);
+          var dist = Math.hypot(dx, dy);
+          var sep = SEP * UI;
+          if (dist >= sep) continue;
+
+          // Exactly coincident points need a deterministic direction to split
+          // along, or they sit on top of each other forever.
+          if (dist < 0.001) {
+            var ang = i * 2.399963;          // golden angle, so ties fan out
+            dx = Math.cos(ang); dy = Math.sin(ang); dist = 1;
+          }
+          var push = (sep - dist) / 2;
+          var ux = dx / dist, uy = dy / dist;
+          a.dx -= ux * push; a.dy -= uy * push;
+          b.dx += ux * push; b.dy += uy * push;
+          moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+
+    var cap = MAX_SHIFT * UI;
+    list.forEach(function (m) {
+      var d = Math.hypot(m.dx, m.dy);
+      if (d > cap) { m.dx *= cap / d; m.dy *= cap / d; }
+    });
+  }
+
+  function kindOf(members) {
+    var k = members[0].place.kind;
+    return members.every(function (m) { return m.place.kind === k; }) ? k : "mixed";
+  }
+
+  function clusterRadius(n) {
+    return (11 + Math.min(7, Math.log(n + 1) * 4)) * UI;
+  }
+
+  function drawClusters(groups) {
+    while (gClust.firstChild) gClust.removeChild(gClust.firstChild);
+
+    groups.forEach(function (g) {
+      var n = g.members.length;
+      var r = g.r || clusterRadius(n);
+      var allWish = g.members.every(function (m) { return m.place.status === "wish"; });
+
+      var node = el("g", {
+        class: "fmap-cluster fmap-cluster--" + kindOf(g.members) + (allWish ? " is-wish" : ""),
+        transform: "translate(" + g.x.toFixed(1) + "," + g.y.toFixed(1) + ")",
+        tabindex: "0",
+        role: "button",
+        "aria-label": n + " places here — activate to zoom in"
+      });
+      node.appendChild(el("circle", { class: "fmap-cluster-ring", r: r + 4 * UI }));
+      node.appendChild(el("circle", { class: "fmap-cluster-disc", r: r }));
+
+      var t = el("text", {
+        class: "fmap-cluster-n",
+        y: 4 * UI,
+        "font-size": (12 * UI).toFixed(1)
+      });
+      t.textContent = String(n);
+      node.appendChild(t);
+
+      function zoomIn() {
+        state.view = "auto";
+        syncViewButtons();
+        hideTip();
+        flyTo(boundsOf(g.members.map(function (m) { return m.place; }), 0.3));
+      }
+      node.addEventListener("click", zoomIn);
+      node.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(); }
+      });
+      node.addEventListener("mouseenter", function () { showClusterTip(g, r); });
+      node.addEventListener("mouseleave", hideTip);
+      node.addEventListener("focus", function () { showClusterTip(g, r); });
+      node.addEventListener("blur", hideTip);
+
+      gClust.appendChild(node);
+    });
+  }
+
+  function showClusterTip(g, r) {
+    var kinds = {};
+    g.members.forEach(function (m) { kinds[m.place.kind] = (kinds[m.place.kind] || 0) + 1; });
+    tip.innerHTML =
+      '<strong>' + g.members.length + ' places</strong>' +
+      '<span>' + Object.keys(kinds).map(function (k) {
+        return kinds[k] + " " + KINDS[k].plural;
+      }).join(" \u00b7 ") + '</span>' +
+      '<span class="fmap-tip-wish">zoom in</span>';
+    tip.hidden = false;
+    tip.style.left = (g.x / W * 100).toFixed(2) + "%";
+    tip.style.top = ((g.y - r) / H * 100).toFixed(2) + "%";
+    tip.classList.toggle("is-low", g.y < H * 0.3);
+  }
+
+  function render() {
+    var t = view;
+    gGeo.setAttribute("transform",
+      "translate(" + t.tx.toFixed(2) + "," + t.ty.toFixed(2) + ") scale(" +
+      t.sx.toFixed(4) + "," + t.sy.toFixed(4) + ")");
+
+    // state outlines only earn their keep once the frame is regional
+    gGeo.classList.toggle("show-states", t.sy > 7);
+
+    var live = [], offscreen = [];
+    markers.forEach(function (m) {
+      if (!visible(m.place)) { m.node.style.display = "none"; m.node.setAttribute("tabindex", "-1"); return; }
+      var xy = toScreen(t, m.place.lon, m.place.lat);
+      m.x = xy[0]; m.y = xy[1];
+      // Only points inside the frame take part in clustering. A cluster drawn
+      // off-canvas is invisible but still focusable, which is worse than
+      // useless — and its count would describe places you cannot see.
+      (m.x > -MARGIN * UI && m.x < W + MARGIN * UI && m.y > -MARGIN * UI && m.y < H + MARGIN * UI
+        ? live : offscreen).push(m);
+    });
+
+    offscreen.forEach(function (m) {
+      m.node.style.display = "";
+      m.node.setAttribute("tabindex", "-1");
+      m.node.classList.add("is-offscreen");
+      m.node.classList.remove("is-shifted");
+      m.dx = 0; m.dy = 0;
+      m.node.setAttribute("transform", "translate(" + m.x.toFixed(1) + "," + m.y.toFixed(1) + ")");
+      m.body.setAttribute("transform", "scale(" + UI.toFixed(3) + ")");
+    });
+
+    var groups = clusterize(live);
+    var loose = [];
+    var clustered = [];
+    groups.forEach(function (g) {
+      // A selected place always stays a real marker — collapsing the thing the
+      // reader just picked into an anonymous count is the one unhelpful case.
+      if (g.members.length > 1 && !g.members.some(function (m) { return m.place === state.selected; })) {
+        clustered.push(g);
+      } else {
+        g.members.forEach(function (m) { loose.push(m); });
+      }
+    });
+
+    // Clusters can collide with each other as well; the same nudge applies,
+    // using each disc's own radius so big counts claim more room.
+    clustered.forEach(function (g) { g.r = clusterRadius(g.members.length); });
+    for (var round = 0; round < 10; round++) {
+      var moved = false;
+      for (var i = 0; i < clustered.length; i++) {
+        for (var j = i + 1; j < clustered.length; j++) {
+          var a = clustered[i], b = clustered[j];
+          var dx = b.x - a.x, dy = b.y - a.y;
+          var dist = Math.hypot(dx, dy);
+          var want = a.r + b.r + 7 * UI;
+          if (dist >= want) continue;
+          if (dist < 0.001) { dx = 1; dy = 0; dist = 1; }
+          var push = (want - dist) / 2;
+          a.x -= dx / dist * push; a.y -= dy / dist * push;
+          b.x += dx / dist * push; b.y += dy / dist * push;
+          moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+
+    drawClusters(clustered);
+    clustered.forEach(function (g) {
+      g.members.forEach(function (m) {
+        m.node.style.display = "none";
+        m.node.setAttribute("tabindex", "-1");
+      });
+    });
+
+    separate(loose);
+
+    loose.forEach(function (m) {
+      m.node.style.display = "";
+      m.node.setAttribute("tabindex", "0");
+      m.node.setAttribute("transform",
+        "translate(" + m.x.toFixed(1) + "," + m.y.toFixed(1) + ")");
+      m.body.setAttribute("transform",
+        "translate(" + m.dx.toFixed(1) + "," + m.dy.toFixed(1) + ") scale(" + UI.toFixed(3) + ")");
+
+      var shifted = Math.hypot(m.dx, m.dy) > 3;
+      m.node.classList.toggle("is-shifted", shifted);
+      if (shifted) {
+        m.leader.setAttribute("x2", m.dx.toFixed(1));
+        m.leader.setAttribute("y2", m.dy.toFixed(1));
+      }
+
+      m.node.classList.remove("is-offscreen");
+    });
+  }
+
+  /* --------------------------------- fly-to --------------------------------- */
+
+  function flyTo(bounds) {
+    if (state.frame) { cancelAnimationFrame(state.frame); state.frame = null; }
+
+    if (REDUCED) { view = fitView(bounds); render(); return; }
+
+    var from = view.bounds.slice();
+    var to = bounds.slice();
+    var same = from.every(function (v, i) { return Math.abs(v - to[i]) < 0.001; });
+    if (same) return;
+
+    var start = performance.now();
+    var dur = 620;
+
+    function step(now) {
+      var k = Math.min(1, (now - start) / dur);
+      // easeInOutCubic
+      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      var b = from.map(function (v, i) { return v + (to[i] - v) * e; });
+      view = fitView(b);
+      render();
+      state.frame = k < 1 ? requestAnimationFrame(step) : null;
+    }
+    state.frame = requestAnimationFrame(step);
+  }
+
+  /* -------------------------------- tooltip -------------------------------- */
+
+  function showTip(p, node) {
+    var m = markers.filter(function (x) { return x.place === p; })[0];
+    var xy = toScreen(view, p.lon, p.lat);
+    if (m) { xy = [xy[0] + m.dx, xy[1] + m.dy]; }
+    tip.innerHTML =
+      '<strong>' + p.name + '</strong>' +
+      '<span>' + p.where + (p.when ? " · " + p.when : "") + '</span>' +
+      (p.status === "wish" ? '<span class="fmap-tip-wish">on the list</span>' : "");
+    tip.hidden = false;
+    tip.style.left = (xy[0] / W * 100).toFixed(2) + "%";
+    tip.style.top = (xy[1] / H * 100).toFixed(2) + "%";
+    tip.classList.toggle("is-low", xy[1] < H * 0.28);
+    if (node) node.classList.add("is-hot");
+  }
+
+  function hideTip() {
+    tip.hidden = true;
+    host.querySelectorAll(".fmap-pin.is-hot").forEach(function (n) {
+      n.classList.remove("is-hot");
+    });
+  }
+
+  /* ------------------------------ detail card ------------------------------ */
+
+  function counts() {
+    var done = window.PLACES.filter(function (p) { return p.status === "done"; });
+    var wish = window.PLACES.length - done.length;
+    var parts = Object.keys(KINDS).map(function (k) {
+      var n = done.filter(function (p) { return p.kind === k; }).length;
+      return n + " " + KINDS[k].plural;
+    });
+    return parts.join(" · ") + " · " + wish + " still on the list";
+  }
+
+  function select(p, quiet) {
+    state.selected = p;
+    markers.forEach(function (m) {
+      m.node.classList.toggle("is-selected", m.place === p);
+    });
+    // re-run layout so the selected place breaks out of its cluster
+    if (view) render();
+
+    if (!p) {
+      card.className = "fmap-card";
+      card.innerHTML = '<p class="fmap-summary">' + counts() + '</p>' +
+        '<p class="fmap-hint">Pick a marker for the detail, or use the filters to reframe.</p>';
+      return;
+    }
+
+    card.className = "fmap-card is-open fmap-card--" + p.kind;
+    var html = '<p class="fmap-card-kind">' + KINDS[p.kind].label +
+      (p.status === "wish" ? " · on the list" : "") + '</p>' +
+      '<h3>' + p.name + '</h3>' +
+      '<p class="fmap-card-where">' + p.where + (p.when ? " · " + p.when : "") +
+      (p.meta ? " · " + p.meta : "") + '</p>';
+
+    if (p.stats) {
+      html += '<div class="fmap-card-stats">' + p.stats.map(function (s) {
+        return '<span><strong>' + s[0] + '</strong><small>' + s[1] + '</small></span>';
+      }).join("") + '</div>';
+    }
+    if (p.note) html += '<p class="fmap-card-note">' + p.note + '</p>';
+
+    html += '<p class="fmap-card-coord">' +
+      Math.abs(p.lat).toFixed(3) + "°" + (p.lat >= 0 ? "N" : "S") + " " +
+      Math.abs(p.lon).toFixed(3) + "°" + (p.lon >= 0 ? "E" : "W") + '</p>';
+
+    var anchor = document.getElementById("place-" + p.id);
+    if (anchor) html += '<button type="button" class="fmap-card-jump" data-jump="' + p.id + '">Read the write-up ↓</button>';
+
+    card.innerHTML = html;
+
+    var jump = card.querySelector("[data-jump]");
+    if (jump) {
+      jump.addEventListener("click", function () {
+        var target = document.getElementById("place-" + p.id);
+        if (!target) return;
+        // The write-up may be inside a tab that isn't open. Let the page react
+        // (Field Notes switches its Backcountry/Dive/Ski panel) before scrolling.
+        host.dispatchEvent(new CustomEvent("fieldmap:jump", {
+          bubbles: true, detail: { place: p, target: target }
+        }));
+        target.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "center" });
+        target.classList.add("is-flagged");
+        setTimeout(function () { target.classList.remove("is-flagged"); }, 2200);
+      });
+    }
+
+    if (!quiet) {
+      state.view = "auto";
+      syncViewButtons();
+    }
+  }
+
+  /* ------------------------------ arrow keys ------------------------------ */
+  // Left/right walk the visible pins in the order they appear in PLACES, so
+  // keyboard users can tour the map without tabbing through everything.
+
+  host.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    var focused = markers.filter(function (m) { return m.node === document.activeElement; })[0];
+    if (!focused) return;
+    e.preventDefault();
+    var list = markers.filter(function (m) { return visible(m.place); });
+    var i = list.indexOf(focused);
+    var next = list[(i + (e.key === "ArrowRight" ? 1 : -1) + list.length) % list.length];
+    if (next) next.node.focus();
+  });
+
+  build();
+
+  window.FieldMap = {
+    select: function (id) {
+      var p = window.PLACES.filter(function (x) { return x.id === id; })[0];
+      if (!p) return;
+      if (!visible(p)) { state.kind = "all"; state.wish = true; render(); }
+      select(p);
+      flyTo(boundsOf([p], 0.25, p.kind === "dive" ? 0.35 : 1.6));
+      var m = markers.filter(function (x) { return x.place === p; })[0];
+      if (m) m.node.focus();
+    }
+  };
+})();

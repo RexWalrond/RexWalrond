@@ -8,7 +8,16 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
+/* ------------------------------ design tokens ------------------------------ */
+/* Two themes off one set of names. Light is the original alpine-mist paper;
+   dusk is the same landscape after sundown, not a mechanical inversion — the
+   ridges go to silhouette, the sunrise glow becomes moonlight, and the stars
+   that are always in the markup finally have somewhere dark to show up.
+   Scene colours are tokens too, so the four backgrounds re-theme for free. */
+
 :root {
+  color-scheme: light;
+
   --bg: #eef0ea;
   --paper: #f6f7f2;
   --ink: #1e2b26;
@@ -20,6 +29,51 @@
   --pine: #2f5c4a;
   --gold: #c99a35;
 
+  /* surfaces derived from the palette rather than re-stated per component */
+  --panel: rgba(246, 247, 242, 0.72);
+  --panel-solid: #f6f7f2;
+  --shade: var(--shade);
+  --hairline: var(--line);
+
+  /* --- scene: sky and ridges --- */
+  --sky-top: #e7ebe4;
+  --sky-mid: #eef0ea;
+  --sky-low: #f2efe6;
+  --ridge-1: color-mix(in srgb, var(--pine) 34%, var(--bg));
+  --scrim: rgba(238, 240, 234, 0.74);
+  --ridge-2: color-mix(in srgb, var(--blue) 44%, var(--bg));
+  --ridge-3: color-mix(in srgb, var(--blue) 64%, var(--bg));
+  --ridge-4: color-mix(in srgb, var(--blue) 42%, var(--ink));
+  --tree: color-mix(in srgb, var(--ink) 90%, var(--blue));
+  --glow-hot: rgba(201, 154, 53, 0.42);
+  --glow-mid: rgba(181, 101, 47, 0.16);
+  --mist-color: rgba(246, 247, 242, 0.85);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 244, 222, 0.95) 0%, rgba(240, 206, 140, 0.55) 46%, rgba(240, 206, 140, 0) 70%);
+  --celestial-top: 58%;
+  --celestial-left: 74%;
+  --celestial-size: 13vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(238, 240, 234, 0.4) 28%, rgba(238, 240, 234, 0.05) 56%, rgba(238, 240, 234, 0.3) 100%);
+  --grain-alpha: 0.032;
+
+  /* --- scene: underwater --- */
+  --water-hi: #bcd6db;
+  --water-lo: #5d8d9c;
+  --shaft-color: rgba(255, 255, 255, 0.5);
+  --mote-color: rgba(255, 255, 255, 0.72);
+
+  /* --- scene: snow --- */
+  --snow-flake: rgba(255, 255, 255, 0.92);
+
+  /* --- map --- */
+  --fmap-sea-hi: color-mix(in srgb, var(--blue) 46%, var(--paper));
+  --fmap-sea-lo: color-mix(in srgb, var(--blue) 72%, var(--ink));
+  --fmap-land: color-mix(in srgb, var(--gold) 9%, var(--paper));
+  --fmap-coast: color-mix(in srgb, var(--pine) 90%, var(--bg));
+  --fmap-state: color-mix(in srgb, var(--pine) 40%, transparent);
+  --fmap-grat: color-mix(in srgb, var(--paper) 17%, transparent);
+  --plot-grid: color-mix(in srgb, var(--blue) 13%, transparent);
+
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -27,9 +81,138 @@
   --measure: 640px;
 }
 
+/* Dusk — applied when the system asks for dark and the reader hasn't pinned
+   light, or when they've pinned dusk outright. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --theme-dusk: 1; }
+}
+:root[data-theme="dusk"] { --theme-dusk: 1; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #10171a;
+    --paper: #182125;
+    --ink: #e6ece7;
+    --ink-soft: #a6b4ad;
+    --ink-faint: #6d7c76;
+    --line: #2b3a38;
+    --blue: #7ea9c9;
+    --ember: #e08a4e;
+    --pine: #5ea07f;
+    --gold: #dfb75c;
+
+    --panel: rgba(24, 33, 37, 0.66);
+    --panel-solid: #182125;
+    --shade: rgba(230, 236, 231, 0.05);
+  --shadow: rgba(0, 0, 0, 0.55);
+  --shadow-strong: rgba(0, 0, 0, 0.68);
+    --shadow: rgba(0, 0, 0, 0.55);
+    --shadow-strong: rgba(0, 0, 0, 0.68);
+
+    --sky-top: #0a1013;
+    --sky-mid: #10171a;
+    --sky-low: #1a2124;
+    --ridge-1: #1e333b;
+    --scrim: rgba(16, 23, 26, 0.62);
+    --ridge-2: #16262d;
+    --ridge-3: #101c22;
+    --ridge-4: #080f13;
+    --tree: #050a0d;
+    --glow-hot: rgba(224, 138, 78, 0.20);
+    --glow-mid: rgba(126, 169, 201, 0.10);
+    --mist-color: rgba(126, 169, 201, 0.13);
+    --star-alpha: 1;
+    --celestial: radial-gradient(circle, rgba(232, 240, 240, 0.92) 0%, rgba(198, 216, 224, 0.4) 40%, rgba(198, 216, 224, 0) 68%);
+    --celestial-top: 17%;
+    --celestial-left: 78%;
+    --celestial-size: 9vh;
+    --veil: linear-gradient(180deg, var(--bg) 0%, rgba(16, 23, 26, 0.34) 30%, rgba(16, 23, 26, 0.04) 58%, rgba(16, 23, 26, 0.42) 100%);
+    --grain-alpha: 0.05;
+
+    --water-hi: #16323c;
+    --water-lo: #071820;
+    --shaft-color: rgba(168, 214, 226, 0.22);
+    --mote-color: rgba(198, 232, 238, 0.5);
+    --snow-flake: rgba(226, 238, 240, 0.8);
+
+    --fmap-sea-hi: #123845;
+    --fmap-sea-lo: #030d12;
+    --fmap-land: #27453c;
+    --fmap-coast: color-mix(in srgb, var(--pine) 75%, var(--bg));
+    --fmap-state: color-mix(in srgb, var(--pine) 46%, transparent);
+    --fmap-grat: color-mix(in srgb, var(--blue) 20%, transparent);
+  --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
+    --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
+  }
+}
+
+/* The same dusk values, pinned by the toggle rather than the system. Kept as a
+   duplicate block on purpose: CSS has no way to share a body between a media
+   query and an attribute selector without a preprocessor, and this file has no
+   build step. Edit both, or neither. */
+:root[data-theme="dusk"] {
+  color-scheme: dark;
+
+  --bg: #10171a;
+  --paper: #182125;
+  --ink: #e6ece7;
+  --ink-soft: #a6b4ad;
+  --ink-faint: #6d7c76;
+  --line: #2b3a38;
+  --blue: #7ea9c9;
+  --ember: #e08a4e;
+  --pine: #5ea07f;
+  --gold: #dfb75c;
+
+  --panel: rgba(24, 33, 37, 0.66);
+  --panel-solid: #182125;
+  --shade: rgba(230, 236, 231, 0.05);
+  --shadow: rgba(0, 0, 0, 0.55);
+  --shadow-strong: rgba(0, 0, 0, 0.68);
+
+  --sky-top: #0a1013;
+  --sky-mid: #10171a;
+  --sky-low: #1a2124;
+  --ridge-1: #1e333b;
+  --scrim: rgba(16, 23, 26, 0.62);
+  --ridge-2: #16262d;
+  --ridge-3: #101c22;
+  --ridge-4: #080f13;
+  --tree: #050a0d;
+  --glow-hot: rgba(224, 138, 78, 0.20);
+  --glow-mid: rgba(126, 169, 201, 0.10);
+  --mist-color: rgba(126, 169, 201, 0.13);
+  --star-alpha: 1;
+  --celestial: radial-gradient(circle, rgba(232, 240, 240, 0.92) 0%, rgba(198, 216, 224, 0.4) 40%, rgba(198, 216, 224, 0) 68%);
+  --celestial-top: 17%;
+  --celestial-left: 78%;
+  --celestial-size: 9vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(16, 23, 26, 0.34) 30%, rgba(16, 23, 26, 0.04) 58%, rgba(16, 23, 26, 0.42) 100%);
+  --grain-alpha: 0.05;
+
+  --water-hi: #16323c;
+  --water-lo: #071820;
+  --shaft-color: rgba(168, 214, 226, 0.22);
+  --mote-color: rgba(198, 232, 238, 0.5);
+  --snow-flake: rgba(226, 238, 240, 0.8);
+
+  --fmap-sea-hi: #123845;
+  --fmap-sea-lo: #030d12;
+  --fmap-land: #27453c;
+  --fmap-coast: color-mix(in srgb, var(--pine) 75%, var(--bg));
+  --fmap-state: color-mix(in srgb, var(--pine) 46%, transparent);
+  --fmap-grat: color-mix(in srgb, var(--blue) 20%, transparent);
+  --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
+}
+
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+}
 
 body {
   margin: 0;
@@ -40,13 +223,59 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   position: relative;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* -------------------- background: topo mountain art -------------------- */
-/* Fixed full-viewport layer: three ridge silhouettes at falling opacity for
-   depth, blurred mist drifting slowly across the mid-ground, a breathing
-   ember glow near the horizon, and a gradient fade so text stays readable
-   on top. All motion is gated behind prefers-reduced-motion. */
+::selection { background: color-mix(in srgb, var(--ember) 26%, transparent); }
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------- scene-scoped atmosphere ------------------------- */
+/* chrome.js mirrors the active scene onto <html data-scene>, so the veil and
+   the reading-column scrim can take the scene's cast. This is what makes
+   switching to Dive feel like the whole page went underwater rather than just
+   the strip of art behind it. Placed after the theme blocks so these win, and
+   the dusk variants carry an extra attribute to win in turn. */
+
+:root[data-scene="depth"] {
+  --veil: linear-gradient(180deg, rgba(188, 214, 219, 0.88) 0%, rgba(188, 214, 219, 0.3) 26%, rgba(120, 160, 172, 0.08) 54%, rgba(93, 141, 156, 0.42) 100%);
+  --scrim: rgba(224, 238, 240, 0.78);
+}
+
+:root[data-scene="snow"] {
+  --veil: linear-gradient(180deg, rgba(228, 236, 238, 0.9) 0%, rgba(228, 236, 238, 0.42) 28%, rgba(210, 224, 228, 0.1) 56%, rgba(196, 213, 219, 0.4) 100%);
+  --scrim: rgba(238, 243, 244, 0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-scene="depth"] {
+    --veil: linear-gradient(180deg, rgba(10, 34, 43, 0.82) 0%, rgba(8, 28, 36, 0.34) 30%, rgba(7, 24, 32, 0.06) 58%, rgba(4, 16, 22, 0.66) 100%);
+    --scrim: rgba(7, 26, 34, 0.66);
+  }
+  :root:not([data-theme="light"])[data-scene="snow"] {
+    --veil: linear-gradient(180deg, rgba(14, 24, 30, 0.74) 0%, rgba(14, 24, 30, 0.3) 30%, rgba(14, 24, 30, 0.04) 58%, rgba(12, 20, 26, 0.56) 100%);
+    --scrim: rgba(14, 24, 30, 0.62);
+  }
+}
+
+:root[data-theme="dusk"][data-scene="depth"] {
+  --veil: linear-gradient(180deg, rgba(10, 34, 43, 0.82) 0%, rgba(8, 28, 36, 0.34) 30%, rgba(7, 24, 32, 0.06) 58%, rgba(4, 16, 22, 0.66) 100%);
+  --scrim: rgba(7, 26, 34, 0.66);
+}
+:root[data-theme="dusk"][data-scene="snow"] {
+  --veil: linear-gradient(180deg, rgba(14, 24, 30, 0.74) 0%, rgba(14, 24, 30, 0.3) 30%, rgba(14, 24, 30, 0.04) 58%, rgba(12, 20, 26, 0.56) 100%);
+  --scrim: rgba(14, 24, 30, 0.62);
+}
+
+/* ------------------------- background scene system ------------------------- */
+/* Markup is generated by assets/chrome.js from <body data-scene>. Scenes stack
+   in the same fixed layer and cross-fade, so a page can change weather without
+   a reload — Field Notes swaps alpine / depth / snow with its tabs.
+   Every animation in here sits behind prefers-reduced-motion. */
 
 .topo-bg {
   position: fixed;
@@ -54,104 +283,338 @@ body {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 46%, var(--sky-low) 100%);
+  transition: background 0.6s ease;
 }
 
-.ridges {
+.scene {
   position: absolute;
-  inset: auto 0 0 0;
-  height: 58vh;
-  min-height: 300px;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.72s ease, visibility 0.72s;
 }
+.scene.is-active { opacity: 1; visibility: visible; }
 
-.ridge-layer {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* atmospheric depth: far ridge cool/pine-tinted, mid ridge dusk-blue, near
-   ridge closest to true ink — real hue instead of flat greyscale */
-.ridge-layer--1 { fill: color-mix(in srgb, var(--pine) 46%, var(--bg)); }
-.ridge-layer--2 { fill: color-mix(in srgb, var(--blue) 58%, var(--bg)); }
-.ridge-layer--3 { fill: color-mix(in srgb, var(--ink) 78%, var(--blue)); }
-
-.glow {
-  position: absolute;
-  left: 50%;
-  bottom: 6vh;
-  width: 62vw;
-  height: 38vh;
-  max-width: 680px;
-  max-height: 360px;
-  transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(201,154,53,0.4), rgba(181,101,47,0.16) 45%, rgba(181,101,47,0) 72%);
-  filter: blur(4px);
-  opacity: 0.75;
-}
-
-.mist {
-  position: absolute;
-  width: 130%;
-  left: -15%;
-  height: 24vh;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(246,247,242,0.85), rgba(246,247,242,0) 72%);
-  filter: blur(22px);
-  opacity: 0.55;
-}
-
-.mist--a { top: 14%; height: 20vh; }
-.mist--b { top: 32%; height: 26vh; opacity: 0.45; }
-.mist--c { top: 48%; height: 22vh; opacity: 0.5; }
-
+/* the readability veil and the paper grain sit above every scene */
 .topo-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, var(--bg) 0%, rgba(238,240,234,0.5) 34%, rgba(238,240,234,0.1) 58%, rgba(238,240,234,0.6) 100%);
+  background: var(--veil);
+  z-index: 3;
 }
 
+.topo-bg::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: 4;
+  opacity: var(--grain-alpha);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* ------------------------------ scene: alpine ------------------------------ */
+
+.ridges {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 50vh;
+  min-height: 290px;
+  z-index: 2;
+}
+
+.ridge-layer,
+.treeline {
+  position: absolute;
+  bottom: -2px;
+  left: -2%;
+  width: 104%;
+  height: 100%;
+  will-change: transform;
+}
+
+.ridge-layer--1 path { fill: var(--ridge-1); }
+.ridge-layer--2 path { fill: var(--ridge-2); }
+.ridge-layer--3 path { fill: var(--ridge-3); }
+.ridge-layer--4 path { fill: var(--ridge-4); }
+.treeline path     { fill: var(--tree); }
+
+/* The treeline rides the nearest ridge, so it shares its parallax depth. */
+.treeline { z-index: 1; }
+
+.celestial {
+  position: absolute;
+  left: var(--celestial-left, 50%);
+  top: var(--celestial-top);
+  width: var(--celestial-size);
+  height: var(--celestial-size);
+  transform: translate(-50%, -50%);
+  background: var(--celestial);
+  border-radius: 50%;
+  z-index: 1;
+  transition: top 0.6s ease, width 0.6s ease, height 0.6s ease;
+}
+
+.glow {
+  position: absolute;
+  left: 50%;
+  bottom: 2vh;
+  width: 58vw;
+  height: 30vh;
+  max-width: 620px;
+  max-height: 280px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--glow-hot), var(--glow-mid) 46%, transparent 74%);
+  filter: blur(6px);
+  opacity: 0.75;
+  z-index: 1;
+}
+
+.glow--cold { background: radial-gradient(closest-side, rgba(200, 222, 232, 0.5), rgba(126, 169, 201, 0.14) 48%, transparent 76%); }
+.glow--cool { background: radial-gradient(closest-side, var(--glow-mid), transparent 72%); }
+
+.mist {
+  position: absolute;
+  width: 132%;
+  left: -16%;
+  height: 24vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--mist-color), transparent 72%);
+  filter: blur(24px);
+  opacity: 0.55;
+  z-index: 2;
+}
+
+.mist--a { top: 30%; height: 20vh; }
+.mist--b { top: 44%; height: 26vh; opacity: 0.45; }
+.mist--c { top: 58%; height: 22vh; opacity: 0.5; }
+
+.sky-stars {
+  position: absolute;
+  inset: 0;
+  opacity: var(--star-alpha);
+  transition: opacity 0.8s ease;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #f2f6f4;
+  opacity: var(--star-o, 0.5);
+}
+
+/* ------------------------------ scene: depth ------------------------------ */
+/* A spring cavern rather than open blue water: light enters from above in
+   hard-edged shafts, particulate rises through it, walls close at the edges. */
+
+.scene--depth { background: linear-gradient(180deg, var(--water-hi) 0%, var(--water-lo) 78%); }
+
+.caustics {
+  position: absolute;
+  inset: -10% 0 auto 0;
+  height: 46%;
+  background:
+    repeating-linear-gradient(74deg, transparent 0 18px, var(--shaft-color) 18px 20px, transparent 20px 44px),
+    repeating-linear-gradient(-66deg, transparent 0 26px, var(--shaft-color) 26px 27px, transparent 27px 58px);
+  opacity: 0.16;
+  filter: blur(2px);
+}
+
+.shafts { position: absolute; inset: 0; overflow: hidden; }
+
+.shaft {
+  position: absolute;
+  top: -12%;
+  width: var(--shaft-w, 9vw);
+  height: 96%;
+  transform-origin: top center;
+  transform: rotate(var(--shaft-r, 0deg));
+  background: linear-gradient(180deg, var(--shaft-color), transparent 76%);
+  filter: blur(10px);
+  opacity: 0.6;
+}
+
+.motes { position: absolute; inset: 0; overflow: hidden; }
+
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--mote-color);
+  opacity: 0.55;
+}
+
+.cavern-walls {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 42% 100% at -6% 50%, color-mix(in srgb, var(--water-lo) 85%, #000) 0%, transparent 70%),
+    radial-gradient(ellipse 42% 100% at 106% 50%, color-mix(in srgb, var(--water-lo) 85%, #000) 0%, transparent 70%),
+    radial-gradient(ellipse 120% 44% at 50% 118%, color-mix(in srgb, var(--water-lo) 92%, #000) 0%, transparent 72%);
+  opacity: 0.75;
+}
+
+/* ------------------------------- scene: snow ------------------------------- */
+
+.scene--snow { background: linear-gradient(180deg, color-mix(in srgb, var(--blue) 12%, var(--sky-top)) 0%, var(--sky-low) 72%); }
+
+.ridges--snow .ridge-layer--1 path { fill: color-mix(in srgb, var(--blue) 26%, var(--bg)); }
+.ridges--snow .ridge-layer--2 path { fill: color-mix(in srgb, var(--blue) 42%, var(--bg)); }
+.ridges--snow .ridge-layer--3 path { fill: color-mix(in srgb, var(--ink) 62%, var(--blue)); }
+
+.snowfall { position: absolute; inset: 0; overflow: hidden; z-index: 3; }
+
+.flake {
+  position: absolute;
+  top: -6%;
+  border-radius: 50%;
+  background: var(--snow-flake);
+  opacity: 0.8;
+}
+
+/* ------------------------------- scene: plot ------------------------------- */
+/* The ridge, redrawn as a chart. Same line, different reading. */
+
+.plot-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--plot-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--plot-grid) 1px, transparent 1px);
+  background-size: 74px 74px;
+  opacity: 0.55;
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 72%, transparent);
+}
+
+.ridges--plot .ridge-layer--2 path { fill: color-mix(in srgb, var(--blue) 18%, transparent); }
+
+.plot-line {
+  position: absolute;
+  bottom: -2px;
+  left: -2%;
+  width: 104%;
+  height: 100%;
+}
+.plot-line path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--blue) 70%, var(--ink));
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.5;
+}
+
+/* ------------------------------- scene motion ------------------------------- */
+/* Parallax reads two custom properties set by chrome.js on <body>:
+   --parallax-x / --parallax-y (pointer, fine pointers only) and --scroll-y
+   (0 at the top of the page, 1 at the bottom). Far layers barely move, near
+   layers move most — the ridges hold still while the page slides over them. */
+
 @media (prefers-reduced-motion: no-preference) {
-  .glow { animation: glow-breathe 8s ease-in-out infinite; }
+  .glow { animation: glow-breathe 9s ease-in-out infinite; }
   .mist--a { animation: drift-a 64s ease-in-out infinite alternate; }
   .mist--b { animation: drift-b 84s ease-in-out infinite alternate; }
   .mist--c { animation: drift-c 100s ease-in-out infinite alternate; }
+  .star { animation: twinkle 6s ease-in-out infinite; }
+  .shaft { animation: shaft-sway 17s ease-in-out infinite alternate; }
+  .mote { animation: mote-rise linear infinite; }
+  .flake { animation: flake-fall linear infinite; }
+  .caustics { animation: caustic-slide 26s linear infinite; }
 
-  /* cursor parallax — parallax.js sets --parallax-x/y on <body>, only on
-     fine-pointer (mouse) devices; harmless no-op everywhere else */
-  .ridge-layer {
-    transition: transform 0.3s ease-out;
-    transform: translate3d(calc(var(--parallax-x, 0) * 0.4px), calc(var(--parallax-y, 0) * 0.4px), 0);
+  .ridge-layer,
+  .treeline,
+  .plot-line {
+    transition: transform 0.28s ease-out;
   }
-  .ridge-layer--1 { transform: translate3d(calc(var(--parallax-x, 0) * 0.2px), calc(var(--parallax-y, 0) * 0.2px), 0); }
-  .ridge-layer--2 { transform: translate3d(calc(var(--parallax-x, 0) * 0.55px), calc(var(--parallax-y, 0) * 0.35px), 0); }
-  .ridge-layer--3 { transform: translate3d(calc(var(--parallax-x, 0) * 0.9px), calc(var(--parallax-y, 0) * 0.5px), 0); }
+
+  .ridge-layer--1 { transform: translate3d(calc(var(--parallax-x, 0) * 3px),  calc(var(--parallax-y, 0) * 2px  + var(--scroll-y, 0) * -14px), 0); }
+  .ridge-layer--2 { transform: translate3d(calc(var(--parallax-x, 0) * 7px),  calc(var(--parallax-y, 0) * 4px  + var(--scroll-y, 0) * -30px), 0); }
+  .ridge-layer--3 { transform: translate3d(calc(var(--parallax-x, 0) * 13px), calc(var(--parallax-y, 0) * 6px  + var(--scroll-y, 0) * -52px), 0); }
+  .ridge-layer--4,
+  .treeline       { transform: translate3d(calc(var(--parallax-x, 0) * 20px), calc(var(--parallax-y, 0) * 9px  + var(--scroll-y, 0) * -80px), 0); }
+
+  .celestial { transform: translate(-50%, calc(-50% + var(--scroll-y, 0) * 34px)); }
+  .sky-stars { transform: translateY(calc(var(--scroll-y, 0) * 18px)); }
 }
 
 @keyframes glow-breathe {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 0.85; }
+  0%, 100% { opacity: 0.52; }
+  50%      { opacity: 0.86; }
 }
+@keyframes drift-a { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
+@keyframes drift-b { from { transform: translateX(3%); }  to { transform: translateX(-5%); } }
+@keyframes drift-c { from { transform: translateX(-3%); } to { transform: translateX(6%); } }
 
-@keyframes drift-a {
-  from { transform: translateX(-4%); }
-  to   { transform: translateX(4%); }
+@keyframes twinkle {
+  0%, 100% { opacity: calc(var(--star-o, 0.5) * 0.45); }
+  50%      { opacity: var(--star-o, 0.5); }
 }
-@keyframes drift-b {
-  from { transform: translateX(3%); }
-  to   { transform: translateX(-5%); }
+@keyframes shaft-sway {
+  from { transform: rotate(var(--shaft-r, 0deg)); opacity: 0.4; }
+  to   { transform: rotate(calc(var(--shaft-r, 0deg) + 5deg)); opacity: 0.72; }
 }
-@keyframes drift-c {
-  from { transform: translateX(-3%); }
-  to   { transform: translateX(6%); }
+@keyframes mote-rise {
+  from { transform: translateY(0) translateX(0); opacity: 0; }
+  12%  { opacity: 0.6; }
+  88%  { opacity: 0.5; }
+  to   { transform: translateY(-130vh) translateX(16px); opacity: 0; }
+}
+@keyframes flake-fall {
+  from { transform: translate3d(0, -10vh, 0); opacity: 0; }
+  10%  { opacity: 0.85; }
+  90%  { opacity: 0.7; }
+  to   { transform: translate3d(var(--drift, 20px), 112vh, 0); opacity: 0; }
+}
+@keyframes caustic-slide {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 220px 0, -180px 0; }
 }
 
 @media (max-width: 640px) {
-  .ridges { height: 46vh; }
-  .glow { width: 80vw; height: 30vh; }
+  .ridges { height: 48vh; min-height: 240px; }
+  .glow { width: 86vw; height: 30vh; }
+  .celestial { --celestial-size: 11vh; }
+}
+
+/* ------------------------------- theme toggle ------------------------------- */
+
+.theme-toggle {
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  z-index: 40;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background 0.3s ease;
+}
+.theme-toggle:hover {
+  color: var(--ember);
+  border-color: color-mix(in srgb, var(--ember) 48%, var(--line));
+  transform: translateY(-1px);
+}
+.theme-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+
+/* system → sun with rays; light → bare sun; dusk → moon */
+.theme-toggle .t-moon { display: none; }
+.theme-toggle[data-mode="light"] .t-rays { opacity: 0.35; }
+.theme-toggle[data-mode="dusk"] .t-sun,
+.theme-toggle[data-mode="dusk"] .t-rays { display: none; }
+.theme-toggle[data-mode="dusk"] .t-moon { display: block; }
+
+@media (max-width: 640px) {
+  .theme-toggle { right: 12px; top: 12px; width: 34px; height: 34px; }
 }
 
 /* ---------------------------- reveal-on-scroll ---------------------------- */
@@ -178,6 +641,28 @@ body {
 }
 
 /* -------------------------------- layout -------------------------------- */
+
+/* The reading column carries its own scrim rather than the background being
+   flattened everywhere. Art stays at full strength out in the margins, where
+   there is nothing to read; text sits on a quiet band that tracks the column
+   at any viewport width. */
+.wrap::before {
+  content: '';
+  position: absolute;
+  top: -4vh;
+  bottom: -4vh;
+  /* Reach 13vw past the column for a soft edge, but never past the viewport:
+     an absolutely positioned box still counts toward scrollable overflow, and
+     once the column is as wide as the screen the overhang becomes a sideways
+     scrollbar on every page. calc(-50vw + 50%) is exactly the viewport edge. */
+  left: max(-13vw, calc(-50vw + 50%));
+  right: max(-13vw, calc(-50vw + 50%));
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--scrim) 26%, var(--scrim) 74%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+}
 
 .wrap {
   position: relative;
@@ -259,7 +744,7 @@ section.bio a { color: var(--blue); }
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 5px rgba(201,154,53,0.45));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--gold) 50%, transparent));
 }
 
 .elevation path.fill {
@@ -512,22 +997,28 @@ footer .dot { color: var(--ink-faint); }
 
 .trip-stage-bg {
   position: absolute;
-  inset: -32px -24px;
+  top: -32px;
+  bottom: -32px;
+  /* The 24px bleed is clamped to the viewport for the same reason the column
+     scrim is: it overhangs, and an overhang past the screen edge is a
+     horizontal scrollbar on narrow phones. */
+  left: max(-24px, calc(-50vw + 50%));
+  right: max(-24px, calc(-50vw + 50%));
   border-radius: 10px;
   z-index: -1;
-  background: radial-gradient(120% 100% at 15% 0%, rgba(181,101,47,0.10), transparent 60%),
-              linear-gradient(180deg, rgba(181,101,47,0.05), transparent 70%);
+  background: radial-gradient(120% 100% at 15% 0%, color-mix(in srgb, var(--ember) 11%, transparent), transparent 60%),
+              linear-gradient(180deg, color-mix(in srgb, var(--ember) 6%, transparent), transparent 70%);
   transition: background 0.7s ease;
 }
 
 .trip-stage[data-scene="dive"] .trip-stage-bg {
-  background: radial-gradient(120% 100% at 85% 0%, rgba(60,90,115,0.14), transparent 60%),
-              linear-gradient(180deg, rgba(60,90,115,0.08), transparent 70%);
+  background: radial-gradient(120% 100% at 85% 0%, color-mix(in srgb, var(--blue) 16%, transparent), transparent 60%),
+              linear-gradient(180deg, color-mix(in srgb, var(--blue) 9%, transparent), transparent 70%);
 }
 
 .trip-stage[data-scene="ski"] .trip-stage-bg {
-  background: radial-gradient(120% 100% at 50% 0%, rgba(47,92,74,0.13), transparent 62%),
-              linear-gradient(180deg, rgba(47,92,74,0.07), transparent 70%);
+  background: radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--pine) 15%, transparent), transparent 62%),
+              linear-gradient(180deg, color-mix(in srgb, var(--pine) 8%, transparent), transparent 70%);
 }
 
 .trip-panel {
@@ -579,7 +1070,7 @@ footer .dot { color: var(--ink-faint); }
 .bubble {
   position: absolute;
   border-radius: 50%;
-  background: rgba(60,90,115,0.28);
+  background: color-mix(in srgb, var(--blue) 30%, transparent);
   bottom: 6%;
 }
 
@@ -600,7 +1091,7 @@ footer .dot { color: var(--ink-faint); }
   position: absolute;
   top: 0;
   border-radius: 50%;
-  background: rgba(47,92,74,0.3);
+  background: color-mix(in srgb, var(--pine) 32%, transparent);
   pointer-events: none;
 }
 
@@ -680,7 +1171,7 @@ footer .dot { color: var(--ink-faint); }
 
 .trip-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px -20px rgba(30,43,38,0.35);
+  box-shadow: 0 14px 28px -20px var(--shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -791,12 +1282,12 @@ footer .dot { color: var(--ink-faint); }
 }
 
 .site-row:hover {
-  background: rgba(30, 43, 38, 0.045);
+  background: var(--shade);
   padding-left: 12px;
 }
 
-.trip-panel--dive .site-row:hover { background: rgba(60, 90, 115, 0.05); }
-.trip-panel--ski .site-row:hover { background: rgba(47, 92, 74, 0.05); }
+.trip-panel--dive .site-row:hover { background: color-mix(in srgb, var(--blue) 7%, transparent); }
+.trip-panel--ski .site-row:hover { background: color-mix(in srgb, var(--pine) 7%, transparent); }
 
 @media (prefers-reduced-motion: reduce) {
   .site-row { transition: none; }
@@ -983,7 +1474,7 @@ footer .dot { color: var(--ink-faint); }
   transition: background 0.15s ease;
 }
 
-.cov-row-summary:hover { background: rgba(30,43,38,0.035); }
+.cov-row-summary:hover { background: var(--shade); }
 
 @media (prefers-reduced-motion: reduce) {
   .cov-row { transition: none; }
@@ -1113,7 +1604,7 @@ footer .dot { color: var(--ink-faint); }
 
 .qp-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px -20px rgba(30,43,38,0.35);
+  box-shadow: 0 14px 28px -20px var(--shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1657,7 +2148,7 @@ footer .dot { color: var(--ink-faint); }
   left: 0;
   top: 0;
   bottom: 0;
-  background: linear-gradient(90deg, rgba(181,101,47,0.16), rgba(201,154,53,0.05));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ember) 18%, transparent), color-mix(in srgb, var(--gold) 8%, transparent));
   width: 0;
   z-index: 0;
   transition: width 0.9s cubic-bezier(.2,.7,.3,1);
@@ -1783,7 +2274,7 @@ body.mood-repeat .ridge-layer--2 { fill: color-mix(in srgb, var(--ink) 16%, var(
 body.mood-repeat .ridge-layer--3 { fill: color-mix(in srgb, var(--ink) 26%, var(--bg)); }
 
 body.mood-repeat .glow {
-  background: radial-gradient(closest-side, rgba(60,90,115,0.22), rgba(60,90,115,0) 72%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--blue) 24%, transparent), transparent 72%);
   width: 78vw;
   height: 30vh;
 }
@@ -1868,7 +2359,7 @@ body.mood-repeat .glow {
   border-radius: 8px;
   overflow: hidden;
   background: var(--line);
-  box-shadow: 0 10px 24px -14px rgba(30,43,38,0.45);
+  box-shadow: 0 10px 24px -14px var(--shadow-strong);
 }
 
 .pick-art {
@@ -2046,7 +2537,7 @@ body.mood-repeat .glow {
 }
 
 .rank-row:hover {
-  background: rgba(30, 43, 38, 0.035);
+  background: var(--shade);
 }
 
 .rank-row.is-hidden { display: none; }
@@ -2058,11 +2549,11 @@ body.mood-repeat .glow {
 }
 
 .rank-row--top {
-  background: rgba(181, 101, 47, 0.055);
+  background: color-mix(in srgb, var(--ember) 7%, transparent);
 }
 
 .rank-row--top:hover {
-  background: rgba(181, 101, 47, 0.09);
+  background: color-mix(in srgb, var(--ember) 11%, transparent);
 }
 
 .rank-handle {
@@ -2383,4 +2874,407 @@ body.mood-repeat .glow {
   .rank-controls-bar { row-gap: 12px; }
   .rank-move { opacity: 1; }
   .rank-del { opacity: 1; }
+}
+
+/* ------------------------- Field Notes: the map ------------------------- */
+/* Built by assets/map.js from assets/places.js + assets/geo.js. Everything
+   here is palette tokens, so the map re-themes with the rest of the site. */
+
+/* The map breaks out of the reading column: it's the single place this page
+   spends its visual boldness, and 584px is not enough to read a map in. */
+.map-section {
+  /* Negative margin rather than a transform: a transform moves the box
+     visually but leaves its layout width where it was, which pushed the
+     document wider than the viewport and gave every page a sideways scroll. */
+  --bleed: min(1140px, calc(100vw - 52px));
+  width: var(--bleed);
+  margin: 0 0 44px calc(50% - var(--bleed) / 2);
+}
+
+@media (max-width: 640px) {
+  .map-section { --bleed: calc(100vw - 24px); margin-bottom: 34px; }
+}
+
+.map-intro {
+  margin: 0 0 20px;
+  color: var(--ink-soft);
+  font-size: 15.5px;
+  max-width: 58ch;
+}
+
+.fmap-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.fmap-chips,
+.fmap-views { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.fmap-chip,
+.fmap-view {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.fmap-chip:hover,
+.fmap-view:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+
+.fmap-chip.is-active {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.fmap-view.is-active {
+  color: var(--ember);
+  border-color: color-mix(in srgb, var(--ember) 55%, var(--line));
+  background: color-mix(in srgb, var(--ember) 9%, transparent);
+}
+
+/* the wishlist toggle reads as a switch, not a filter — hollow when off */
+.fmap-chip--wish { display: inline-flex; align-items: center; gap: 7px; }
+.fmap-chip--wish.is-active { background: var(--panel); color: var(--ink); border-color: var(--line); }
+.fmap-chip-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ember);
+  background: transparent;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+.fmap-chip--wish:not(.is-active) { opacity: 0.55; }
+.fmap-chip--wish:not(.is-active) .fmap-chip-dot { border-color: var(--ink-faint); }
+
+/* ------------------------------- the canvas ------------------------------- */
+
+.fmap-stage {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--fmap-sea-lo);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--paper) 22%, transparent),
+              inset 0 22px 44px -26px rgba(0, 0, 0, 0.5);
+}
+
+.fmap-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 92% 90% at 50% 46%, transparent 62%, rgba(0, 0, 0, 0.13) 100%);
+}
+
+.fmap-svg { display: block; width: 100%; height: auto; }
+
+.fmap-grat {
+  fill: none;
+  stroke: var(--fmap-grat);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.fmap-land {
+  fill: var(--fmap-land);
+  stroke: var(--fmap-coast);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* State lines only appear once the frame is tight enough for them to mean
+   something — at world scale they're noise. */
+.fmap-states {
+  fill: none;
+  stroke: var(--fmap-state);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.fmap-geo.show-states .fmap-states { opacity: 1; }
+
+/* -------------------------------- markers -------------------------------- */
+
+.fmap-pin { cursor: pointer; }
+.fmap-hit { fill: transparent; }
+
+.fmap-glyph {
+  fill: var(--pine);
+  stroke: var(--paper);
+  stroke-width: 1.7;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease, transform 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fmap-pin--dive .fmap-glyph { fill: var(--blue); }
+.fmap-pin--ski  .fmap-glyph { fill: var(--gold); }
+
+/* on the list: hollow, in ember, so ambition reads differently from record */
+.fmap-pin.is-wish .fmap-glyph {
+  fill: color-mix(in srgb, var(--fmap-land) 55%, var(--ember));
+  stroke: var(--ember);
+  stroke-width: 2.1;
+}
+
+.fmap-halo {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+
+.fmap-pin.is-offscreen { opacity: 0.16; pointer-events: none; }
+
+.fmap-pin:hover .fmap-glyph,
+.fmap-pin.is-hot .fmap-glyph { transform: scale(1.32); }
+
+.fmap-pin.is-selected .fmap-glyph {
+  transform: scale(1.42);
+  stroke: var(--ember);
+  stroke-width: 2;
+}
+.fmap-pin.is-selected.is-wish .fmap-glyph { stroke-width: 2.6; }
+
+.fmap-pin:focus { outline: none; }
+.fmap-pin:focus-visible .fmap-glyph {
+  stroke: var(--ember);
+  stroke-width: 2.4;
+  transform: scale(1.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fmap-glyph, .fmap-states { transition: none; }
+}
+
+/* -------------------------------- tooltip -------------------------------- */
+
+.fmap-tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 15px));
+  pointer-events: none;
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--panel-solid);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  white-space: nowrap;
+  z-index: 3;
+  display: grid;
+  gap: 1px;
+}
+.fmap-tip[hidden] { display: none; }
+.fmap-tip.is-low { transform: translate(-50%, 15px); }
+.fmap-tip strong { font-size: 13.5px; font-weight: 600; }
+.fmap-tip span { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); }
+.fmap-tip-wish { color: var(--ember) !important; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ------------------------------- readout card ------------------------------- */
+
+.fmap-card {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--line);
+  border-radius: 3px;
+  background: var(--panel);
+  transition: border-color 0.3s ease;
+}
+.fmap-card--backcountry.is-open { border-left-color: var(--pine); }
+.fmap-card--dive.is-open        { border-left-color: var(--blue); }
+.fmap-card--ski.is-open         { border-left-color: var(--gold); }
+
+.fmap-summary {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.fmap-hint { margin: 5px 0 0; font-size: 14px; color: var(--ink-faint); }
+
+.fmap-card-kind {
+  margin: 0 0 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.fmap-card h3 {
+  margin: 0 0 3px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.fmap-card-where { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-soft); }
+
+.fmap-card-stats { display: flex; flex-wrap: wrap; gap: 22px; margin-bottom: 12px; }
+.fmap-card-stats span { display: grid; }
+.fmap-card-stats strong { font-family: var(--font-mono); font-size: 15px; font-weight: 500; }
+.fmap-card-stats small {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.fmap-card-note { margin: 0 0 12px; font-size: 15px; color: var(--ink-soft); }
+
+.fmap-card-coord {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+.fmap-card-jump {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ember);
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, var(--ember) 40%, transparent);
+  transition: border-color 0.2s ease;
+}
+.fmap-card-jump:hover { border-bottom-color: var(--ember); }
+
+/* -------------------------------- legend -------------------------------- */
+
+.fmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 12px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.fmap-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.fmap-legend svg { width: 13px; height: 13px; overflow: visible; }
+.fmap-legend span:nth-child(1) svg * { fill: var(--pine); }
+.fmap-legend span:nth-child(2) svg * { fill: var(--blue); }
+.fmap-legend span:nth-child(3) svg * { fill: var(--gold); }
+.fmap-legend .is-wish svg * {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 2.4;
+}
+
+/* The entry a marker sent you to gets flagged briefly so you land on it
+   rather than somewhere near it. */
+.is-flagged {
+  animation: flag-entry 2.2s ease-out;
+}
+@keyframes flag-entry {
+  0%, 62%  { background: color-mix(in srgb, var(--ember) 13%, transparent); }
+  100%     { background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-flagged { animation: none; outline: 2px solid var(--ember); outline-offset: 4px; }
+}
+
+@media (max-width: 640px) {
+  .fmap-bar { gap: 10px; }
+  .fmap-chip, .fmap-view { font-size: 10.5px; padding: 5px 10px; }
+  .fmap-card-stats { gap: 16px; }
+  .fmap-tip { display: none; }
+}
+
+/* Displacement leaders: when the separation pass moves a pin off its true
+   position, a hairline shows where it actually sits. */
+.fmap-leader {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 0.25s ease;
+}
+.fmap-anchor { fill: var(--ink-faint); opacity: 0; transition: opacity 0.25s ease; }
+.fmap-pin.is-shifted .fmap-leader { opacity: 0.4; }
+.fmap-pin.is-shifted .fmap-anchor { opacity: 0.55; }
+.fmap-pin.is-shifted:hover .fmap-leader,
+.fmap-pin.is-shifted.is-hot .fmap-leader,
+.fmap-pin.is-shifted.is-selected .fmap-leader { opacity: 0.9; stroke: var(--ember); }
+.fmap-pin.is-shifted.is-selected .fmap-anchor { opacity: 1; fill: var(--ember); }
+.fmap-pin-body { transition: transform 0.3s cubic-bezier(.2,.7,.3,1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fmap-pin-body, .fmap-leader, .fmap-anchor { transition: none; }
+}
+
+/* Clusters: what a group of places collapses into when the frame is too wide
+   to give each one its own spot. Activating one flies in until they resolve. */
+
+.fmap-cluster { cursor: pointer; }
+
+.fmap-cluster-disc {
+  fill: color-mix(in srgb, var(--pine) 78%, var(--paper));
+  stroke: var(--paper);
+  stroke-width: 1.6;
+  transition: transform 0.2s ease, fill 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.fmap-cluster--dive  .fmap-cluster-disc { fill: color-mix(in srgb, var(--blue) 80%, var(--paper)); }
+.fmap-cluster--ski   .fmap-cluster-disc { fill: color-mix(in srgb, var(--gold) 82%, var(--ink)); }
+.fmap-cluster--mixed .fmap-cluster-disc { fill: color-mix(in srgb, var(--ink) 70%, var(--paper)); }
+.fmap-cluster.is-wish .fmap-cluster-disc {
+  fill: color-mix(in srgb, var(--fmap-land) 48%, var(--ember));
+  stroke: var(--ember);
+}
+
+.fmap-cluster-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  color: var(--paper);
+  opacity: 0.4;
+  transition: opacity 0.2s ease, stroke-width 0.2s ease;
+}
+
+.fmap-cluster-n {
+  text-anchor: middle;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--paper);
+  pointer-events: none;
+}
+.fmap-cluster--ski .fmap-cluster-n { fill: var(--ink); }
+.fmap-cluster.is-wish .fmap-cluster-n { fill: var(--ember); }
+
+.fmap-cluster:hover .fmap-cluster-disc,
+.fmap-cluster:focus-visible .fmap-cluster-disc { transform: scale(1.12); }
+.fmap-cluster:hover .fmap-cluster-ring,
+.fmap-cluster:focus-visible .fmap-cluster-ring { opacity: 0.95; stroke-width: 1.6; color: var(--ember); }
+.fmap-cluster:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fmap-cluster-disc, .fmap-cluster-ring { transition: none; }
 }

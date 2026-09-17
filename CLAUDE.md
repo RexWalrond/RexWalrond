@@ -26,82 +26,178 @@ check with Rex before changing index.html's bio or tagline copy.
 ## File structure
 
 - `index.html` — hub page, links out to the four sub-pages below
-- `trips.html` ("Field Notes") — backpacking/dive trip reports — still a stub
-- `music.html` ("On Repeat") — Zach Bryan ranking, fully built (see below)
-- `longevity.html` ("The Log") — nutrition/training/sleep tracking — still a
-  stub, explicitly needs a real backend eventually, not just static HTML
-- `quant.html` ("The Work") — FICF stock pitches + personal quant projects —
-  still a stub
-- `assets/style.css` — shared stylesheet, imported by every page
+- `trips.html` ("Field Notes") — backpacking, dive and ski trip reports, plus
+  the interactive map (see below). Real content, not a stub.
+- `music.html` ("On Repeat") — Zach Bryan ranking + listening history, fully
+  built (see below)
+- `longevity.html` ("The Log") — nutrition/training/sleep tracking, real
+  charted data from a MyFitnessPal export, with a live Supabase path
+- `quant.html` ("The Work") — FICF stock pitches + personal quant projects.
+  Structurally built; the coverage rows are still clearly-labelled placeholders
+  waiting on real calls.
 - `Rex_Walrond_Resume.pdf` — linked from the hub page
 
-There is no `assets/topo-bg.svg` file and none is needed — the background is
-generated entirely in CSS/inline SVG inside style.css (see below). Do not
-re-add an external background image reference.
+### assets/
+
+- `style.css` — the whole design system, one file, ~3,200 lines
+- `chrome.js` — shared page chrome: background scenes, theme, parallax. Loaded
+  first on every page.
+- `reveal.js` — the reveal-on-scroll IntersectionObserver
+- `places.js` — every place on the site (trips, dive sites, ski mountains,
+  wishlists) as one array. Source of truth for the map.
+- `geo.js` — baked coastline + US state geometry for the map. Generated, not
+  hand-edited (see below).
+- `map.js` — the Field Notes map
+- `log-data.js` — the MyFitnessPal export, for The Log
+- `favicon.svg` — the ridgeline-as-chart mark
+
+There is no `assets/topo-bg.svg` and none is needed — all background art is
+generated in CSS and JS. Do not re-add an external background image reference.
+`assets/parallax.js` was folded into `chrome.js`; don't bring it back.
 
 ## Design system (don't redesign from scratch)
 
 - **Palette**: bg `#eef0ea`, paper `#f6f7f2`, ink `#1e2b26`, ink-soft
   `#52605a`, ink-faint `#8a9791`, hairline `#cdd3c6`, accent blue `#3c5a73`,
-  accent ember `#b5652f`, accent pine `#2f5c4a`, accent gold `#c99a35` (pine/
-  gold added in the "pop" pass — used for background ridge color depth, hover
-  accents, and the "Summited" badge on Field Notes; still only 4 accents
-  total, spend them deliberately rather than scattering)
+  accent ember `#b5652f`, accent pine `#2f5c4a`, accent gold `#c99a35`. Still
+  only 4 accents — spend them deliberately rather than scattering.
 - **Type**: Fraunces (display/headlines), Inter (body), IBM Plex Mono
   (labels/eyebrows/data/numerals) — loaded via Google Fonts import at the top
   of style.css
 - **Signature motif**: an animated "elevation profile" SVG line (draws in on
   load) used as a section divider — doubles as a trail chart and a stock
   chart. Reused at smaller scale (`.elevation--sm`) between sections.
-- **Background**: `.topo-bg` is a fixed, full-viewport layer behind all
-  content — inline SVG mountain ridge silhouettes (`.ridges`, 3 layers at
-  different opacity for depth) + slowly drifting blurred "mist" divs
-  (`.mist--a/b/c`, animated via CSS `translateX` keyframes) + a faint ember
-  "sunrise" glow near the horizon (`.glow`, breathing opacity animation) + a
-  gradient fade (`.topo-bg::after`) so content stays readable on top. All
-  motion is wrapped in `@media (prefers-reduced-motion: no-preference)` — never
-  remove that guard.
 - **Restraint**: this is a minimal, editorial, hairline-rule aesthetic, not a
   maximalist one. Spend visual boldness in one place per page, not scattered.
   Avoid generic "AI-generated" defaults (cream+terracotta with no other point
   of view, unnecessary card/shadow treatments, numbered-marker sequences that
   don't represent real sequence).
 
+### Themes
+
+Two themes off one set of tokens: **light** (alpine mist paper) and **dusk**
+(the same landscape after sundown — ridges go to silhouette, the sunrise glow
+becomes moonlight, stars appear). Dusk applies from `prefers-color-scheme`
+unless the reader has pinned light, and the toggle in the top-right cycles
+system → light → dusk, stored in `localStorage` under `rw-theme`. A small
+inline script in each page's `<head>` applies the stored theme before first
+paint so a pinned dusk theme doesn't flash light.
+
+The dusk values appear **twice** in style.css — once under the media query and
+once under `:root[data-theme="dusk"]`. CSS can't share a body between those
+without a preprocessor and there's no build step, so edit both or neither.
+
+**All colour must go through tokens.** A literal like `rgba(30,43,38,.045)`
+is a tint of ink that darkens the dark theme instead of lifting it. Use
+`var(--shade)`, `var(--shadow)`, or `color-mix(in srgb, var(--token) N%,
+transparent)`.
+
+### Background scenes
+
+`chrome.js` builds the fixed `.topo-bg` layer from `<body data-scene="...">`,
+so the markup lives in one place instead of being copied into five files.
+Four scenes: `alpine` (index, trips, music), `depth`, `snow`, `plot`
+(quant, longevity). Scenes cross-fade, so a page can change weather without a
+reload — Field Notes swaps alpine/depth/snow as you move between Backcountry,
+Dive and Ski via `Chrome.setScene()`.
+
+The active scene is mirrored onto `<html data-scene>`, which lets the veil and
+the reading-column scrim take the scene's cast. That's what makes switching to
+Dive feel like the whole page went underwater rather than just the strip behind
+it.
+
+Ridge silhouettes are **generated**, not hand-drawn: fractal midpoint
+displacement from a fixed seed, smoothed through Catmull-Rom beziers. Same
+shape every load, with the irregularity real skylines have. Change a seed and
+you get a different mountain.
+
+**Readability rule:** art stays at full strength out in the margins; the
+reading column carries its own scrim (`.wrap::before`) that tracks the column
+at any viewport width. Don't solve a contrast problem by flattening the whole
+background — that's what made the first pass look washed out.
+
+**Anything that bleeds past its container must be clamped to the viewport**
+(`left: max(-13vw, calc(-50vw + 50%))`). An absolutely positioned overhang
+still counts toward scrollable overflow, and the symptom is a sideways scroll
+on every page at narrow widths. Same for the map's full-bleed: use negative
+margins, never a `transform`, because a transform moves the box visually but
+leaves its layout width where it was.
+
+All motion is wrapped in `@media (prefers-reduced-motion: no-preference)` —
+never remove that guard. Reduced motion must also skip the map's fly-to
+animation and leave every reveal element fully visible.
+
+## trips.html: the map
+
+"The Ground Covered" — an interactive SVG map of all 32 places, built by
+`map.js` from `places.js` + `geo.js`. No mapping library, no tiles, no network.
+
+- **Projection**: equidistant cylindrical with a standard parallel — plate
+  carrée with x compressed by cos(lat0). That makes it an affine transform of
+  one set of lon/lat paths, so geometry is built once and every view change
+  (and every fly-to frame) is just a new transform string on one `<g>`.
+- **Clustering, then displacement.** Two problems at two zooms. At world scale
+  32 markers can't each have a spot, so points within `CLUSTER_R` collapse into
+  a disc with a count; clicking it flies in until the group resolves. Once
+  zoomed, the few pins still overlapping get nudged apart with a leader line
+  back to true position. `CLUSTER_R` must stay *below* `SEP` or there's no band
+  where displacement can apply. `boundsOf`'s `minSpan` floor must stay small
+  (~0.06°) or a two-marker cluster can never be zoomed apart and clicking it
+  does nothing.
+- Only points inside the frame take part in clustering — an off-canvas cluster
+  is invisible but still focusable, and its count describes places you can't see.
+- Markers carry `id="place-<id>"` counterparts on the trip cards and site rows;
+  "Read the write-up" dispatches `fieldmap:jump`, which trips.html uses to open
+  the right tab before scrolling.
+- Adding a place: add it to `places.js` and it appears on the map immediately.
+  Add the card/row by hand with the matching `id` to wire the two together.
+
+`geo.js` is generated from the `world-atlas` (land, 110m) and `us-atlas`
+(states, 10m) npm packages — public-domain Natural Earth data, decoded from
+TopoJSON, Douglas-Peucker simplified and quantised to 2dp. Regenerate only if
+the source atlases change; don't hand-edit it.
+
 ## music.html specifics
 
-Fully built, not a stub. A drag-and-reorder ranked list of Zach Bryan's
-discography (127 tracks seeded from Rex's own Spotify playlist order), styled
-like an analyst's coverage sheet:
+Fully built, not a stub. Two tabs:
 
-- Live "Current No. 1" hero at the top that updates when the list reorders
-- Column header row, top-3 rows get a serif ember rank numeral, others mono
-- Reordering via drag (desktop), up/down arrow buttons, or typing a new rank
-  number directly — implemented with a FLIP animation so rows visibly
-  resettle instead of snapping
-- Search + Studio/Live filter segmented control
-- "Add a track that's missing" form for filling in discography gaps
-- Export button dumps the current order as plain text
-- **Ranking now has a real backend (Supabase)**: a single-row `ranking_state`
-  table (`supabase/schema.sql`) holds the canonical track order as JSONB.
-  Row-level security makes it public-read / owner-write — only a session
-  signed in as `EDITOR_EMAIL` (set in music.html, currently
-  `rexwalrond@gmail.com`) can push reorders; everyone else gets a read-only
-  view (drag/rank-jump/arrows/add/remove/reset all disabled). Sign-in is
-  passwordless (Supabase magic link) via the "Sign in" control near
-  Export/Reset. `SUPABASE_URL`/`SUPABASE_ANON_KEY` in music.html are
-  placeholders until the project exists — until filled in, the page
-  degrades gracefully to the original everyone-can-reorder-their-own-copy
-  `localStorage` sandbox (key `zb-ranking-v1`), so it's never broken either
-  way. Don't remove that fallback path.
+**Zach Bryan, ranked** — a drag-and-reorder ranked list of 247 tracks, styled
+like an analyst's coverage sheet: live "Current No. 1" hero, column header row,
+serif ember rank numerals for the top 3, reordering by drag / arrow buttons /
+typing a rank directly (FLIP-animated so rows visibly resettle), search +
+Studio/Live filter, an "add a track that's missing" form, and a plain-text
+export.
 
-A future addition (not started): a "monthly top songs/artists/albums" section
-on this same page, blocked on Rex exporting his Spotify Extended Streaming
-History. Don't build this until that data exists.
+**Listening history** — a baked snapshot from Rex's Spotify Extended Streaming
+History (hours, artists, distinct tracks, share that's Zach Bryan), held inline
+in music.html as `LISTEN_SUMMARY`.
+
+Ranking has a real backend: a single-row `ranking_state` table
+(`supabase/schema.sql`) holding the canonical order as JSONB, public-read /
+owner-write via RLS. Only a session signed in as `EDITOR_EMAIL`
+(`rexwalrond@gmail.com`) can push reorders; everyone else gets a read-only view.
+Sign-in is a passwordless Supabase magic link. If Supabase is unreachable the
+page degrades to the original everyone-reorders-their-own-copy `localStorage`
+sandbox (key `zb-ranking-v1`) — **don't remove that fallback path.**
+
+The stored ranking is the source of truth for *order*; the code's catalog is the
+source of truth for *what exists*, so new tracks land at the bottom rather than
+going missing, with no migration.
+
+## longevity.html specifics
+
+Real nutrition data (MyFitnessPal export, Jan–Jun 2026) in `assets/log-data.js`,
+charted by range (week/month/year/all). Reads the live `daily_log` Supabase
+table when it has rows and falls back to the baked export otherwise, so the page
+is never empty. Sleep columns exist but are null until the AutoSleep → Apple
+Health feed is connected; `supabase/functions/ingest-health/` is the intended
+ingestion path.
 
 ## General conventions
 
 - Mobile breakpoint used throughout: `max-width: 640px`
-- Keep localStorage as the persistence pattern for any other interactive/
-  editable features added to stub pages, unless a real backend is explicitly
-  requested
+- Supabase is the backend for anything that needs to persist across devices;
+  `localStorage` is fine for per-reader state (theme, sandbox ranking)
 - Always test new interactive features respect `prefers-reduced-motion`
+- Check every viewport width for horizontal overflow after touching layout —
+  `document.documentElement.scrollWidth > clientWidth` is the test

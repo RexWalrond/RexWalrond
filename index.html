@@ -6,20 +6,21 @@
 <title>Rex Walrond</title>
 <meta name="description" content="Rex Walrond — finance, healthcare research, and field notes from higher elevations.">
 <link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>
+/* Theme, applied before first paint. chrome.js owns the toggle and re-applies
+   this on load; doing it here too stops a pinned dusk theme flashing light
+   while the rest of the page and its scripts arrive. */
+(function () {
+  try {
+    var t = localStorage.getItem('rw-theme');
+    if (t === 'light' || t === 'dusk') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 </head>
-<body>
+<body data-scene="alpine">
 
-<div class="topo-bg" aria-hidden="true">
-  <div class="ridges">
-    <svg class="ridge-layer ridge-layer--1" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,260 L120,210 240,235 360,180 480,220 600,160 720,200 840,150 960,195 1080,140 1200,185 1320,155 1440,190 1440,400 0,400 Z"/></svg>
-    <svg class="ridge-layer ridge-layer--2" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,300 L100,240 220,270 320,200 440,255 560,180 660,230 780,170 900,225 1000,160 1120,215 1220,175 1320,225 1440,195 1440,400 0,400 Z"/></svg>
-    <svg class="ridge-layer ridge-layer--3" viewBox="0 0 1440 400" preserveAspectRatio="none"><path d="M0,340 L80,260 160,300 260,220 340,290 420,200 520,270 600,210 700,280 800,190 900,260 1000,215 1100,275 1200,205 1300,265 1400,230 1440,250 1440,400 0,400 Z"/></svg>
-  </div>
-  <div class="mist mist--a"></div>
-  <div class="mist mist--b"></div>
-  <div class="mist mist--c"></div>
-  <div class="glow"></div>
-</div>
 
 <main class="wrap">
   <header data-reveal>
@@ -66,7 +67,7 @@
   </footer>
 </main>
 
+<script src="assets/chrome.js"></script>
 <script src="assets/reveal.js"></script>
-<script src="assets/parallax.js"></script>
 </body>
 </html>
