@@ -8,17 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/style.css">
-<script>
-/* Theme, before first paint. chrome.js owns the toggle and re-applies this on
-   load; doing it here too stops a pinned dusk theme flashing light while the
-   stylesheet and scripts are still arriving. */
-(function () {
-  try {
-    var t = localStorage.getItem('rw-theme');
-    if (t === 'light' || t === 'dusk') document.documentElement.setAttribute('data-theme', t);
-  } catch (e) {}
-})();
-</script>
+<script src="assets/sky.js"></script>
 
 <!-- Shared link previews. Without these the site unfurls as a bare URL
      in Slack, LinkedIn and iMessage. og.png is generated from _og.html;

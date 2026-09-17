@@ -261,34 +261,75 @@
     mountScene(document.body.getAttribute("data-scene") || "alpine");
   }
 
-  /* -------------------------------- theming -------------------------------- */
-  /* Three states: follow the system, or pin light / dusk. Pinned choice is
-     remembered; "auto" clears the attribute and lets the media query win. */
+  /* -------------------------------- the sky -------------------------------- */
+  /* sky.js decides the phase and owns the attributes; chrome.js only has to
+     put the disc where the body actually is and wire the toggle. */
 
-  var THEME_KEY = "rw-theme";
-  var THEMES = ["auto", "light", "dusk"];
-
-  function storedTheme() {
-    try {
-      var v = localStorage.getItem(THEME_KEY);
-      return THEMES.indexOf(v) > -1 ? v : "auto";
-    } catch (e) { return "auto"; }
+  /* Azimuth to screen: the view faces south, so due east sits at the left edge
+     and due west at the right. Anything round the north side (which happens at
+     night in summer) clamps to the nearer edge rather than wrapping. */
+  function skyPosition(body) {
+    var left = (body.az - 90) / 180 * 100;
+    left = Math.max(-6, Math.min(106, left));
+    // altitude 0 is the horizon, which sits about 58% down the viewport
+    var HORIZON = 58, TOP = 5;
+    var top = HORIZON - (Math.max(0, body.alt) / 90) * (HORIZON - TOP);
+    return { left: left, top: top, up: body.alt > -2 };
   }
 
-  function applyTheme(mode) {
-    var root = document.documentElement;
-    if (mode === "auto") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", mode);
-    try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+  function paintCelestial() {
+    var el = document.querySelector(".celestial");
+    if (!el || !window.Sky || !window.Sky.state) return;
+    var st = window.Sky.state;
 
-    var btn = document.querySelector(".theme-toggle");
-    if (btn) {
-      var label = mode === "auto" ? "Theme: system" :
-                  mode === "light" ? "Theme: light" : "Theme: dusk";
-      btn.setAttribute("aria-label", label + " — click to change");
-      btn.setAttribute("title", label);
-      btn.setAttribute("data-mode", mode);
+    // Pinned modes have no real sun to point at, so park it somewhere sensible.
+    if (window.Sky.mode !== "auto") {
+      el.style.left = "74%";
+      el.style.top = window.Sky.mode === "night" ? "18%" : "26%";
+      el.classList.toggle("is-moon", window.Sky.mode === "night");
+      el.style.removeProperty("--moon-shift");
+      return;
     }
+
+    var body = st.dark ? st.moon : st.sun;
+    var pos = skyPosition(body);
+    el.style.left = pos.left.toFixed(2) + "%";
+    el.style.top = pos.top.toFixed(2) + "%";
+    el.classList.toggle("is-moon", !!st.dark);
+    // below the horizon it would be underground; fade it rather than jump it
+    el.style.opacity = pos.up ? "1" : "0";
+
+    if (st.dark) {
+      // terminator offset: full moon 0, new moon a full diameter across
+      var shift = (1 - 2 * st.moon.illum) * (st.moon.waxing ? -1 : 1);
+      el.style.setProperty("--moon-shift", (shift * 100).toFixed(1) + "%");
+    } else {
+      el.style.removeProperty("--moon-shift");
+    }
+  }
+
+  function describeSky() {
+    if (!window.Sky || !window.Sky.state) return "Sky";
+    var st = window.Sky.state;
+    var names = {
+      night: "Night", dawn: "Dawn", "first-light": "First light",
+      sunrise: "Sunrise", morning: "Morning", midday: "Midday",
+      afternoon: "Afternoon", sunset: "Sunset", twilight: "Twilight",
+      nightfall: "Nightfall"
+    };
+    if (window.Sky.mode === "day") return "Sky: pinned to midday";
+    if (window.Sky.mode === "night") return "Sky: pinned to night";
+    return names[st.phase] + " over St. Petersburg" +
+           (st.localTime ? ", " + st.localTime + " ET" : "");
+  }
+
+  function labelToggle() {
+    var btn = document.querySelector(".theme-toggle");
+    if (!btn || !window.Sky) return;
+    btn.setAttribute("data-mode", window.Sky.mode);
+    var label = describeSky();
+    btn.setAttribute("title", label + " — click to change");
+    btn.setAttribute("aria-label", label + ". Click to change the sky.");
   }
 
   function buildThemeToggle() {
@@ -304,8 +345,7 @@
         '<path class="t-moon" d="M20 14.2A8.4 8.4 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"/>' +
       '</svg>';
     btn.addEventListener("click", function () {
-      var next = THEMES[(THEMES.indexOf(storedTheme()) + 1) % THEMES.length];
-      applyTheme(next);
+      if (window.Sky) window.Sky.cycle();
     });
     document.body.appendChild(btn);
   }
@@ -353,15 +393,17 @@
   /* --------------------------------- boot --------------------------------- */
 
   function boot() {
-    applyTheme(storedTheme());
     buildBackground();
     buildThemeToggle();
-    applyTheme(storedTheme());   // re-run now the button exists, so it labels itself
+    paintCelestial();
+    labelToggle();
     initParallax();
-  }
 
-  // as early as possible, so a pinned dusk theme doesn't flash light
-  applyTheme(storedTheme());
+    // sky.js re-runs every minute and on every toggle; follow it
+    if (window.Sky) {
+      window.Sky.onchange = function () { paintCelestial(); labelToggle(); };
+    }
+  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
@@ -371,7 +413,6 @@
 
   window.Chrome = {
     setScene: mountScene,
-    setTheme: applyTheme,
     ridgeProfile: ridgeProfile,
     smoothPath: smoothPath,
     reducedMotion: REDUCED

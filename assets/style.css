@@ -14,7 +14,9 @@
    ridges go to silhouette, the sunrise glow becomes moonlight, and the stars
    that are always in the markup finally have somewhere dark to show up.
    Scene colours are tokens too, so the four backgrounds re-theme for free.
-   Which of the two is showing is decided solely by prefers-color-scheme. */
+   Which sky is showing is decided by where the sun actually is over St.
+   Petersburg, Florida — see assets/sky.js. Ten phases, cut on solar altitude
+   rather than clock time, so the site tracks the seasons. */
 
 :root {
   color-scheme: light;
@@ -82,131 +84,6 @@
   --measure: 640px;
 }
 
-/* Dusk — purely a function of the operating system. A browser that reports no
-   preference does not match this query and keeps the light palette, which is
-   the intended fallback. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --bg: #10171a;
-    --paper: #182125;
-    --ink: #e6ece7;
-    --ink-soft: #a6b4ad;
-    --ink-faint: #6d7c76;
-    --line: #2b3a38;
-    --blue: #7ea9c9;
-    --ember: #e08a4e;
-    --pine: #5ea07f;
-    --gold: #dfb75c;
-
-    --panel: rgba(24, 33, 37, 0.66);
-    --panel-solid: #182125;
-    --shade: rgba(230, 236, 231, 0.05);
-  --shadow: rgba(0, 0, 0, 0.55);
-  --shadow-strong: rgba(0, 0, 0, 0.68);
-    --shadow: rgba(0, 0, 0, 0.55);
-    --shadow-strong: rgba(0, 0, 0, 0.68);
-
-    --sky-top: #0a1013;
-    --sky-mid: #10171a;
-    --sky-low: #1a2124;
-    --ridge-1: #1e333b;
-    --scrim: rgba(16, 23, 26, 0.62);
-    --ridge-2: #16262d;
-    --ridge-3: #101c22;
-    --ridge-4: #080f13;
-    --tree: #050a0d;
-    --glow-hot: rgba(224, 138, 78, 0.20);
-    --glow-mid: rgba(126, 169, 201, 0.10);
-    --mist-color: rgba(126, 169, 201, 0.13);
-    --star-alpha: 1;
-    --celestial: radial-gradient(circle, rgba(232, 240, 240, 0.92) 0%, rgba(198, 216, 224, 0.4) 40%, rgba(198, 216, 224, 0) 68%);
-    --celestial-top: 17%;
-    --celestial-left: 78%;
-    --celestial-size: 9vh;
-    --veil: linear-gradient(180deg, var(--bg) 0%, rgba(16, 23, 26, 0.34) 30%, rgba(16, 23, 26, 0.04) 58%, rgba(16, 23, 26, 0.42) 100%);
-    --grain-alpha: 0.05;
-
-    --water-hi: #16323c;
-    --water-lo: #071820;
-    --shaft-color: rgba(168, 214, 226, 0.22);
-    --mote-color: rgba(198, 232, 238, 0.5);
-    --snow-flake: rgba(226, 238, 240, 0.8);
-
-    --fmap-sea-hi: #123845;
-    --fmap-sea-lo: #030d12;
-    --fmap-land: #27453c;
-    --fmap-coast: color-mix(in srgb, var(--pine) 75%, var(--bg));
-    --fmap-state: color-mix(in srgb, var(--pine) 46%, transparent);
-    --fmap-grat: color-mix(in srgb, var(--blue) 20%, transparent);
-  --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
-    --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
-  }
-}
-
-/* The same dusk values, pinned by the toggle rather than the system. Kept as
-   a duplicate on purpose: CSS cannot share a body between a media query and
-   an attribute selector without a preprocessor, and this file has no build
-   step. Edit both, or neither. */
-:root[data-theme="dusk"] {
-  color-scheme: dark;
-
-  --bg: #10171a;
-  --paper: #182125;
-  --ink: #e6ece7;
-  --ink-soft: #a6b4ad;
-  --ink-faint: #6d7c76;
-  --line: #2b3a38;
-  --blue: #7ea9c9;
-  --ember: #e08a4e;
-  --pine: #5ea07f;
-  --gold: #dfb75c;
-
-  --panel: rgba(24, 33, 37, 0.66);
-  --panel-solid: #182125;
-  --shade: rgba(230, 236, 231, 0.05);
---shadow: rgba(0, 0, 0, 0.55);
---shadow-strong: rgba(0, 0, 0, 0.68);
-  --shadow: rgba(0, 0, 0, 0.55);
-  --shadow-strong: rgba(0, 0, 0, 0.68);
-
-  --sky-top: #0a1013;
-  --sky-mid: #10171a;
-  --sky-low: #1a2124;
-  --ridge-1: #1e333b;
-  --scrim: rgba(16, 23, 26, 0.62);
-  --ridge-2: #16262d;
-  --ridge-3: #101c22;
-  --ridge-4: #080f13;
-  --tree: #050a0d;
-  --glow-hot: rgba(224, 138, 78, 0.20);
-  --glow-mid: rgba(126, 169, 201, 0.10);
-  --mist-color: rgba(126, 169, 201, 0.13);
-  --star-alpha: 1;
-  --celestial: radial-gradient(circle, rgba(232, 240, 240, 0.92) 0%, rgba(198, 216, 224, 0.4) 40%, rgba(198, 216, 224, 0) 68%);
-  --celestial-top: 17%;
-  --celestial-left: 78%;
-  --celestial-size: 9vh;
-  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(16, 23, 26, 0.34) 30%, rgba(16, 23, 26, 0.04) 58%, rgba(16, 23, 26, 0.42) 100%);
-  --grain-alpha: 0.05;
-
-  --water-hi: #16323c;
-  --water-lo: #071820;
-  --shaft-color: rgba(168, 214, 226, 0.22);
-  --mote-color: rgba(198, 232, 238, 0.5);
-  --snow-flake: rgba(226, 238, 240, 0.8);
-
-  --fmap-sea-hi: #123845;
-  --fmap-sea-lo: #030d12;
-  --fmap-land: #27453c;
-  --fmap-coast: color-mix(in srgb, var(--pine) 75%, var(--bg));
-  --fmap-state: color-mix(in srgb, var(--pine) 46%, transparent);
-  --fmap-grat: color-mix(in srgb, var(--blue) 20%, transparent);
---plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
-  --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
-}
-
 * { box-sizing: border-box; }
 
 html {
@@ -232,45 +109,6 @@ body {
   outline: 2px solid var(--ember);
   outline-offset: 3px;
   border-radius: 2px;
-}
-
-/* ------------------------- scene-scoped atmosphere ------------------------- */
-/* chrome.js mirrors the active scene onto <html data-scene>, so the veil and
-   the reading-column scrim can take the scene's cast. This is what makes
-   switching to Dive feel like the whole page went underwater rather than just
-   the strip of art behind it. Placed after the theme blocks so these win, and
-   the dusk variants carry an extra attribute to win in turn. */
-
-:root[data-scene="depth"] {
-  --veil: linear-gradient(180deg, rgba(188, 214, 219, 0.88) 0%, rgba(188, 214, 219, 0.3) 26%, rgba(120, 160, 172, 0.08) 54%, rgba(93, 141, 156, 0.42) 100%);
-  --scrim: rgba(224, 238, 240, 0.78);
-}
-
-:root[data-scene="snow"] {
-  --veil: linear-gradient(180deg, rgba(228, 236, 238, 0.9) 0%, rgba(228, 236, 238, 0.42) 28%, rgba(210, 224, 228, 0.1) 56%, rgba(196, 213, 219, 0.4) 100%);
-  --scrim: rgba(238, 243, 244, 0.78);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"])[data-scene="depth"] {
-    --veil: linear-gradient(180deg, rgba(10, 34, 43, 0.82) 0%, rgba(8, 28, 36, 0.34) 30%, rgba(7, 24, 32, 0.06) 58%, rgba(4, 16, 22, 0.66) 100%);
-    --scrim: rgba(7, 26, 34, 0.66);
-  }
-  :root:not([data-theme="light"])[data-scene="snow"] {
-    --veil: linear-gradient(180deg, rgba(14, 24, 30, 0.74) 0%, rgba(14, 24, 30, 0.3) 30%, rgba(14, 24, 30, 0.04) 58%, rgba(12, 20, 26, 0.56) 100%);
-    --scrim: rgba(14, 24, 30, 0.62);
-  }
-}
-
-
-:root[data-theme="dusk"][data-scene="depth"] {
-  --veil: linear-gradient(180deg, rgba(10, 34, 43, 0.82) 0%, rgba(8, 28, 36, 0.34) 30%, rgba(7, 24, 32, 0.06) 58%, rgba(4, 16, 22, 0.66) 100%);
-  --scrim: rgba(7, 26, 34, 0.66);
-}
-
-:root[data-theme="dusk"][data-scene="snow"] {
-  --veil: linear-gradient(180deg, rgba(14, 24, 30, 0.74) 0%, rgba(14, 24, 30, 0.3) 30%, rgba(14, 24, 30, 0.04) 58%, rgba(12, 20, 26, 0.56) 100%);
-  --scrim: rgba(14, 24, 30, 0.62);
 }
 
 /* ------------------------- background scene system ------------------------- */
@@ -346,17 +184,42 @@ body {
 /* The treeline rides the nearest ridge, so it shares its parallax depth. */
 .treeline { z-index: 1; }
 
+/* The disc is placed by chrome.js from the sun's (or moon's) real azimuth and
+   altitude, so it sits where the body actually is in the sky over Florida. The
+   left/top custom properties are only the no-JS fallback. */
 .celestial {
   position: absolute;
   left: var(--celestial-left, 50%);
-  top: var(--celestial-top);
+  top: var(--celestial-top, 40%);
   width: var(--celestial-size);
   height: var(--celestial-size);
   transform: translate(-50%, -50%);
   background: var(--celestial);
   border-radius: 50%;
   z-index: 1;
-  transition: top 0.6s ease, width 0.6s ease, height 0.6s ease;
+  transition: top 1.2s ease, left 1.2s ease, width 1.2s ease, height 1.2s ease,
+              opacity 1.2s ease, background 1.2s ease;
+}
+
+/* The moon carries its real phase: a second disc in the sky colour slides
+   across the first, so the lit limb is the crescent that is actually up.
+   --moon-shift is 0% at full and ±100% at new. */
+.celestial.is-moon::after {
+  content: '';
+  position: absolute;
+  inset: -2%;
+  border-radius: 50%;
+  background: var(--sky-mid);
+  transform: translateX(var(--moon-shift, 0%));
+  transition: transform 1.2s ease, background 1.2s ease;
+}
+.celestial.is-moon {
+  overflow: hidden;
+  box-shadow: 0 0 5vh 1vh rgba(226, 238, 242, 0.09);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celestial, .celestial.is-moon::after { transition: none; }
 }
 
 .glow {
@@ -609,11 +472,12 @@ body {
 .theme-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
 
 /* system → sun with rays; light → bare sun; dusk → moon */
+/* auto → sun with rays (the sky is running); day → bare sun; night → moon */
 .theme-toggle .t-moon { display: none; }
-.theme-toggle[data-mode="light"] .t-rays { opacity: 0.35; }
-.theme-toggle[data-mode="dusk"] .t-sun,
-.theme-toggle[data-mode="dusk"] .t-rays { display: none; }
-.theme-toggle[data-mode="dusk"] .t-moon { display: block; }
+.theme-toggle[data-mode="day"] .t-rays { opacity: 0.32; }
+.theme-toggle[data-mode="night"] .t-sun,
+.theme-toggle[data-mode="night"] .t-rays { display: none; }
+.theme-toggle[data-mode="night"] .t-moon { display: block; }
 
 @media (max-width: 640px) {
   .theme-toggle { right: 12px; top: 12px; width: 34px; height: 34px; }
@@ -3491,4 +3355,355 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   /* stacked, because a row that wraps mid-figure reads worse than two lines */
   .link-head { flex-direction: column; gap: 6px; }
   .link-stat { font-size: 10.5px; gap: 10px; }
+}
+
+/* ========================= the sky, by time of day ========================= */
+/* assets/sky.js puts the current phase on <html data-sky> and a coarse
+   light/dark flag on <html data-dark>. Everything below is token overrides.
+   Two base palettes carry the text and surfaces; ten sky blocks carry the
+   atmosphere. Nothing here reads the clock — the phase is a function of the
+   sun's real altitude over St. Petersburg.
+   Keep the two concerns separate: if you find yourself writing a text colour
+   inside a sky block, it probably belongs in one of the two base blocks. */
+
+/* ------------------------------ base: daylight ------------------------------ */
+
+:root[data-dark="false"] {
+  color-scheme: light;
+  --ink: #1e2b26;
+  --ink-soft: #52605a;
+  --ink-faint: #8a9791;
+  --line: #cdd3c6;
+  --paper: #f6f7f2;
+  --panel: rgba(246, 247, 242, 0.72);
+  --panel-solid: #f6f7f2;
+  --shade: rgba(30, 43, 38, 0.045);
+  --shadow: rgba(30, 43, 38, 0.35);
+  --shadow-strong: rgba(30, 43, 38, 0.45);
+  --grain-alpha: 0.032;
+}
+
+/* ------------------------------- base: dark ------------------------------- */
+
+:root[data-dark="true"] {
+  color-scheme: dark;
+  --ink: #e6ece7;
+  --ink-soft: #a6b4ad;
+  --ink-faint: #6d7c76;
+  --line: #2b3a38;
+  --paper: #182125;
+  --panel: rgba(24, 33, 37, 0.66);
+  --panel-solid: #182125;
+  --shade: rgba(230, 236, 231, 0.05);
+  --shadow: rgba(0, 0, 0, 0.55);
+  --shadow-strong: rgba(0, 0, 0, 0.68);
+  --grain-alpha: 0.05;
+  --blue: #7ea9c9;
+  --ember: #e08a4e;
+  --pine: #5ea07f;
+  --gold: #dfb75c;
+  --fmap-sea-hi: #123845;
+  --fmap-sea-lo: #030d12;
+  --fmap-land: #27453c;
+  --fmap-coast: color-mix(in srgb, var(--pine) 75%, var(--bg));
+  --fmap-state: color-mix(in srgb, var(--pine) 46%, transparent);
+  --fmap-grat: color-mix(in srgb, var(--blue) 20%, transparent);
+  --plot-grid: color-mix(in srgb, var(--blue) 17%, transparent);
+}
+
+/* --------------------------------- night --------------------------------- */
+/* Sun more than 18° down: astronomical night. Full stars, moon, ridges read as
+   cut paper against the sky. */
+
+:root[data-sky="night"] {
+  --bg: #080d12;
+  --sky-top: #05090d;
+  --sky-mid: #080d12;
+  --sky-low: #0d1620;
+  --ridge-1: #16242c;
+  --ridge-2: #111c24;
+  --ridge-3: #0b141b;
+  --ridge-4: #060b10;
+  --tree: #04080c;
+  --glow-hot: rgba(126, 169, 201, 0.08);
+  --glow-mid: rgba(126, 169, 201, 0.04);
+  --mist-color: rgba(126, 169, 201, 0.10);
+  --star-alpha: 1;
+  --celestial: radial-gradient(circle, rgba(236, 242, 242, 0.95) 0%, rgba(198, 216, 224, 0.34) 42%, rgba(198, 216, 224, 0) 68%);
+  --celestial-size: 8vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(8, 13, 18, 0.52) 28%, rgba(8, 13, 18, 0.06) 56%, rgba(8, 13, 18, 0.46) 100%);
+  --scrim: rgba(8, 13, 18, 0.66);
+}
+
+/* ---------------------------------- dawn ---------------------------------- */
+/* Astronomical and nautical dawn. The east edge is just going indigo; most of
+   the stars are still up. */
+
+:root[data-sky="dawn"] {
+  --bg: #0b1220;
+  --sky-top: #070c17;
+  --sky-mid: #0d1526;
+  --sky-low: #1e2a42;
+  --ridge-1: #1c2940;
+  --ridge-2: #151f33;
+  --ridge-3: #0e1726;
+  --ridge-4: #070c16;
+  --tree: #050911;
+  --glow-hot: rgba(94, 132, 186, 0.22);
+  --glow-mid: rgba(94, 132, 186, 0.09);
+  --mist-color: rgba(120, 150, 190, 0.13);
+  --star-alpha: 0.72;
+  --celestial: radial-gradient(circle, rgba(228, 236, 240, 0.8) 0%, rgba(190, 210, 224, 0.26) 42%, rgba(190, 210, 224, 0) 68%);
+  --celestial-size: 7vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(11, 18, 32, 0.5) 28%, rgba(11, 18, 32, 0.06) 56%, rgba(11, 18, 32, 0.44) 100%);
+  --scrim: rgba(10, 16, 28, 0.66);
+}
+
+/* ------------------------------- first light ------------------------------- */
+/* Civil dawn: the blue hour turning rose at the horizon, last stars going. */
+
+:root[data-sky="first-light"] {
+  --bg: #17223a;
+  --sky-top: #101a30;
+  --sky-mid: #1d2a45;
+  --sky-low: #6b5566;
+  --ridge-1: #3b4462;
+  --ridge-2: #2a3250;
+  --ridge-3: #1b2138;
+  --ridge-4: #0e1220;
+  --tree: #0a0d18;
+  --glow-hot: rgba(206, 124, 128, 0.34);
+  --glow-mid: rgba(150, 110, 150, 0.16);
+  --mist-color: rgba(168, 168, 200, 0.16);
+  --star-alpha: 0.26;
+  --celestial: radial-gradient(circle, rgba(255, 214, 186, 0.7) 0%, rgba(226, 150, 130, 0.3) 44%, rgba(226, 150, 130, 0) 70%);
+  --celestial-size: 9vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(23, 34, 58, 0.5) 28%, rgba(23, 34, 58, 0.07) 56%, rgba(40, 32, 46, 0.46) 100%);
+  --scrim: rgba(18, 26, 44, 0.68);
+}
+
+/* -------------------------------- sunrise -------------------------------- */
+/* Golden hour, rising. The horizon is the brightest thing on screen and the
+   ridges take a warm rim. */
+
+:root[data-sky="sunrise"] {
+  --bg: #e7dfd5;
+  --sky-top: #8ea2bd;
+  --sky-mid: #d3b79f;
+  --sky-low: #f0c79a;
+  --ridge-1: color-mix(in srgb, #6d7f92 70%, var(--bg));
+  --ridge-2: color-mix(in srgb, #55637a 76%, var(--bg));
+  --ridge-3: #3d4557;
+  --ridge-4: #2a2e3c;
+  --tree: #23262f;
+  --glow-hot: rgba(255, 176, 92, 0.6);
+  --glow-mid: rgba(226, 122, 70, 0.26);
+  --mist-color: rgba(255, 226, 198, 0.5);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 238, 206, 0.98) 0%, rgba(255, 186, 108, 0.6) 40%, rgba(255, 168, 92, 0) 72%);
+  --celestial-size: 14vh;
+  --veil: linear-gradient(180deg, rgba(231, 223, 213, 0.92) 0%, rgba(231, 223, 213, 0.42) 28%, rgba(231, 223, 213, 0.06) 56%, rgba(226, 190, 156, 0.36) 100%);
+  --scrim: rgba(243, 238, 230, 0.8);
+}
+
+/* -------------------------------- morning -------------------------------- */
+/* Sun up and climbing. Clear, cool, the haze not yet built. */
+
+:root[data-sky="morning"] {
+  --bg: #e7ecea;
+  --sky-top: #c2d6e2;
+  --sky-mid: #dee8e8;
+  --sky-low: #edefe6;
+  --ridge-1: color-mix(in srgb, var(--pine) 30%, var(--bg));
+  --ridge-2: color-mix(in srgb, var(--blue) 40%, var(--bg));
+  --ridge-3: color-mix(in srgb, var(--blue) 60%, var(--bg));
+  --ridge-4: color-mix(in srgb, var(--blue) 40%, var(--ink));
+  --tree: color-mix(in srgb, var(--ink) 88%, var(--blue));
+  --glow-hot: rgba(255, 226, 168, 0.4);
+  --glow-mid: rgba(226, 178, 110, 0.13);
+  --mist-color: rgba(250, 252, 250, 0.82);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 250, 232, 0.96) 0%, rgba(252, 226, 164, 0.44) 42%, rgba(252, 226, 164, 0) 70%);
+  --celestial-size: 10vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(231, 236, 234, 0.4) 28%, rgba(231, 236, 234, 0.05) 56%, rgba(231, 236, 234, 0.3) 100%);
+  --scrim: rgba(237, 241, 238, 0.76);
+}
+
+/* --------------------------------- midday --------------------------------- */
+/* High sun. Flat, bright, high-key; distance washes out in haze and the
+   ridges lose contrast rather than gaining it. */
+
+:root[data-sky="midday"] {
+  --bg: #eef0ea;
+  --sky-top: #cfe0ea;
+  --sky-mid: #e6edea;
+  --sky-low: #f2f2ea;
+  --ridge-1: color-mix(in srgb, var(--pine) 18%, var(--bg));
+  --ridge-2: color-mix(in srgb, var(--blue) 26%, var(--bg));
+  --ridge-3: color-mix(in srgb, var(--blue) 44%, var(--bg));
+  --ridge-4: color-mix(in srgb, var(--blue) 30%, var(--ink));
+  --tree: color-mix(in srgb, var(--ink) 80%, var(--blue));
+  --glow-hot: rgba(255, 255, 246, 0.5);
+  --glow-mid: rgba(255, 244, 214, 0.16);
+  --mist-color: rgba(255, 255, 255, 0.9);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 255, 252, 1) 0%, rgba(255, 252, 232, 0.5) 34%, rgba(255, 250, 226, 0) 66%);
+  --celestial-size: 7vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(238, 240, 234, 0.42) 28%, rgba(238, 240, 234, 0.06) 56%, rgba(238, 240, 234, 0.3) 100%);
+  --scrim: rgba(241, 243, 237, 0.76);
+}
+
+/* ------------------------------- afternoon ------------------------------- */
+/* Falling sun, warmer than the morning it mirrors. */
+
+:root[data-sky="afternoon"] {
+  --bg: #eeece2;
+  --sky-top: #c3d3dd;
+  --sky-mid: #e2e4d9;
+  --sky-low: #f2ead6;
+  --ridge-1: color-mix(in srgb, var(--pine) 26%, var(--bg));
+  --ridge-2: color-mix(in srgb, var(--blue) 36%, var(--bg));
+  --ridge-3: color-mix(in srgb, var(--blue) 56%, var(--bg));
+  --ridge-4: color-mix(in srgb, var(--blue) 38%, var(--ink));
+  --tree: color-mix(in srgb, var(--ink) 86%, var(--blue));
+  --glow-hot: rgba(255, 216, 146, 0.46);
+  --glow-mid: rgba(226, 160, 92, 0.16);
+  --mist-color: rgba(252, 248, 238, 0.8);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 250, 226, 0.97) 0%, rgba(255, 214, 140, 0.46) 42%, rgba(255, 214, 140, 0) 70%);
+  --celestial-size: 11vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(238, 236, 226, 0.4) 28%, rgba(238, 236, 226, 0.05) 56%, rgba(238, 232, 214, 0.32) 100%);
+  --scrim: rgba(241, 238, 228, 0.76);
+}
+
+/* --------------------------------- sunset --------------------------------- */
+/* Golden hour, falling. The loudest the palette gets all day. */
+
+:root[data-sky="sunset"] {
+  --bg: #ecdccd;
+  --sky-top: #7b7f9e;
+  --sky-mid: #cf9b83;
+  --sky-low: #f2b076;
+  --ridge-1: color-mix(in srgb, #7a7286 72%, var(--bg));
+  --ridge-2: color-mix(in srgb, #5d5570 78%, var(--bg));
+  --ridge-3: #423c52;
+  --ridge-4: #2c2736;
+  --tree: #241f2b;
+  --glow-hot: rgba(255, 150, 66, 0.68);
+  --glow-mid: rgba(214, 88, 62, 0.3);
+  --mist-color: rgba(255, 214, 186, 0.48);
+  --star-alpha: 0;
+  --celestial: radial-gradient(circle, rgba(255, 234, 192, 0.98) 0%, rgba(255, 158, 74, 0.66) 38%, rgba(246, 126, 66, 0) 72%);
+  --celestial-size: 15vh;
+  --veil: linear-gradient(180deg, rgba(236, 220, 205, 0.92) 0%, rgba(236, 220, 205, 0.42) 28%, rgba(236, 220, 205, 0.06) 56%, rgba(226, 168, 122, 0.36) 100%);
+  --scrim: rgba(245, 236, 226, 0.8);
+}
+
+/* -------------------------------- twilight -------------------------------- */
+/* Civil dusk. Magenta over the horizon, the first stars, the ridges going to
+   silhouette. */
+
+:root[data-sky="twilight"] {
+  --bg: #1d2038;
+  --sky-top: #171a30;
+  --sky-mid: #2c2b48;
+  --sky-low: #7a4f5c;
+  --ridge-1: #443f60;
+  --ridge-2: #302c4c;
+  --ridge-3: #1f1d34;
+  --ridge-4: #11101e;
+  --tree: #0b0a14;
+  --glow-hot: rgba(226, 118, 104, 0.34);
+  --glow-mid: rgba(150, 90, 140, 0.18);
+  --mist-color: rgba(176, 160, 200, 0.15);
+  --star-alpha: 0.34;
+  --celestial: radial-gradient(circle, rgba(255, 196, 160, 0.66) 0%, rgba(226, 122, 110, 0.28) 44%, rgba(226, 122, 110, 0) 70%);
+  --celestial-size: 10vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(29, 32, 56, 0.5) 28%, rgba(29, 32, 56, 0.07) 56%, rgba(52, 34, 44, 0.46) 100%);
+  --scrim: rgba(24, 26, 46, 0.68);
+}
+
+/* -------------------------------- nightfall -------------------------------- */
+/* Nautical and astronomical dusk. Colour drains out, stars come up. */
+
+:root[data-sky="nightfall"] {
+  --bg: #0c1322;
+  --sky-top: #070c16;
+  --sky-mid: #0e1626;
+  --sky-low: #202a44;
+  --ridge-1: #1e2942;
+  --ridge-2: #162034;
+  --ridge-3: #0f1726;
+  --ridge-4: #080d16;
+  --tree: #050911;
+  --glow-hot: rgba(150, 110, 150, 0.2);
+  --glow-mid: rgba(110, 100, 160, 0.09);
+  --mist-color: rgba(130, 145, 190, 0.13);
+  --star-alpha: 0.7;
+  --celestial: radial-gradient(circle, rgba(232, 238, 240, 0.82) 0%, rgba(196, 212, 224, 0.28) 42%, rgba(196, 212, 224, 0) 68%);
+  --celestial-size: 8vh;
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(12, 19, 34, 0.5) 28%, rgba(12, 19, 34, 0.06) 56%, rgba(12, 19, 34, 0.44) 100%);
+  --scrim: rgba(11, 17, 30, 0.66);
+}
+
+/* ------------------------- scenes, under either sky ------------------------- */
+/* Field Notes' Dive and Ski panels re-cast the whole page. They only need to
+   know whether it is light or dark out, not which of the ten phases. */
+
+:root[data-dark="false"][data-scene="depth"] {
+  --veil: linear-gradient(180deg, rgba(188, 214, 219, 0.88) 0%, rgba(188, 214, 219, 0.3) 26%, rgba(120, 160, 172, 0.08) 54%, rgba(93, 141, 156, 0.42) 100%);
+  --scrim: rgba(224, 238, 240, 0.78);
+}
+:root[data-dark="true"][data-scene="depth"] {
+  --veil: linear-gradient(180deg, rgba(10, 34, 43, 0.82) 0%, rgba(8, 28, 36, 0.34) 30%, rgba(7, 24, 32, 0.06) 58%, rgba(4, 16, 22, 0.66) 100%);
+  --scrim: rgba(7, 26, 34, 0.66);
+}
+:root[data-dark="false"][data-scene="snow"] {
+  --veil: linear-gradient(180deg, rgba(228, 236, 238, 0.9) 0%, rgba(228, 236, 238, 0.42) 28%, rgba(210, 224, 228, 0.1) 56%, rgba(196, 213, 219, 0.4) 100%);
+  --scrim: rgba(238, 243, 244, 0.78);
+}
+:root[data-dark="true"][data-scene="snow"] {
+  --veil: linear-gradient(180deg, rgba(14, 24, 30, 0.74) 0%, rgba(14, 24, 30, 0.3) 30%, rgba(14, 24, 30, 0.04) 58%, rgba(12, 20, 26, 0.56) 100%);
+  --scrim: rgba(14, 24, 30, 0.62);
+}
+
+/* No JS, no data-sky: fall back to honouring the operating system rather than
+   pinning everyone to a daylight palette. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-sky]) {
+    color-scheme: dark;
+    --bg: #080d12;
+    --ink: #e6ece7;
+    --ink-soft: #a6b4ad;
+    --ink-faint: #6d7c76;
+    --line: #2b3a38;
+    --paper: #182125;
+    --panel: rgba(24, 33, 37, 0.66);
+    --panel-solid: #182125;
+    --shade: rgba(230, 236, 231, 0.05);
+    --sky-top: #05090d;
+    --sky-mid: #080d12;
+    --sky-low: #0d1620;
+    --ridge-1: #16242c;
+    --ridge-2: #111c24;
+    --ridge-3: #0b141b;
+    --ridge-4: #060b10;
+    --tree: #04080c;
+    --star-alpha: 1;
+    --scrim: rgba(8, 13, 18, 0.66);
+  }
+}
+
+/* Phase changes are a slow fade, not a cut — the sky moves in real time and a
+   hard switch at a boundary would be jarring. */
+@media (prefers-reduced-motion: no-preference) {
+  .topo-bg,
+  .scene--alpine .glow,
+  .scene--alpine .celestial,
+  .sky-stars,
+  .ridge-layer path,
+  .treeline path {
+    transition: background 1.2s ease, fill 1.2s ease, opacity 1.2s ease,
+                left 1.2s ease, top 1.2s ease, width 1.2s ease, height 1.2s ease;
+  }
 }

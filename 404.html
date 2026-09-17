@@ -9,17 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/assets/style.css">
-<script>
-/* Theme, before first paint. chrome.js owns the toggle and re-applies this on
-   load; doing it here too stops a pinned dusk theme flashing light while the
-   stylesheet and scripts are still arriving. */
-(function () {
-  try {
-    var t = localStorage.getItem('rw-theme');
-    if (t === 'light' || t === 'dusk') document.documentElement.setAttribute('data-theme', t);
-  } catch (e) {}
-})();
-</script>
+<script src="/assets/sky.js"></script>
 
 <meta name="theme-color" content="#eef0ea" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#10171a" media="(prefers-color-scheme: dark)">

@@ -64,6 +64,7 @@ check with Rex before changing index.html's bio or tagline copy.
 - `hub.js` — draws the hub's elevation chart and its live row figures
 - `listen-data.js` — the Spotify listening snapshot, shared by music.html and
   the hub so the two can't drift
+- `sky.js` — solar and lunar position, and the phase the whole palette hangs off
 - `og.png` — the social share card (see below)
 
 There is no `assets/topo-bg.svg` and none is needed — all background art is
@@ -88,30 +89,62 @@ generated in CSS and JS. Do not re-add an external background image reference.
   of view, unnecessary card/shadow treatments, numbered-marker sequences that
   don't represent real sequence).
 
-### Themes
+### Themes: the sky over St. Petersburg
 
-Two themes off one set of tokens: **light** (alpine mist paper) and **dusk**
-(the same landscape after sundown — ridges go to silhouette, the sunrise glow
-becomes moonlight, stars appear).
+**The palette is a function of where the sun actually is**, right now, at
+27.7676°N 82.6403°W. `assets/sky.js` computes solar position (NOAA) and lunar
+position and phase (abridged Meeus), picks one of ten phases, and writes
+`data-sky` and `data-dark` onto `<html>`. It loads in the `<head>` of every
+page so the right sky is up on the first frame, and re-runs every minute.
 
-**The default follows `prefers-color-scheme`**, and a toggle in the top right
-lets the reader override it. It cycles system → light → dusk, storing the choice
-in `localStorage` under `rw-theme`; "system" clears the stored pin and hands
-control back to the media query. A browser that reports no preference doesn't
-match the dark query, so it lands on light — the intended fallback.
+Phases are cut on **solar altitude**, not clock time:
 
-A small inline script in each page's `<head>` applies the stored pin before
-first paint. Without it a pinned dusk theme flashes light while the stylesheet
-and scripts arrive. Keep that snippet in the head, ahead of anything that
-renders.
+| altitude | rising | falling |
+|---|---|---|
+| below −18° | `night` | `night` |
+| −18° to −6° | `dawn` | `nightfall` |
+| −6° to −0.833° | `first-light` | `twilight` |
+| −0.833° to +6° | `sunrise` | `sunset` |
+| above +6°, under 62% of the day's max | `morning` | `afternoon` |
+| above +6°, over that | `midday` |  |
 
-The dusk values appear **twice** in style.css — once under
-`@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme="light"])`,
-and once under `:root[data-theme="dusk"]`. The same doubling applies to the
-scene-scoped veil and scrim overrides. CSS can't share a rule body between a
-media query and an attribute selector without a preprocessor, and this file has
-no build step, so **edit both or neither.** The test for this is pinning dusk on
-a light system and checking a scene page still re-tints.
+This is deliberate and worth preserving. Clock bands would call 18:00 "sunset"
+in both June and December, and those are two completely different skies here.
+Altitude bands track the seasons for free, and because the maths runs in UTC
+there is no DST rule to get wrong. "62% of the day's max" rather than a fixed
+angle because noon reaches 85° in June and 39° in December, and both should
+read as midday.
+
+The sun and moon are **placed where they actually are**: `chrome.js` maps
+azimuth to horizontal position (due east at the left edge, due west at the
+right) and altitude to height. The moon carries its real illuminated fraction
+as a CSS terminator, and is hidden when it is genuinely below the horizon — a
+night with no moon in the sky is correct, not a bug.
+
+Two gotchas, both of which bit during the build:
+- The trig helpers `sin()`/`cos()` take **degrees**. Passing a
+  radian-converted value into them fails silently — it pinned the moon near
+  new for an entire month before anyone noticed.
+- Elongation needs the moon's and sun's positions in the **same frame**.
+  Comparing lunar ecliptic longitude against solar right ascension looks
+  plausible and is wrong.
+
+Verify any change to this file against published sunrise/sunset times for St.
+Petersburg and against a full lunation, not by eye.
+
+**CSS structure:** two base blocks carry text and surfaces
+(`[data-dark="true"|"false"]`); ten `[data-sky="…"]` blocks carry atmosphere
+(sky gradient, ridges, glow, stars, celestial, veil, scrim). Keep them
+separate — a text colour inside a sky block is in the wrong place. Scene
+overrides for Dive and Ski key off `data-dark` only, so they don't need ten
+variants each. All ten phases are checked for WCAG AA body contrast; the
+tightest is sunset at about 5.1:1, so there is not much headroom to spend.
+
+**The toggle** in the top right cycles auto → day → night, stored under
+`rw-theme`. "auto" is the live sky; the other two pin midday and night. Values
+saved by the older light/dusk toggle are migrated on read rather than
+discarded. With JS off there is no `data-sky`, so a `prefers-color-scheme`
+fallback scoped to `:root:not([data-sky])` keeps the site readable.
 
 **All colour must go through tokens.** A literal like `rgba(30,43,38,.045)`
 is a tint of ink that darkens the dark theme instead of lifting it. Use
