@@ -12,7 +12,10 @@ Institute, Romark Labs), with healthcare equity research experience. Site needs
 to be professional enough to link from LinkedIn and job applications, while
 still having real personality (music, backpacking, diving, training data).
 
-**Do not name a school, degree programme, or employer on this site.** Rex asked
+**Do not name a school, degree programme, or employer on this site.** The
+résumé PDF was removed from the repo for this reason rather than just unlinked
+— GitHub Pages serves any file in the tree, so an unlinked PDF is still a
+public URL. Don't re-add one without checking what its text says. Rex asked
 for his former programme and the student fund he worked with to come off
 entirely, and this file is checked in and public, so don't restate them here
 either. The equity research experience can be described as the work it is,
@@ -43,7 +46,6 @@ check with Rex before changing index.html's bio or tagline copy.
 - `quant.html` ("The Work") — healthcare equity research + personal quant
   projects. Structurally built; the coverage rows are still clearly-labelled
   placeholders waiting on real calls.
-- `Rex_Walrond_Resume.pdf` — linked from the hub page
 
 ### assets/
 
