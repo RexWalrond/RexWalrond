@@ -6,7 +6,7 @@
    the mountain pages and the quant pages).
    =================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Inter:wght@400..600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 /* ------------------------------ design tokens ------------------------------ */
 /* Two themes off one set of names. Light is the original alpine-mist paper;
@@ -581,9 +581,12 @@ h1.name {
   font-weight: 500;
   font-size: clamp(44px, 8vw, 68px);
   line-height: 1.02;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.022em;
   margin: 0 0 10px;
   color: var(--ink);
+  /* display optical size: tighter apertures and finer hairlines than the text
+     cut, which is what Fraunces gives you at 144 and not at its default */
+  font-variation-settings: 'opsz' 144;
 }
 
 .name-accent {
@@ -723,7 +726,9 @@ a.link-row:focus-visible {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: 20px;
+  letter-spacing: -0.006em;
   color: var(--ink);
+  font-variation-settings: 'opsz' 40;
 }
 
 a.link-row:hover .link-title,
@@ -784,6 +789,8 @@ footer .dot { color: var(--ink-faint); }
   font-size: clamp(34px, 6.5vw, 52px);
   letter-spacing: -0.01em;
   margin: 0 0 8px;
+  font-variation-settings: 'opsz' 144;
+  letter-spacing: -0.018em;
 }
 
 .page-head p {
@@ -3216,4 +3223,161 @@ body.mood-repeat .glow {
 @media (max-width: 640px) {
   .fmap-zoom { right: 7px; bottom: 7px; gap: 6px; }
   .fmap-zoom-btn { width: 40px; height: 40px; font-size: 17px; }
+}
+
+/* ------------------------------ hub: intro ------------------------------ */
+
+.intro {
+  margin: 20px 0 0;
+  max-width: 50ch;
+  font-size: 16.5px;
+  line-height: 1.68;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* ------------------- hub: the elevation line, with data ------------------- */
+/* The signature motif finally plots something. Same shape language as the old
+   decorative divider, but every vertex is a real trip high point out of
+   places.js, which is the difference between a chart and a squiggle. */
+
+.elev-real {
+  margin: 54px 0 46px;
+  padding: 0;
+}
+
+.elev-real-plot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.elev-fill { fill: color-mix(in srgb, var(--ember) 13%, transparent); }
+
+.elev-base {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.elev-line {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.elev-drop {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.55;
+}
+
+.elev-dot {
+  fill: var(--paper);
+  stroke: var(--ember);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* the one summited peak gets the gold it gets everywhere else on the site */
+.elev-pt.is-summit .elev-dot { fill: var(--gold); stroke: var(--gold); }
+.elev-pt.is-summit .elev-ft  { fill: var(--ink); font-weight: 500; }
+
+.elev-ft,
+.elev-yr {
+  font-family: var(--font-mono);
+  text-anchor: middle;
+  fill: var(--ink-faint);
+}
+.elev-ft { font-size: 11px; fill: var(--ink-soft); }
+.elev-yr { font-size: 10px; letter-spacing: 0.06em; }
+
+.elev-real-cap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* the ridge draws itself in when it scrolls into view */
+  .elev-real-plot.is-armed .elev-line { transition: stroke-dashoffset 1.5s cubic-bezier(.3,.7,.2,1); }
+  .elev-real-plot.is-armed .elev-pt { opacity: 0; transition: opacity 0.5s ease; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt { opacity: 1; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(1) { transition-delay: 0.45s; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(2) { transition-delay: 0.65s; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(3) { transition-delay: 0.85s; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(4) { transition-delay: 1.05s; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(5) { transition-delay: 1.25s; }
+  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(n+6) { transition-delay: 1.45s; }
+}
+
+@media (max-width: 640px) {
+  .elev-real { margin: 40px 0 34px; }
+  .elev-ft { font-size: 13px; }
+  .elev-yr { font-size: 12px; }
+  .elev-real-cap { font-size: 9.5px; letter-spacing: 0.07em; }
+}
+
+/* --------------------- hub: live figures on each row --------------------- */
+/* Each row reports a real number from its own page's data. The hub describes
+   the site rather than just linking to it. */
+
+.link-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.link-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.link-stat strong {
+  font-weight: 500;
+  color: var(--ink-soft);
+  transition: color 0.25s ease;
+}
+.link-stat span { margin-left: -8px; }
+
+a.link-row:hover .link-stat strong,
+a.link-row:focus-visible .link-stat strong { color: var(--ember); }
+
+.link-flag {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px 7px;
+}
+
+@media (max-width: 640px) {
+  /* stacked, because a row that wraps mid-figure reads worse than two lines */
+  .link-head { flex-direction: column; gap: 6px; }
+  .link-stat { font-size: 10.5px; gap: 10px; }
 }

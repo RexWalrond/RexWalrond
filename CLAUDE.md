@@ -43,6 +43,7 @@ check with Rex before changing index.html's bio or tagline copy.
   built (see below)
 - `longevity.html` ("The Log") — nutrition/training/sleep tracking, real
   charted data from a MyFitnessPal export, with a live Supabase path
+- `404.html` — served automatically by GitHub Pages on a bad URL
 - `quant.html` ("The Work") — healthcare equity research + personal quant
   projects. Structurally built; the coverage rows are still clearly-labelled
   placeholders waiting on real calls.
@@ -60,6 +61,10 @@ check with Rex before changing index.html's bio or tagline copy.
 - `map.js` — the Field Notes map
 - `log-data.js` — the MyFitnessPal export, for The Log
 - `favicon.svg` — the ridgeline-as-chart mark
+- `hub.js` — draws the hub's elevation chart and its live row figures
+- `listen-data.js` — the Spotify listening snapshot, shared by music.html and
+  the hub so the two can't drift
+- `og.png` — the social share card (see below)
 
 There is no `assets/topo-bg.svg` and none is needed — all background art is
 generated in CSS and JS. Do not re-add an external background image reference.
@@ -210,6 +215,49 @@ is never empty. Sleep columns exist but are null until the AutoSleep → Apple
 Health feed is connected; `supabase/functions/ingest-health/` is the intended
 ingestion path.
 
+## The hub
+
+`index.html` is wired to the same data its sub-pages use, via `hub.js`:
+
+- **The elevation motif plots real numbers.** It's the high point of every
+  backcountry trip, read out of `places.js`, spaced by year so the season with
+  no trip shows as a gap rather than being closed up. Add a trip and the drawing
+  changes. Don't replace it with a decorative path again — a squiggle that looks
+  like a chart but isn't is the single most "AI-generated" thing this site could
+  do.
+- **Each link row carries a live figure** from its own page's data. The Work has
+  no real coverage yet, so it gets a status tag instead of an invented number.
+  Keep it that way until there are real calls to count.
+
+## Social cards
+
+Every page carries Open Graph and Twitter meta so the site unfurls properly in
+Slack, LinkedIn and iMessage. The image is `assets/og.png`, 1200x630.
+
+It is **generated, not drawn**: a temporary `_og.html` at the repo root reuses
+`style.css`, `chrome.js` and `hub.js`, so the card is literally the site's own
+ridge art and its own elevation chart. Render it at 1200x630 and delete the temp
+file. Regenerate it if the palette, the name or the trip data changes.
+
+Note for whoever regenerates it: the sandbox blocks `fonts.googleapis.com` from
+the browser but not from curl, so screenshots fall back to system fonts unless
+the real font files are fetched and injected as data URIs first. A card rendered
+without that step will look wrong in a way that is easy to miss.
+
+## Typography
+
+Fraunces is a variable face. `font-variation-settings: 'opsz' 144` on display
+headings is doing real work — it swaps to the display cut, with tighter
+apertures and finer hairlines than the text cut it otherwise renders at.
+
+The `SOFT` and `WONK` axes were tried and removed: they only ship if the font
+request asks for them, and once it did, neither made a difference worth carrying
+on this site's headings. Don't re-add an axis without checking it changes the
+render.
+
+The font request uses variable weight ranges (`wght@400..600`) rather than
+discrete weights, which is 23 font files instead of 43.
+
 ## General conventions
 
 - Mobile breakpoint used throughout: `max-width: 640px`
@@ -218,3 +266,6 @@ ingestion path.
 - Always test new interactive features respect `prefers-reduced-motion`
 - Check every viewport width for horizontal overflow after touching layout —
   `document.documentElement.scrollWidth > clientWidth` is the test
+- Numbers shown anywhere should be computed from a data file, not typed in. If
+  there is no real number yet, say so rather than inventing a placeholder that
+  reads as real.
