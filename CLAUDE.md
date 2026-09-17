@@ -61,7 +61,7 @@ check with Rex before changing index.html's bio or tagline copy.
 - `map.js` — the Field Notes map
 - `log-data.js` — the MyFitnessPal export, for The Log
 - `favicon.svg` — the ridgeline-as-chart mark
-- `hub.js` — draws the hub's elevation chart and its live row figures
+- `hub.js` — the hub's live row figures
 - `listen-data.js` — the Spotify listening snapshot, shared by music.html and
   the hub so the two can't drift
 - `sky.js` — solar and lunar position, and the phase the whole palette hangs off
@@ -260,17 +260,43 @@ ingestion path.
 
 ## The hub
 
-`index.html` is wired to the same data its sub-pages use, via `hub.js`:
+`index.html` is the front door, and its job is to send people to the four
+pages. Two things follow from that:
 
-- **The elevation motif plots real numbers.** It's the high point of every
-  backcountry trip, read out of `places.js`, spaced by year so the season with
-  no trip shows as a gap rather than being closed up. Add a trip and the drawing
-  changes. Don't replace it with a decorative path again — a squiggle that looks
-  like a chart but isn't is the single most "AI-generated" thing this site could
-  do.
-- **Each link row carries a live figure** from its own page's data. The Work has
-  no real coverage yet, so it gets a status tag instead of an invented number.
-  Keep it that way until there are real calls to count.
+- **Each link row carries a live figure** from its own page's data, via
+  `hub.js`. The Work has no real coverage yet, so it gets a status tag instead
+  of an invented number. Keep it that way until there are real calls to count.
+- **No charts here.** There used to be an elevation profile of every
+  backcountry high point. It was accurate and it was pretty, and it still went:
+  it over-weighted one of the four pages, and it asked a first-time visitor to
+  interpret something before they had any context for it. If you want to add a
+  visual to the hub, it should not be a data graphic.
+
+### The hub is the only page that moves
+
+`<body data-ambient="live">` on index.html opts into weather; nothing else does.
+`chrome.js` builds it — clouds on three depth bands crossing the sky, and a near
+treeline whose trees each sway on their own clock so the row reads as wind
+moving through rather than one object rocking. Both are generated from a seed,
+like the ridges.
+
+The rest of the site stays still on purpose: a page someone is *reading* should
+not have weather. Measured, the hub changes about 6-7% of its pixels over four
+seconds; the sub-pages change 0.00%.
+
+**The gate is easy to get wrong.** `animation-name` for the clouds lives in the
+stylesheet, inside the `prefers-reduced-motion: no-preference` block. An earlier
+version set it inline from JS along with duration and delay, which beats the
+media query — the clouds kept drifting for readers who had asked for stillness,
+and nothing in the markup looked wrong. Only duration, delay and the resting
+position go inline. The test is to diff two screenshots a few seconds apart
+under `reducedMotion: 'reduce'` and require 0.000%.
+
+Clouds and the windbreak sit at `z-index: 4`, above the readability veil at 3,
+with the grain moved to 5. Below the veil they get washed out and flatten into
+the distant ridges. The daytime `--sky-top` values are deliberately a deeper
+blue than the rest of the palette would suggest: white clouds on a near-white
+sky are invisible, and the deeper sky is what makes them read at all.
 
 ## Social cards
 
@@ -278,8 +304,9 @@ Every page carries Open Graph and Twitter meta so the site unfurls properly in
 Slack, LinkedIn and iMessage. The image is `assets/og.png`, 1200x630.
 
 It is **generated, not drawn**: a temporary `_og.html` at the repo root reuses
-`style.css`, `chrome.js` and `hub.js`, so the card is literally the site's own
-ridge art and its own elevation chart. Render it at 1200x630 and delete the temp
+`style.css` and `chrome.js`, so the card is literally the site's own ridge art.
+It hides the toggle, the clouds and the windbreak — it is a still image, not a
+frame of an animation. Render it at 1200x630 and delete the temp
 file. Regenerate it if the palette, the name or the trip data changes.
 
 Note for whoever regenerates it: the sandbox blocks `fonts.googleapis.com` from

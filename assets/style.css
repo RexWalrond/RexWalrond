@@ -149,7 +149,7 @@ body {
   content: '';
   position: absolute;
   inset: -20%;
-  z-index: 4;
+  z-index: 5;
   opacity: var(--grain-alpha);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
@@ -3211,102 +3211,6 @@ body.mood-repeat .glow {
   text-wrap: pretty;
 }
 
-/* ------------------- hub: the elevation line, with data ------------------- */
-/* The signature motif finally plots something. Same shape language as the old
-   decorative divider, but every vertex is a real trip high point out of
-   places.js, which is the difference between a chart and a squiggle. */
-
-.elev-real {
-  margin: 54px 0 46px;
-  padding: 0;
-}
-
-.elev-real-plot svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.elev-fill { fill: color-mix(in srgb, var(--ember) 13%, transparent); }
-
-.elev-base {
-  stroke: var(--line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.elev-line {
-  fill: none;
-  stroke: var(--ember);
-  stroke-width: 1.8;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.elev-drop {
-  stroke: var(--line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  opacity: 0.55;
-}
-
-.elev-dot {
-  fill: var(--paper);
-  stroke: var(--ember);
-  stroke-width: 1.8;
-  vector-effect: non-scaling-stroke;
-}
-
-/* the one summited peak gets the gold it gets everywhere else on the site */
-.elev-pt.is-summit .elev-dot { fill: var(--gold); stroke: var(--gold); }
-.elev-pt.is-summit .elev-ft  { fill: var(--ink); font-weight: 500; }
-
-.elev-ft,
-.elev-yr {
-  font-family: var(--font-mono);
-  text-anchor: middle;
-  fill: var(--ink-faint);
-}
-.elev-ft { font-size: 11px; fill: var(--ink-soft); }
-.elev-yr { font-size: 10px; letter-spacing: 0.06em; }
-
-.elev-real-cap {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  margin-top: 10px;
-  padding-top: 9px;
-  border-top: 1px solid var(--line);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* the ridge draws itself in when it scrolls into view */
-  .elev-real-plot.is-armed .elev-line { transition: stroke-dashoffset 1.5s cubic-bezier(.3,.7,.2,1); }
-  .elev-real-plot.is-armed .elev-pt { opacity: 0; transition: opacity 0.5s ease; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt { opacity: 1; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(1) { transition-delay: 0.45s; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(2) { transition-delay: 0.65s; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(3) { transition-delay: 0.85s; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(4) { transition-delay: 1.05s; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(5) { transition-delay: 1.25s; }
-  .elev-real-plot.is-armed.is-drawn .elev-pt:nth-of-type(n+6) { transition-delay: 1.45s; }
-}
-
-@media (max-width: 640px) {
-  .elev-real { margin: 40px 0 34px; }
-  .elev-ft { font-size: 13px; }
-  .elev-yr { font-size: 12px; }
-  .elev-real-cap { font-size: 9.5px; letter-spacing: 0.07em; }
-}
-
 /* --------------------- hub: live figures on each row --------------------- */
 /* Each row reports a real number from its own page's data. The hub describes
    the site rather than just linking to it. */
@@ -3416,6 +3320,9 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    cut paper against the sky. */
 
 :root[data-sky="night"] {
+  --cloud-lit: rgba(150, 172, 196, 0.16);
+  --cloud-shade: rgba(90, 110, 134, 0.10);
+  --windbreak: #04080c;
   --bg: #080d12;
   --sky-top: #05090d;
   --sky-mid: #080d12;
@@ -3440,6 +3347,9 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    the stars are still up. */
 
 :root[data-sky="dawn"] {
+  --cloud-lit: rgba(150, 168, 206, 0.20);
+  --cloud-shade: rgba(70, 88, 128, 0.14);
+  --windbreak: #050911;
   --bg: #0b1220;
   --sky-top: #070c17;
   --sky-mid: #0d1526;
@@ -3463,6 +3373,9 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Civil dawn: the blue hour turning rose at the horizon, last stars going. */
 
 :root[data-sky="first-light"] {
+  --cloud-lit: rgba(226, 176, 180, 0.34);
+  --cloud-shade: rgba(110, 96, 140, 0.24);
+  --windbreak: #0a0d18;
   --bg: #17223a;
   --sky-top: #101a30;
   --sky-mid: #1d2a45;
@@ -3487,8 +3400,11 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    ridges take a warm rim. */
 
 :root[data-sky="sunrise"] {
+  --cloud-lit: rgba(255, 216, 178, 0.82);
+  --cloud-shade: rgba(186, 128, 118, 0.6);
+  --windbreak: #23262f;
   --bg: #e7dfd5;
-  --sky-top: #8ea2bd;
+  --sky-top: #7f97b8;
   --sky-mid: #d3b79f;
   --sky-low: #f0c79a;
   --ridge-1: color-mix(in srgb, #6d7f92 70%, var(--bg));
@@ -3510,8 +3426,11 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Sun up and climbing. Clear, cool, the haze not yet built. */
 
 :root[data-sky="morning"] {
+  --cloud-lit: rgba(255, 255, 255, 0.86);
+  --cloud-shade: rgba(150, 174, 196, 0.62);
+  --windbreak: color-mix(in srgb, var(--ink) 88%, var(--blue));
   --bg: #e7ecea;
-  --sky-top: #c2d6e2;
+  --sky-top: #a6c6dd;
   --sky-mid: #dee8e8;
   --sky-low: #edefe6;
   --ridge-1: color-mix(in srgb, var(--pine) 30%, var(--bg));
@@ -3534,8 +3453,11 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    ridges lose contrast rather than gaining it. */
 
 :root[data-sky="midday"] {
+  --cloud-lit: rgba(255, 255, 255, 0.92);
+  --cloud-shade: rgba(156, 182, 204, 0.6);
+  --windbreak: color-mix(in srgb, var(--ink) 80%, var(--blue));
   --bg: #eef0ea;
-  --sky-top: #cfe0ea;
+  --sky-top: #a7c8e4;
   --sky-mid: #e6edea;
   --sky-low: #f2f2ea;
   --ridge-1: color-mix(in srgb, var(--pine) 18%, var(--bg));
@@ -3557,8 +3479,11 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Falling sun, warmer than the morning it mirrors. */
 
 :root[data-sky="afternoon"] {
+  --cloud-lit: rgba(255, 248, 232, 0.88);
+  --cloud-shade: rgba(168, 168, 158, 0.6);
+  --windbreak: color-mix(in srgb, var(--ink) 86%, var(--blue));
   --bg: #eeece2;
-  --sky-top: #c3d3dd;
+  --sky-top: #aac4d6;
   --sky-mid: #e2e4d9;
   --sky-low: #f2ead6;
   --ridge-1: color-mix(in srgb, var(--pine) 26%, var(--bg));
@@ -3580,8 +3505,11 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Golden hour, falling. The loudest the palette gets all day. */
 
 :root[data-sky="sunset"] {
+  --cloud-lit: rgba(255, 198, 150, 0.84);
+  --cloud-shade: rgba(138, 96, 118, 0.62);
+  --windbreak: #241f2b;
   --bg: #ecdccd;
-  --sky-top: #7b7f9e;
+  --sky-top: #6e7396;
   --sky-mid: #cf9b83;
   --sky-low: #f2b076;
   --ridge-1: color-mix(in srgb, #7a7286 72%, var(--bg));
@@ -3604,6 +3532,9 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    silhouette. */
 
 :root[data-sky="twilight"] {
+  --cloud-lit: rgba(214, 160, 172, 0.32);
+  --cloud-shade: rgba(96, 82, 124, 0.24);
+  --windbreak: #0b0a14;
   --bg: #1d2038;
   --sky-top: #171a30;
   --sky-mid: #2c2b48;
@@ -3627,6 +3558,9 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Nautical and astronomical dusk. Colour drains out, stars come up. */
 
 :root[data-sky="nightfall"] {
+  --cloud-lit: rgba(140, 156, 196, 0.20);
+  --cloud-shade: rgba(70, 84, 124, 0.14);
+  --windbreak: #050911;
   --bg: #0c1322;
   --sky-top: #070c16;
   --sky-mid: #0e1626;
@@ -3706,4 +3640,114 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
     transition: background 1.2s ease, fill 1.2s ease, opacity 1.2s ease,
                 left 1.2s ease, top 1.2s ease, width 1.2s ease, height 1.2s ease;
   }
+}
+
+/* ============================ ambient: the hub ============================ */
+/* The home page runs weather; the rest of the site does not. Clouds cross the
+   sky on three depth bands and a near treeline moves in the wind. All of it is
+   CSS keyframes on a fixed, composited layer — no JS frame loop — so it costs
+   effectively nothing to leave running, and it stops completely under
+   prefers-reduced-motion. */
+
+.clouds {
+  position: absolute;
+  inset: 0 0 34% 0;
+  overflow: hidden;
+  z-index: 4;
+  pointer-events: none;
+  /* the veil would erase them against a pale midday sky; mask them out towards
+     the horizon instead so they still fade into the distance */
+  -webkit-mask-image: linear-gradient(180deg, #000 0 58%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 58%, transparent 100%);
+}
+
+.cloud {
+  position: absolute;
+  left: 0;
+  width: 26vw;
+  height: 9vh;
+  transform: translateX(var(--cloud-x, 20vw)) scale(var(--cloud-scale, 1));
+  will-change: transform;
+}
+
+/* far clouds are thinner and paler, near ones heavier and softer-edged */
+.cloud--0 { filter: blur(7px); }
+.cloud--1 { filter: blur(11px); }
+.cloud--2 { filter: blur(16px); }
+
+.puff {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 44% 26%,
+              var(--cloud-lit, rgba(255,255,255,0.8)) 0%,
+              var(--cloud-lit, rgba(255,255,255,0.8)) 30%,
+              var(--cloud-shade, rgba(190,205,215,0.4)) 66%,
+              transparent 80%);
+}
+
+/* ------------------------------ the windbreak ------------------------------ */
+
+.windbreak {
+  position: absolute;
+  left: -2%;
+  bottom: -1px;
+  width: 104%;
+  height: 16vh;
+  min-height: 96px;
+  /* above the readability veil: this is foreground, and letting the veil wash
+     it flattens it into the distant ridges */
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.wb-tree {
+  fill: var(--windbreak, #1b2a24);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cloud {
+    animation-name: drift-cloud;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  /* Each tree leans on its own clock, so the row reads as wind moving through
+     rather than one object rocking. */
+  .wb-tree {
+    animation-name: rustle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+}
+
+@keyframes drift-cloud {
+  from { transform: translateX(-46vw) scale(var(--cloud-scale, 1)); }
+  to   { transform: translateX(146vw) scale(var(--cloud-scale, 1)); }
+}
+
+@keyframes rustle {
+  from { transform: rotate(calc(var(--sway, 1.4deg) * -1)); }
+  to   { transform: rotate(var(--sway, 1.4deg)); }
+}
+
+/* The near trees sit in front of everything, so they take the strongest
+   parallax of any layer. */
+@media (prefers-reduced-motion: no-preference) {
+  .windbreak {
+    transform: translate3d(calc(var(--parallax-x, 0) * 26px),
+                           calc(var(--parallax-y, 0) * 11px + var(--scroll-y, 0) * -104px), 0);
+    transition: transform 0.28s ease-out;
+  }
+}
+
+@media (max-width: 640px) {
+  /* fewer, bigger, slower: a phone doesn't need nine clouds and shouldn't pay
+     for nine composited layers */
+  .cloud--0 { display: none; }
+  .cloud { width: 46vw; }
+  .windbreak { height: 15vh; min-height: 84px; }
 }

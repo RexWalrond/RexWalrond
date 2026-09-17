@@ -18,6 +18,11 @@
   var REDUCED = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // the hub opts into weather; every other page stays still
+  function live() {
+    return !!document.body && document.body.getAttribute("data-ambient") === "live";
+  }
+
   /* ------------------------------ seeded noise ------------------------------ */
 
   function rng(seed) {
@@ -132,6 +137,97 @@
     return out;
   }
 
+  /* ------------------------------ ambient life ------------------------------ */
+  /* Only the hub asks for this (<body data-ambient="live">). The sub-pages keep
+     the quiet version: a page you are reading should not have weather.
+     Everything moves on CSS keyframes rather than a JS frame loop, so it costs
+     nothing once composited and it stops dead under prefers-reduced-motion. */
+
+  /* A cloud is a handful of soft blobs in one drifting group, so the silhouette
+     is lumpy rather than a single ellipse. Three depth bands: the high thin
+     ones move slowest, the low heavy ones fastest. */
+  function clouds(seed, count) {
+    var rand = rng(seed);
+    var out = "";
+
+    for (var i = 0; i < count; i++) {
+      var band = i % 3;                       // 0 far/high, 2 near/low
+      var scale = 0.55 + band * 0.42 + rand() * 0.3;
+      var top = 6 + band * 13 + rand() * 11;  // higher bands sit higher
+      var dur = 128 - band * 26 + rand() * 62;   // ~76-190s to cross
+      var delay = -rand() * dur;              // negative: already mid-crossing
+      var opacity = (0.72 - band * 0.1 + rand() * 0.2).toFixed(2);
+      // Resting position, used when the animation is off. Without it a reader
+      // on reduced motion gets a sky whose clouds are all parked off-canvas.
+      var restX = (4 + rand() * 88).toFixed(1);
+
+      var puffs = "";
+      var n = 3 + Math.floor(rand() * 3);
+      for (var j = 0; j < n; j++) {
+        var pw = 30 + rand() * 46;
+        var ph = pw * (0.36 + rand() * 0.22);
+        puffs += '<span class="puff" style="left:' + (j * 21 + rand() * 12).toFixed(1) +
+                 '%;bottom:' + (rand() * 34).toFixed(1) + '%;width:' + pw.toFixed(1) +
+                 '%;height:' + ph.toFixed(1) + '%"></span>';
+      }
+
+      /* animation-name deliberately lives in the stylesheet, behind the
+         reduced-motion gate. Setting it inline here would beat the media query
+         and the clouds would keep drifting for readers who asked for stillness. */
+      out += '<span class="cloud cloud--' + band + '" style="top:' + top.toFixed(1) +
+             '%;--cloud-scale:' + scale.toFixed(2) + ';--cloud-x:' + restX +
+             'vw;opacity:' + opacity + ';animation-duration:' + dur.toFixed(0) +
+             's;animation-delay:' + delay.toFixed(1) + 's">' + puffs + '</span>';
+    }
+    return '<div class="clouds" aria-hidden="true">' + out + '</div>';
+  }
+
+  /* A near treeline along the very bottom edge. These are large enough that a
+     couple of degrees of sway actually reads as wind — the tiny trees on the
+     distant ridge are only a few pixels tall and would just shimmer. Each tree
+     is its own path so it can move on its own schedule. */
+  function windbreak(seed) {
+    var rand = rng(seed);
+    var W = 1440, H = 150;
+    var out = "";
+    var x = -14;
+
+    while (x < W + 14) {
+      var h = 40 + rand() * 48;
+      var w = 11 + rand() * 9;
+      var base = H - 2 - rand() * 5;
+      var lean = (rand() * 2 - 1) * 1.6;
+
+      // a spruce: stacked tiers, each a little narrower than the one below
+      var d = "";
+      var tiers = 4 + Math.floor(rand() * 2);
+      for (var t = 0; t < tiers; t++) {
+        var f = t / (tiers - 1);
+        var ty = base - h * (0.1 + f * 0.66);
+        var tw = w * (1 - f * 0.68);
+        // each tier reaches well past the one above it, so the silhouette
+        // closes up into a tree instead of reading as stacked chevrons
+        d += "M" + (x - tw).toFixed(1) + "," + ty.toFixed(1) +
+             "L" + (x + lean * (1 - f) * 3).toFixed(1) + "," + (ty - h * 0.42).toFixed(1) +
+             "L" + (x + tw).toFixed(1) + "," + ty.toFixed(1) + "Z";
+      }
+      d += "M" + (x - 1.4).toFixed(1) + "," + base.toFixed(1) +
+           "L" + (x - 1).toFixed(1) + "," + (base - h * 0.3).toFixed(1) +
+           "L" + (x + 1).toFixed(1) + "," + (base - h * 0.3).toFixed(1) +
+           "L" + (x + 1.4).toFixed(1) + "," + base.toFixed(1) + "Z";
+
+      out += '<path class="wb-tree" d="' + d + '" style="--sway:' +
+             (1.1 + rand() * 1.5).toFixed(2) + 'deg;animation-duration:' +
+             (3.4 + rand() * 3.4).toFixed(1) + 's;animation-delay:-' +
+             (rand() * 6).toFixed(1) + 's"/>';
+
+      x += 21 + rand() * 32;
+    }
+
+    return '<svg class="windbreak" viewBox="0 0 ' + W + ' ' + H +
+           '" preserveAspectRatio="none" aria-hidden="true">' + out + '</svg>';
+  }
+
   function repeat(n, fn) {
     var out = "";
     for (var i = 0; i < n; i++) out += fn(i);
@@ -155,7 +251,8 @@
         '</div>' +
         '<div class="mist mist--a"></div>' +
         '<div class="mist mist--b"></div>' +
-        '<div class="mist mist--c"></div>';
+        '<div class="mist mist--c"></div>' +
+        (live() ? clouds(0xc10d5, 9) + windbreak(0x7e5) : "");
     },
 
     /* Underwater: a spring cavern. Light comes from the surface above in
