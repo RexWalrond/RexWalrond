@@ -262,18 +262,52 @@
   }
 
   /* -------------------------------- theming -------------------------------- */
-  /* The theme follows the operating system and nothing else. Browsers that
-     report no preference — older ones, and anything where the user has not
-     chosen — do not match `prefers-color-scheme: dark`, so they land on light,
-     which is the intended default. There is deliberately no in-page override
-     and nothing stored: a site that remembers a choice the reader made months
-     ago is a site that stops matching their system when they switch it. */
+  /* Three states: follow the system, or pin light / dusk. Pinned choice is
+     remembered; "auto" clears the attribute and lets the media query win. */
 
-  function clearStaleThemePin() {
-    // Left over from the version that had a toggle. Without this, anyone who
-    // pinned a theme then would stay pinned to it forever.
-    try { localStorage.removeItem("rw-theme"); } catch (e) {}
-    document.documentElement.removeAttribute("data-theme");
+  var THEME_KEY = "rw-theme";
+  var THEMES = ["auto", "light", "dusk"];
+
+  function storedTheme() {
+    try {
+      var v = localStorage.getItem(THEME_KEY);
+      return THEMES.indexOf(v) > -1 ? v : "auto";
+    } catch (e) { return "auto"; }
+  }
+
+  function applyTheme(mode) {
+    var root = document.documentElement;
+    if (mode === "auto") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", mode);
+    try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+
+    var btn = document.querySelector(".theme-toggle");
+    if (btn) {
+      var label = mode === "auto" ? "Theme: system" :
+                  mode === "light" ? "Theme: light" : "Theme: dusk";
+      btn.setAttribute("aria-label", label + " — click to change");
+      btn.setAttribute("title", label);
+      btn.setAttribute("data-mode", mode);
+    }
+  }
+
+  function buildThemeToggle() {
+    if (document.querySelector(".theme-toggle")) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "theme-toggle";
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        '<circle class="t-sun" cx="12" cy="12" r="4.4"/>' +
+        '<g class="t-rays"><path d="M12 1.6v2.6M12 19.8v2.6M22.4 12h-2.6M4.2 12H1.6' +
+        'M19.4 4.6l-1.9 1.9M6.5 17.5l-1.9 1.9M19.4 19.4l-1.9-1.9M6.5 6.5L4.6 4.6"/></g>' +
+        '<path class="t-moon" d="M20 14.2A8.4 8.4 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"/>' +
+      '</svg>';
+    btn.addEventListener("click", function () {
+      var next = THEMES[(THEMES.indexOf(storedTheme()) + 1) % THEMES.length];
+      applyTheme(next);
+    });
+    document.body.appendChild(btn);
   }
 
   /* ------------------------------- parallax ------------------------------- */
@@ -319,12 +353,15 @@
   /* --------------------------------- boot --------------------------------- */
 
   function boot() {
-    clearStaleThemePin();
+    applyTheme(storedTheme());
     buildBackground();
+    buildThemeToggle();
+    applyTheme(storedTheme());   // re-run now the button exists, so it labels itself
     initParallax();
   }
 
-  clearStaleThemePin();
+  // as early as possible, so a pinned dusk theme doesn't flash light
+  applyTheme(storedTheme());
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
@@ -334,6 +371,7 @@
 
   window.Chrome = {
     setScene: mountScene,
+    setTheme: applyTheme,
     ridgeProfile: ridgeProfile,
     smoothPath: smoothPath,
     reducedMotion: REDUCED

@@ -94,14 +94,24 @@ Two themes off one set of tokens: **light** (alpine mist paper) and **dusk**
 (the same landscape after sundown — ridges go to silhouette, the sunrise glow
 becomes moonlight, stars appear).
 
-**Which one shows is decided solely by `prefers-color-scheme`.** There is no
-in-page toggle and nothing is stored. A browser that reports no preference
-doesn't match the dark query and keeps light, which is the intended fallback.
-This is deliberate: a site that remembers a choice made months ago is a site
-that stops matching the reader's system when they switch it. `chrome.js` clears
-the old `rw-theme` key on load so anyone who pinned a theme under the previous
-build isn't stuck with it — that cleanup can be dropped once enough time has
-passed.
+**The default follows `prefers-color-scheme`**, and a toggle in the top right
+lets the reader override it. It cycles system → light → dusk, storing the choice
+in `localStorage` under `rw-theme`; "system" clears the stored pin and hands
+control back to the media query. A browser that reports no preference doesn't
+match the dark query, so it lands on light — the intended fallback.
+
+A small inline script in each page's `<head>` applies the stored pin before
+first paint. Without it a pinned dusk theme flashes light while the stylesheet
+and scripts arrive. Keep that snippet in the head, ahead of anything that
+renders.
+
+The dusk values appear **twice** in style.css — once under
+`@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme="light"])`,
+and once under `:root[data-theme="dusk"]`. The same doubling applies to the
+scene-scoped veil and scrim overrides. CSS can't share a rule body between a
+media query and an attribute selector without a preprocessor, and this file has
+no build step, so **edit both or neither.** The test for this is pinning dusk on
+a light system and checking a scene page still re-tints.
 
 **All colour must go through tokens.** A literal like `rgba(30,43,38,.045)`
 is a tint of ink that darkens the dark theme instead of lifting it. Use
