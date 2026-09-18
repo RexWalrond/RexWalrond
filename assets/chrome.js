@@ -374,35 +374,71 @@
     return { left: left, top: top, up: body.alt > -2 };
   }
 
+  /* The moon's lit limb, as an actual shape.
+   *
+   * The terminator is a circle seen edge-on, so on the disc it projects to an
+   * ellipse whose horizontal semi-axis is r(1-2k) for illuminated fraction k.
+   * Positive means the terminator bows towards the lit limb (a crescent),
+   * negative means away (gibbous), and zero is the straight line at quarter.
+   * Two arcs close the shape: the outer limb, then the terminator back.
+   *
+   * This replaces a CSS trick that slid an opaque circle across a soft radial
+   * gradient. The maths behind it was right, but a hard circle over a blurred
+   * glow has no crisp limb to cut, so every phase looked like the same smudge.
+   */
+  function moonPath(r, k, waxing) {
+    k = Math.max(0, Math.min(1, k));
+    var a = r * (1 - 2 * k);              // signed semi-axis of the terminator
+    var rx = Math.abs(a).toFixed(3);
+    var sweep = a > 0 ? 0 : 1;            // crescent bows right, gibbous left
+
+    var d = "M0," + (-r) +
+            "A" + r + "," + r + " 0 0 1 0," + r +
+            "A" + rx + "," + r + " 0 0 " + sweep + " 0," + (-r) + "Z";
+
+    // waning is the same shape mirrored: the other limb is the lit one
+    return { d: d, flip: !waxing };
+  }
+
   function paintCelestial() {
     var el = document.querySelector(".celestial");
     if (!el || !window.Sky || !window.Sky.state) return;
     var st = window.Sky.state;
+    var pinned = window.Sky.mode !== "auto";
 
-    // Pinned modes have no real sun to point at, so park it somewhere sensible.
-    if (window.Sky.mode !== "auto") {
+    var isMoon = pinned ? window.Sky.mode === "night" : !!st.dark;
+    el.classList.toggle("is-moon", isMoon);
+
+    if (pinned) {
+      // nothing real to point at, so park it somewhere plausible
       el.style.left = "74%";
-      el.style.top = window.Sky.mode === "night" ? "18%" : "26%";
-      el.classList.toggle("is-moon", window.Sky.mode === "night");
-      el.style.removeProperty("--moon-shift");
+      el.style.top = isMoon ? "18%" : "26%";
+      el.style.opacity = "1";
+      if (isMoon) drawMoon(el, 0.62, true);
+      else el.innerHTML = "";
       return;
     }
 
-    var body = st.dark ? st.moon : st.sun;
+    var body = isMoon ? st.moon : st.sun;
     var pos = skyPosition(body);
     el.style.left = pos.left.toFixed(2) + "%";
     el.style.top = pos.top.toFixed(2) + "%";
-    el.classList.toggle("is-moon", !!st.dark);
     // below the horizon it would be underground; fade it rather than jump it
     el.style.opacity = pos.up ? "1" : "0";
 
-    if (st.dark) {
-      // terminator offset: full moon 0, new moon a full diameter across
-      var shift = (1 - 2 * st.moon.illum) * (st.moon.waxing ? -1 : 1);
-      el.style.setProperty("--moon-shift", (shift * 100).toFixed(1) + "%");
-    } else {
-      el.style.removeProperty("--moon-shift");
-    }
+    if (isMoon) drawMoon(el, st.moon.illum, st.moon.waxing);
+    else el.innerHTML = "";
+  }
+
+  function drawMoon(el, illum, waxing) {
+    var R = 10;
+    var m = moonPath(R, illum, waxing);
+    el.innerHTML =
+      '<svg class="moon-disc" viewBox="-12 -12 24 24" aria-hidden="true">' +
+        '<circle class="moon-dark" r="' + R + '"/>' +
+        '<path class="moon-lit" d="' + m.d + '"' +
+          (m.flip ? ' transform="scale(-1,1)"' : '') + '/>' +
+      '</svg>';
   }
 
   function describeSky() {

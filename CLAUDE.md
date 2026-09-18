@@ -117,9 +117,18 @@ read as midday.
 
 The sun and moon are **placed where they actually are**: `chrome.js` maps
 azimuth to horizontal position (due east at the left edge, due west at the
-right) and altitude to height. The moon carries its real illuminated fraction
-as a CSS terminator, and is hidden when it is genuinely below the horizon — a
-night with no moon in the sky is correct, not a bug.
+right) and altitude to height. The moon is hidden when it is genuinely below
+the horizon — a night with no moon in the sky is correct, not a bug.
+
+**The moon's phase is a drawn shape, not an overlay.** `moonPath()` in
+`chrome.js` builds the lit limb from two arcs: the outer circle, then the
+terminator, which projects to an ellipse of horizontal semi-axis r(1−2k) for
+illuminated fraction k. Positive bows toward the lit limb (crescent), negative
+away (gibbous), zero is the straight line at quarter; waning is the same shape
+mirrored. An earlier version slid an opaque CSS circle across a soft radial
+gradient — the maths was right, but a hard edge over a blurred glow has no
+crisp limb to cut, so every phase looked like the same smudge. If you change
+this, render a strip of phases from 0 to 100 in both directions and look at it.
 
 Two gotchas, both of which bit during the build:
 - The trig helpers `sin()`/`cos()` take **degrees**. Passing a
@@ -130,7 +139,13 @@ Two gotchas, both of which bit during the build:
   plausible and is wrong.
 
 Verify any change to this file against published sunrise/sunset times for St.
-Petersburg and against a full lunation, not by eye.
+Petersburg and against a full lunation, not by eye. The `suncalc` npm package
+is a good independent reference and is worth pulling in for a one-off check;
+note that the published fork returns **degrees**, not the radians the original
+library documents, which will silently wreck a comparison harness. Current
+agreement against it: sun altitude within 0.5°, moon altitude within 2.2°, moon
+azimuth within 2.2°, illuminated fraction within 1.1 percentage points, and the
+waxing flag never disagrees.
 
 **CSS structure:** two base blocks carry text and surfaces
 (`[data-dark="true"|"false"]`); ten `[data-sky="…"]` blocks carry atmosphere
@@ -138,7 +153,21 @@ Petersburg and against a full lunation, not by eye.
 separate — a text colour inside a sky block is in the wrong place. Scene
 overrides for Dive and Ski key off `data-dark` only, so they don't need ten
 variants each. All ten phases are checked for WCAG AA body contrast; the
-tightest is sunset at about 5.1:1, so there is not much headroom to spend.
+tightest are twilight at about 4.9:1 and sunset at about 5.1:1, so there is very
+little headroom to spend.
+
+**The reading-column scrim outranks everything in the background.** `.wrap` is
+`z-index: 1` and the whole `.topo-bg` layer is `z-index: 0`, so `.wrap::before`
+paints over the sky no matter what z-index a background element claims —
+raising the moon inside `.topo-bg` cannot lift it above the scrim. That is why
+the dark phases carry deliberately *light* scrims (0.26–0.52): the palette is
+already near-black and the text sits at 6–8.5:1 without help, while a heavy
+scrim turns the lunar disc grey and the phase stops reading. Twilight is the
+exception and needs more, because it has the brightest sky of the dark phases.
+
+**Daylight is deliberately cool.** Morning, midday and afternoon were warmer and
+brighter and read as glare; midday in particular. If you brighten them again,
+re-run the contrast check — they now sit at 5.1–5.3:1.
 
 **The toggle** in the top right cycles auto → day → night, stored under
 `rw-theme`. "auto" is the live sky; the other two pin midday and night. Values

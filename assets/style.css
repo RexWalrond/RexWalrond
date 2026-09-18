@@ -201,25 +201,41 @@ body {
               opacity 1.2s ease, background 1.2s ease;
 }
 
-/* The moon carries its real phase: a second disc in the sky colour slides
-   across the first, so the lit limb is the crescent that is actually up.
-   --moon-shift is 0% at full and ±100% at new. */
-.celestial.is-moon::after {
-  content: '';
-  position: absolute;
-  inset: -2%;
-  border-radius: 50%;
-  background: var(--sky-mid);
-  transform: translateX(var(--moon-shift, 0%));
-  transition: transform 1.2s ease, background 1.2s ease;
-}
+/* The moon carries its real phase, drawn by chrome.js as two arcs: the outer
+   limb and the elliptical terminator. The div keeps its radial gradient as the
+   halo; the SVG inside is the disc itself. */
 .celestial.is-moon {
-  overflow: hidden;
-  box-shadow: 0 0 5vh 1vh rgba(226, 238, 242, 0.09);
+  background: radial-gradient(circle, rgba(226, 238, 242, 0.16) 0%, rgba(226, 238, 242, 0) 66%);
+  /* Above the atmospheric veil. It cannot get above the reading column's
+     scrim — .wrap is a higher stacking context than the whole background — so
+     the dark phases keep their scrim light instead. A heavy night scrim turns
+     a white lunar disc into grey and the phase stops reading. */
+  z-index: 4;
+}
+
+.moon-disc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* the unlit disc stays faintly visible — earthshine, and it keeps the moon
+   from looking like a bite has been taken out of the sky */
+.moon-dark {
+  fill: color-mix(in srgb, var(--sky-mid) 72%, #cfe0ea);
+  opacity: 0.32;
+}
+
+.moon-lit {
+  fill: #f2f6f6;
+  filter: drop-shadow(0 0 2.5px rgba(232, 242, 246, 0.6));
+  transition: d 1.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .celestial, .celestial.is-moon::after { transition: none; }
+  .celestial, .moon-lit { transition: none; }
 }
 
 .glow {
@@ -3339,7 +3355,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   --celestial: radial-gradient(circle, rgba(236, 242, 242, 0.95) 0%, rgba(198, 216, 224, 0.34) 42%, rgba(198, 216, 224, 0) 68%);
   --celestial-size: 8vh;
   --veil: linear-gradient(180deg, var(--bg) 0%, rgba(8, 13, 18, 0.52) 28%, rgba(8, 13, 18, 0.06) 56%, rgba(8, 13, 18, 0.46) 100%);
-  --scrim: rgba(8, 13, 18, 0.66);
+  --scrim: rgba(8, 13, 18, 0.26);
 }
 
 /* ---------------------------------- dawn ---------------------------------- */
@@ -3366,7 +3382,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   --celestial: radial-gradient(circle, rgba(228, 236, 240, 0.8) 0%, rgba(190, 210, 224, 0.26) 42%, rgba(190, 210, 224, 0) 68%);
   --celestial-size: 7vh;
   --veil: linear-gradient(180deg, var(--bg) 0%, rgba(11, 18, 32, 0.5) 28%, rgba(11, 18, 32, 0.06) 56%, rgba(11, 18, 32, 0.44) 100%);
-  --scrim: rgba(10, 16, 28, 0.66);
+  --scrim: rgba(10, 16, 28, 0.3);
 }
 
 /* ------------------------------- first light ------------------------------- */
@@ -3392,7 +3408,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   --celestial: radial-gradient(circle, rgba(255, 214, 186, 0.7) 0%, rgba(226, 150, 130, 0.3) 44%, rgba(226, 150, 130, 0) 70%);
   --celestial-size: 9vh;
   --veil: linear-gradient(180deg, var(--bg) 0%, rgba(23, 34, 58, 0.5) 28%, rgba(23, 34, 58, 0.07) 56%, rgba(40, 32, 46, 0.46) 100%);
-  --scrim: rgba(18, 26, 44, 0.68);
+  --scrim: rgba(18, 26, 44, 0.36);
 }
 
 /* -------------------------------- sunrise -------------------------------- */
@@ -3426,26 +3442,26 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 /* Sun up and climbing. Clear, cool, the haze not yet built. */
 
 :root[data-sky="morning"] {
-  --cloud-lit: rgba(255, 255, 255, 0.86);
-  --cloud-shade: rgba(150, 174, 196, 0.62);
+  --cloud-lit: rgba(248, 252, 253, 0.84);
+  --cloud-shade: rgba(146, 172, 194, 0.62);
   --windbreak: color-mix(in srgb, var(--ink) 88%, var(--blue));
-  --bg: #e7ecea;
-  --sky-top: #a6c6dd;
-  --sky-mid: #dee8e8;
-  --sky-low: #edefe6;
+  --bg: #e0e7e8;
+  --sky-top: #97b9d6;
+  --sky-mid: #ccdce0;
+  --sky-low: #dee7e8;
   --ridge-1: color-mix(in srgb, var(--pine) 30%, var(--bg));
   --ridge-2: color-mix(in srgb, var(--blue) 40%, var(--bg));
   --ridge-3: color-mix(in srgb, var(--blue) 60%, var(--bg));
   --ridge-4: color-mix(in srgb, var(--blue) 40%, var(--ink));
   --tree: color-mix(in srgb, var(--ink) 88%, var(--blue));
-  --glow-hot: rgba(255, 226, 168, 0.4);
-  --glow-mid: rgba(226, 178, 110, 0.13);
-  --mist-color: rgba(250, 252, 250, 0.82);
+  --glow-hot: rgba(214, 234, 244, 0.34);
+  --glow-mid: rgba(186, 212, 230, 0.12);
+  --mist-color: rgba(228, 240, 244, 0.78);
   --star-alpha: 0;
-  --celestial: radial-gradient(circle, rgba(255, 250, 232, 0.96) 0%, rgba(252, 226, 164, 0.44) 42%, rgba(252, 226, 164, 0) 70%);
+  --celestial: radial-gradient(circle, rgba(247, 252, 254, 0.94) 0%, rgba(206, 230, 244, 0.42) 42%, rgba(206, 230, 244, 0) 70%);
   --celestial-size: 10vh;
-  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(231, 236, 234, 0.4) 28%, rgba(231, 236, 234, 0.05) 56%, rgba(231, 236, 234, 0.3) 100%);
-  --scrim: rgba(237, 241, 238, 0.76);
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(224, 231, 232, 0.4) 28%, rgba(224, 231, 232, 0.05) 56%, rgba(224, 231, 232, 0.3) 100%);
+  --scrim: rgba(226, 233, 234, 0.78);
 }
 
 /* --------------------------------- midday --------------------------------- */
@@ -3453,52 +3469,52 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
    ridges lose contrast rather than gaining it. */
 
 :root[data-sky="midday"] {
-  --cloud-lit: rgba(255, 255, 255, 0.92);
-  --cloud-shade: rgba(156, 182, 204, 0.6);
+  --cloud-lit: rgba(250, 253, 255, 0.86);
+  --cloud-shade: rgba(138, 166, 190, 0.6);
   --windbreak: color-mix(in srgb, var(--ink) 80%, var(--blue));
-  --bg: #eef0ea;
-  --sky-top: #a7c8e4;
-  --sky-mid: #e6edea;
-  --sky-low: #f2f2ea;
+  --bg: #dce4e7;
+  --sky-top: #8cb2d3;
+  --sky-mid: #c3d6dd;
+  --sky-low: #dae3e6;
   --ridge-1: color-mix(in srgb, var(--pine) 18%, var(--bg));
   --ridge-2: color-mix(in srgb, var(--blue) 26%, var(--bg));
   --ridge-3: color-mix(in srgb, var(--blue) 44%, var(--bg));
   --ridge-4: color-mix(in srgb, var(--blue) 30%, var(--ink));
   --tree: color-mix(in srgb, var(--ink) 80%, var(--blue));
-  --glow-hot: rgba(255, 255, 246, 0.5);
-  --glow-mid: rgba(255, 244, 214, 0.16);
-  --mist-color: rgba(255, 255, 255, 0.9);
+  --glow-hot: rgba(206, 230, 244, 0.34);
+  --glow-mid: rgba(178, 206, 228, 0.12);
+  --mist-color: rgba(222, 236, 242, 0.76);
   --star-alpha: 0;
-  --celestial: radial-gradient(circle, rgba(255, 255, 252, 1) 0%, rgba(255, 252, 232, 0.5) 34%, rgba(255, 250, 226, 0) 66%);
+  --celestial: radial-gradient(circle, rgba(246, 252, 255, 0.95) 0%, rgba(200, 226, 244, 0.4) 36%, rgba(200, 226, 244, 0) 68%);
   --celestial-size: 7vh;
-  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(238, 240, 234, 0.42) 28%, rgba(238, 240, 234, 0.06) 56%, rgba(238, 240, 234, 0.3) 100%);
-  --scrim: rgba(241, 243, 237, 0.76);
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(220, 228, 231, 0.42) 28%, rgba(220, 228, 231, 0.06) 56%, rgba(220, 228, 231, 0.3) 100%);
+  --scrim: rgba(222, 231, 234, 0.78);
 }
 
 /* ------------------------------- afternoon ------------------------------- */
 /* Falling sun, warmer than the morning it mirrors. */
 
 :root[data-sky="afternoon"] {
-  --cloud-lit: rgba(255, 248, 232, 0.88);
-  --cloud-shade: rgba(168, 168, 158, 0.6);
+  --cloud-lit: rgba(252, 251, 244, 0.84);
+  --cloud-shade: rgba(162, 166, 162, 0.6);
   --windbreak: color-mix(in srgb, var(--ink) 86%, var(--blue));
-  --bg: #eeece2;
-  --sky-top: #aac4d6;
-  --sky-mid: #e2e4d9;
-  --sky-low: #f2ead6;
+  --bg: #e2e5e1;
+  --sky-top: #9db8cc;
+  --sky-mid: #d1d9d8;
+  --sky-low: #e3e3da;
   --ridge-1: color-mix(in srgb, var(--pine) 26%, var(--bg));
   --ridge-2: color-mix(in srgb, var(--blue) 36%, var(--bg));
   --ridge-3: color-mix(in srgb, var(--blue) 56%, var(--bg));
   --ridge-4: color-mix(in srgb, var(--blue) 38%, var(--ink));
   --tree: color-mix(in srgb, var(--ink) 86%, var(--blue));
-  --glow-hot: rgba(255, 216, 146, 0.46);
-  --glow-mid: rgba(226, 160, 92, 0.16);
-  --mist-color: rgba(252, 248, 238, 0.8);
+  --glow-hot: rgba(240, 226, 190, 0.34);
+  --glow-mid: rgba(206, 178, 140, 0.13);
+  --mist-color: rgba(234, 240, 240, 0.76);
   --star-alpha: 0;
-  --celestial: radial-gradient(circle, rgba(255, 250, 226, 0.97) 0%, rgba(255, 214, 140, 0.46) 42%, rgba(255, 214, 140, 0) 70%);
+  --celestial: radial-gradient(circle, rgba(253, 250, 238, 0.95) 0%, rgba(240, 214, 164, 0.42) 42%, rgba(240, 214, 164, 0) 70%);
   --celestial-size: 11vh;
-  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(238, 236, 226, 0.4) 28%, rgba(238, 236, 226, 0.05) 56%, rgba(238, 232, 214, 0.32) 100%);
-  --scrim: rgba(241, 238, 228, 0.76);
+  --veil: linear-gradient(180deg, var(--bg) 0%, rgba(226, 229, 225, 0.4) 28%, rgba(226, 229, 225, 0.05) 56%, rgba(226, 229, 225, 0.32) 100%);
+  --scrim: rgba(228, 231, 227, 0.78);
 }
 
 /* --------------------------------- sunset --------------------------------- */
@@ -3551,7 +3567,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   --celestial: radial-gradient(circle, rgba(255, 196, 160, 0.66) 0%, rgba(226, 122, 110, 0.28) 44%, rgba(226, 122, 110, 0) 70%);
   --celestial-size: 10vh;
   --veil: linear-gradient(180deg, var(--bg) 0%, rgba(29, 32, 56, 0.5) 28%, rgba(29, 32, 56, 0.07) 56%, rgba(52, 34, 44, 0.46) 100%);
-  --scrim: rgba(24, 26, 46, 0.68);
+  --scrim: rgba(24, 26, 46, 0.52);
 }
 
 /* -------------------------------- nightfall -------------------------------- */
@@ -3577,7 +3593,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   --celestial: radial-gradient(circle, rgba(232, 238, 240, 0.82) 0%, rgba(196, 212, 224, 0.28) 42%, rgba(196, 212, 224, 0) 68%);
   --celestial-size: 8vh;
   --veil: linear-gradient(180deg, var(--bg) 0%, rgba(12, 19, 34, 0.5) 28%, rgba(12, 19, 34, 0.06) 56%, rgba(12, 19, 34, 0.44) 100%);
-  --scrim: rgba(11, 17, 30, 0.66);
+  --scrim: rgba(11, 17, 30, 0.3);
 }
 
 /* ------------------------- scenes, under either sky ------------------------- */
