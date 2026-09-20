@@ -32,6 +32,17 @@ Do all of them in one commit — a half-migrated canonical is worse than neither
 
 ## Content gaps
 
+- **Two prices on The Kit are unconfirmed** and render as "see site": the
+  Barebells Cookies & Caramel bar and the VanMan Tallow & Honey Soap. Neither
+  maker's listing surfaced a figure that could be verified. Fill `price` in
+  `assets/kit-data.js` and they format themselves.
+- **The Kit's prices carry an `asOf` stamp** (`assets/kit-data.js`) that the
+  page prints. Re-check them occasionally and move the date; a stale date is
+  honest, a stale price under a fresh date is not.
+- **The Hiking list is one item deep.** It is labelled "more coming soon" on
+  purpose. Add to `kit-data.js` and the count, the page and the hub row all
+  follow.
+
 - **`quant.html` coverage rows are still labelled placeholders** (`[A]`, `[B]`,
   "Buy — sample"). They read as deliberate stubs, which is the right failure
   mode, but the page can't carry weight until real calls replace them. This is

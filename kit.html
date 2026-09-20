@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kit — Rex Walrond</title>
+<meta name="description" content="What's actually in rotation — supplements, coffee, skincare and hiking gear, with prices and where to find them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/sky.js"></script>
+
+<!-- Shared link previews. Without these the site unfurls as a bare URL
+     in Slack, LinkedIn and iMessage. og.png is generated from _og.html;
+     see CLAUDE.md before regenerating it. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rex Walrond">
+<meta property="og:title" content="The Kit — Rex Walrond">
+<meta property="og:description" content="What's actually in rotation — supplements, coffee, skincare and hiking gear, with prices and where to find them.">
+<meta property="og:url" content="https://rexwalrond.github.io/kit.html">
+<meta property="og:image" content="https://rexwalrond.github.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rex Walrond — a ridgeline chart of backcountry high points over an alpine horizon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#eef0ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10171a" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://rexwalrond.github.io/kit.html">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body data-scene="alpine">
+
+
+<main class="wrap wrap--wide">
+  <a class="back-link" href="index.html">&larr; Rex Walrond</a>
+
+  <div class="page-head" data-reveal>
+    <span class="status-tag">In rotation</span>
+    <h1>The Kit</h1>
+    <p>The things I actually use, not the things I once bought. Two lists &mdash; what keeps the body running, and what goes in the pack.</p>
+  </div>
+
+  <p class="kit-note" data-reveal>
+    <span class="kit-meta" id="kitMeta"></span>
+    Prices checked <span id="kitAsOf">recently</span> and they drift, so the link is the real answer.
+    No affiliate links, nothing sponsored.
+  </p>
+
+  <!-- Built by assets/kit.js from assets/kit-data.js. The reveal lives here,
+       on the static wrapper, because reveal.js observes once at load and never
+       sees anything added afterwards. -->
+  <div id="kitBody" data-reveal></div>
+</main>
+
+<script src="assets/chrome.js"></script>
+<script src="assets/kit-data.js"></script>
+<script src="assets/kit.js"></script>
+<script src="assets/reveal.js"></script>
+
+</body>
+</html>

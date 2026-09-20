@@ -49,6 +49,12 @@
       set("statLog", stat(n(D.rows.length), "days") + stat(n(avg), "kcal/day"));
     }
 
+    var K = window.KIT;
+    if (K && K.groups) {
+      var items = K.groups.reduce(function (n, g) { return n + g.items.length; }, 0);
+      set("statKit", stat(n(items), "items") + stat(K.groups.length, "lists"));
+    }
+
     // The Work has no real coverage on it yet, and inventing a figure to keep
     // the row symmetrical would be exactly the wrong move.
     set("statWork", '<em class="link-flag">Building</em>');

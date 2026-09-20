@@ -3851,3 +3851,244 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   .rank-add-form input { font-size: 16px; padding-block: 10px; }
   .rank-add-form button { padding-block: 11px; }
 }
+
+/* ---------------------------- kit.html: the shelf ---------------------------- */
+/* Nothing on this page uses --ink-faint. Everywhere else that token labels
+   something the reader can ignore, and it is decorative-grade on purpose —
+   measured, it is about 2.6:1 on the light background, well under AA. Here the
+   small mono carries the category, the price and the destination, which is the
+   whole content of the page, so it all sits on --ink-soft (5.8:1) instead. */
+/* Built by assets/kit.js from assets/kit-data.js. The product tiles are drawn,
+   not photographed — see the note at the top of kit.js for why. Everything is
+   palette tokens, so the shelf re-themes with the sky like the rest. */
+
+.kit-note {
+  margin: 20px 0 42px;
+  max-width: 62ch;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.85;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+}
+.kit-meta {
+  display: block;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.kit-group + .kit-group { margin-top: 10px; }
+
+.kit-blurb {
+  margin: 10px 0 30px;
+  max-width: 54ch;
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* A shelf, not a card grid. There are no borders or panels around an item —
+   the hairline the object stands on is drawn inside its own tile, so the
+   rhythm comes from the objects themselves. */
+.kit-grid {
+  --kit-accent: var(--pine);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(164px, 1fr));
+  gap: 40px 26px;
+  /* stretch, not start: the cells have to be equal height so every price line
+     sits on the same baseline across the row. A ragged row of prices reads as
+     a broken table, which on a page of prices is the wrong first impression. */
+  align-items: stretch;
+}
+.kit-grid--hiking { --kit-accent: var(--ember); }
+
+.kit-item {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 2px 10px;
+  border-radius: 3px;
+}
+
+.kit-art { display: block; margin-bottom: 14px; }
+
+.kit-tile {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 150px;
+  overflow: visible;
+}
+
+/* The object. Paper body, soft outline, one band of the group's accent —
+   the same restraint the elevation motif uses. */
+.k-body {
+  fill: var(--paper);
+  stroke: var(--ink-soft);
+  stroke-width: 2.1;
+  stroke-linejoin: round;
+}
+.k-fill {
+  fill: color-mix(in srgb, var(--kit-accent) 38%, transparent);
+  stroke: none;
+}
+.k-line {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.k-cap {
+  fill: color-mix(in srgb, var(--kit-accent) 62%, var(--paper));
+  stroke: var(--ink-soft);
+  stroke-width: 2.1;
+  stroke-linejoin: round;
+}
+.kit-shelf {
+  stroke: var(--line);
+  stroke-width: 1.4;
+}
+
+.kit-what {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+
+.kit-name {
+  display: block;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.kit-name strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.22;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+
+.kit-variant {
+  display: block;
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+/* Pushed to the bottom of the cell by the auto margin, so the rule and the
+   price line up across a row whatever the name does above them. The
+   destination sits under the price rather than beside it: a column this narrow
+   cannot hold "$69" and "blueprint.bryanjohnson.com" on one line, and
+   truncating the domain is worse than stacking it. */
+.kit-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: auto;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.kit-price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+/* No confirmed figure, so say so rather than print a number that reads real. */
+.kit-price em {
+  font-style: normal;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.kit-from {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Wraps rather than nowraps: "blueprint.bryanjohnson.com" is wider than a
+   168px column, and nowrap pushed 41px of sideways scroll onto every phone.
+   Two lines of domain is fine; a horizontally scrolling page is not. */
+.kit-go {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+  transition: color 0.18s ease;
+}
+
+/* Hover moves colour only, never position: a grid of tiles that lift on
+   hover is exactly the card treatment this site is trying not to be. */
+.kit-item:hover .kit-name strong,
+.kit-item:focus-visible .kit-name strong { color: var(--ember); }
+.kit-item:hover .kit-go,
+.kit-item:focus-visible .kit-go { color: var(--ember); }
+.kit-item:hover .k-fill,
+.kit-item:focus-visible .k-fill {
+  fill: color-mix(in srgb, var(--kit-accent) 60%, transparent);
+}
+.kit-item:hover .kit-shelf,
+.kit-item:focus-visible .kit-shelf { stroke: var(--ember); }
+
+.kit-item:focus { outline: none; }
+.kit-item:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-go, .k-fill, .kit-shelf { transition: none; }
+}
+
+/* The hiking list is one item deep on purpose; the placeholder says so rather
+   than leaving a lone tile looking like a loading failure. */
+.kit-pending {
+  align-self: start;
+  margin: 0;
+  padding: 44px 0 0 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.kit-pending::before {
+  content: '';
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin-bottom: 12px;
+  background: var(--line);
+}
+
+@media (max-width: 640px) {
+  /* Two to a row still reads on a phone, and one huge tile per row would make
+     a ten-item page an awful lot of scrolling. */
+  .kit-grid { grid-template-columns: repeat(2, 1fr); gap: 30px 18px; }
+  .kit-tile { max-width: 112px; }
+  .kit-name strong { font-size: 16px; }
+  .kit-name { font-size: 14px; }
+  .kit-variant { font-size: 12.5px; }
+  .kit-note { font-size: 11px; }
+  .kit-blurb { font-size: 15px; }
+}
+
+@media (max-width: 360px) {
+  .kit-grid { grid-template-columns: 1fr; }
+  .kit-tile { max-width: 130px; }
+}

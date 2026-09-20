@@ -48,6 +48,8 @@ uses it.)
   the interactive map (see below). Real content, not a stub.
 - `music.html` ("On Repeat") — Zach Bryan ranking + listening history, fully
   built (see below)
+- `kit.html` ("The Kit") — the products actually in rotation, in two lists
+  (Health, Hiking), each with a drawn tile, price and a link to the maker
 - `longevity.html` ("The Log") — nutrition/training/sleep tracking, real
   charted data from a MyFitnessPal export, with a live Supabase path
 - `404.html` — served automatically by GitHub Pages on a bad URL
@@ -74,6 +76,9 @@ uses it.)
 - `log-data.js` — the MyFitnessPal export, for The Log
 - `favicon.svg` — the ridgeline-as-chart mark
 - `hub.js` — the hub's live row figures
+- `kit-data.js` — every product on The Kit, as one array. Source of truth for
+  kit.html and for the hub's row figure
+- `kit.js` — builds The Kit, including the drawn product tiles
 - `listen-data.js` — the Spotify listening snapshot, shared by music.html and
   the hub so the two can't drift
 - `sky.js` — solar and lunar position, and the phase the whole palette hangs off
@@ -319,6 +324,47 @@ The stored ranking is the source of truth for *order*; the code's catalog is the
 source of truth for *what exists*, so new tracks land at the bottom rather than
 going missing, with no migration.
 
+## kit.html specifics
+
+Two lists from `assets/kit-data.js` — Health and Hiking — rendered by `kit.js`.
+Add an item to the data file and it appears on the page and in the hub's count;
+nothing is hardcoded in the markup.
+
+**The product tiles are drawn, not photographed.** This was a deliberate call
+and it is worth not undoing. Every other piece of art here is generated (the
+ridges, the clouds, the moon's terminator, the social card), and ten brand
+JPEGs pulled off ten CDNs would be the one place that stopped being true: they
+age badly as those URLs rot, none of them agree on background, crop or colour,
+and the grid starts to look like an affiliate page. Instead `kit.js` holds a
+silhouette per container — `tub`, `bar`, `stick`, `bottle`, `dropper`, `jar`,
+`soap`, `bag`, `packet` — drawn in a 100x100 box with the object standing on a
+shelf line at `y=86`. Keep new forms on that line or the row stops reading as a
+shelf, and keep accent bands clear of rounded corners (a square-cornered band
+over an `rx` body pokes out at the bottom).
+
+**Prices are a snapshot, and the page says so.** `asOf` in the data file is
+stamped into the intro. A price that cannot be confirmed is `null`, which
+renders as "see site" rather than a number that reads real — the same rule the
+rest of the site follows. Two are currently null (the Barebells bar and the
+VanMan soap); the rest were checked against the makers' own listings.
+
+**Links go to the maker's own store** wherever one exists, and the destination
+host is printed under the price so the reader knows where they are being sent
+before they click. None are affiliate links and nothing is sponsored; the page
+says that too, so keep it true.
+
+**Nothing on this page uses `--ink-faint`.** Elsewhere that token labels things
+a reader can skip and is decorative-grade on purpose — measured, about 2.6:1 on
+the light background, well under AA. Here the small mono carries the category,
+the price and the destination, which is the entire content of the page, so it
+all sits on `--ink-soft` instead. All ten sky phases then pass AA on both a
+phone and a desktop; sunset is tightest at 4.6:1.
+
+**`reveal.js` observes once at load**, so anything `kit.js` builds afterwards is
+never seen by the observer and would sit at `opacity: 0` for good. The
+`data-reveal` lives on the static `#kitBody` wrapper, the same way trips.html
+wraps the map. Don't put it on generated markup.
+
 ## longevity.html specifics
 
 Real nutrition data (MyFitnessPal export, Jan–Jun 2026) in `assets/log-data.js`,
@@ -330,7 +376,7 @@ ingestion path.
 
 ## The hub
 
-`index.html` is the front door, and its job is to send people to the four
+`index.html` is the front door, and its job is to send people to the five
 pages. Two things follow from that:
 
 - **Each link row carries a live figure** from its own page's data, via
@@ -338,7 +384,7 @@ pages. Two things follow from that:
   of an invented number. Keep it that way until there are real calls to count.
 - **No charts here.** There used to be an elevation profile of every
   backcountry high point. It was accurate and it was pretty, and it still went:
-  it over-weighted one of the four pages, and it asked a first-time visitor to
+  it over-weighted one of the pages, and it asked a first-time visitor to
   interpret something before they had any context for it. If you want to add a
   visual to the hub, it should not be a data graphic.
 
