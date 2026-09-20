@@ -34,6 +34,10 @@
      viewBox units and shrinks with the canvas: at 366px wide, a 6.6-unit
      marker renders 2.4px across. */
   var UI = 1;
+  /* Radius of a marker's invisible tap area, in CSS pixels. A pin's glyph is
+     about 16px across, which is a fine mouse target and a poor thumb one, so
+     touch widths get a wider catchment than the desktop does. */
+  var HIT_R = 11;
   var DEG = Math.PI / 180;
 
   var KINDS = {
@@ -107,7 +111,47 @@
     ];
   }
 
+  /* Recomputed by layout() for whatever shape the plate is. The globe is much
+     wider than it is tall, so forcing all 360 degrees into a plate that is not
+     2:1 leaves the rest as empty sea — on a phone that was a third of the map.
+     See worldFrame(). */
   var WORLD = [-180, -86, 180, 84];
+
+  /* Grow a box until it matches the plate's shape, so the room the plate has
+     goes to showing more world rather than more water, then pull the centre
+     back inside the globe. Past about 300 degrees of longitude there is little
+     left to gain, so it snaps to the whole globe instead of cutting a slice out
+     of one side — that is what keeps the desktop view a complete world map. */
+  function expandToAspect(b, plateAspect) {
+    var w = b[0], s = b[1], e = b[2], n = b[3];
+    var lat0 = (s + n) / 2;
+    var cos = Math.max(0.08, Math.cos(lat0 * DEG));
+
+    var spanX = (e - w) * cos, spanY = n - s;
+    if (spanX / spanY < plateAspect) spanX = spanY * plateAspect;
+    else spanY = spanX / plateAspect;
+
+    var lonSpan = spanX / cos;
+    lonSpan = lonSpan > 300 ? 360 : Math.min(360, lonSpan);
+    var latSpan = Math.min(178, spanY);
+
+    var cx = (w + e) / 2, cy = lat0;
+    cx = Math.max(-180 + lonSpan / 2, Math.min(180 - lonSpan / 2, cx));
+    cy = Math.max(-89 + latSpan / 2, Math.min(89 - latSpan / 2, cy));
+
+    return [cx - lonSpan / 2, cy - latSpan / 2, cx + lonSpan / 2, cy + latSpan / 2];
+  }
+
+  // Every place, including the ones still on the list, so reset always shows all of them.
+  function worldFrame(plateAspect) {
+    return expandToAspect(boundsOf(window.PLACES, 0.06, 4), plateAspect);
+  }
+
+  // A box's shape once projected, which is what the plate has to match.
+  function frameAspect(b) {
+    var cos = Math.max(0.08, Math.cos(((b[1] + b[3]) / 2) * DEG));
+    return ((b[2] - b[0]) * cos) / (b[3] - b[1]);
+  }
 
   /* Zoom and pan operate on the view box in degrees, then re-fit. Limits keep
      you from zooming past the point where the baked 110m coastline has any
@@ -155,14 +199,77 @@
 
   /* ------------------------------- geometry ------------------------------- */
 
+  /* Three rings in the baked geography cross the antimeridian — Antarctica,
+     Afro-Eurasia and Fiji. Their longitudes jump from +179 to -180 between
+     consecutive points, and in projected space that jump is a straight segment
+     drawn all the way back across the plate. It showed as a cream band over the
+     Arctic, a green line at 16 degrees south and a slab along the bottom, on
+     every load, at every zoom.
+
+     Unwrapping removes the jump: keep adding or subtracting a turn so the ring
+     stays continuous even where it runs past the dateline. Two things follow
+     from that. A ring that unwraps a whole turn is going round a pole, and
+     closing it needs two points at the pole itself or the cap gets sliced off
+     by the closing segment. And an unwrapped ring lives in one 360-degree
+     window, so it has to be drawn again a turn either side to show up at the
+     opposite edge of the plate. */
+
+  function unwrapRing(r) {
+    var out = [r[0], r[1]], prev = r[0], i, lon;
+    for (i = 2; i < r.length; i += 2) {
+      lon = r[i];
+      while (lon - prev > 180) lon -= 360;
+      while (lon - prev < -180) lon += 360;
+      out.push(lon, r[i + 1]);
+      prev = lon;
+    }
+    return out;
+  }
+
+  function ringPath(r, shift) {
+    var d = "", i;
+    for (i = 0; i < r.length; i += 2) {
+      d += (i ? "L" : "M") + (r[i] + shift).toFixed(2) + "," + (-r[i + 1]);
+    }
+    return d + "Z";
+  }
+
   function ringsToPath(groups) {
     var d = "";
     groups.forEach(function (rings) {
-      rings.forEach(function (r) {
-        for (var i = 0; i < r.length; i += 2) {
-          d += (i ? "L" : "M") + r[i] + "," + (-r[i + 1]);
+      rings.forEach(function (raw) {
+        var r = unwrapRing(raw);
+        var lo = Infinity, hi = -Infinity, i;
+        for (i = 0; i < r.length; i += 2) {
+          if (r[i] < lo) lo = r[i];
+          if (r[i] > hi) hi = r[i];
         }
-        d += "Z";
+
+        /* Afro-Eurasia unwraps a whole turn west of where it belongs, so bring
+           the ring back over the globe before deciding which copies to draw. */
+        var base = -360 * Math.round(((lo + hi) / 2) / 360);
+        lo += base; hi += base;
+
+        var turn = r[r.length - 2] - r[0];
+        if (Math.abs(turn) > 350) {
+          /* Encircles a pole: walk back along it so the cap fills instead of
+             being sliced off by the closing segment. The walk goes a few
+             degrees past the pole, because the plate carries PAD units of
+             margin outside the fitted frame and there is no geography out
+             there to fill it — closing at exactly ±90 left Antarctica with a
+             dead-straight edge and a band of sea between it and the bottom of
+             the map. Nothing below the pole is ever read as a latitude; it is
+             fill that the plate clips. */
+          var pole = r[1] < 0 ? -96 : 96;
+          r = r.concat([r[r.length - 2], pole, r[0], pole]);
+        }
+
+        // only the copies that can actually land on the globe
+        for (var k = -1; k <= 1; k++) {
+          var s = base + k * 360;
+          if (k !== 0 && !(lo + k * 360 < 180 && hi + k * 360 > -180)) continue;
+          d += ringPath(r, s);
+        }
       });
     });
     return d;
@@ -199,7 +306,7 @@
 
   /* --------------------------------- build --------------------------------- */
 
-  var svg, gGeo, gMark, gClust, tip, card, markers = [], view;
+  var svg, seaRect, gGeo, gMark, gClust, tip, card, markers = [], view;
 
   function build() {
     host.innerHTML = "";
@@ -281,7 +388,8 @@
     defs.appendChild(grad);
     svg.appendChild(defs);
 
-    svg.appendChild(el("rect", { x: 0, y: 0, width: W, height: H, class: "fmap-sea", fill: "url(#fmapSea)" }));
+    seaRect = el("rect", { x: 0, y: 0, width: W, height: H, class: "fmap-sea", fill: "url(#fmapSea)" });
+    svg.appendChild(seaRect);
 
     gGeo = el("g", { class: "fmap-geo" });
     gGeo.appendChild(el("path", { class: "fmap-grat", d: graticulePath(30, 15) }));
@@ -358,21 +466,41 @@
   }
 
   /* Recompute the plate's shape and the pixel-to-viewBox ratio for the current
-     container width. Called at build and on resize. */
+     container width. Called at build and on resize.
+
+     The plate and the world view are fitted to each other, in that order.
+     A phone column is narrow, so it asks for a squarer plate to buy back some
+     height; a desktop asks for a wide one. That target shapes the world frame,
+     and then the plate takes its real height back from the frame, so the
+     default view fills the plate exactly and there is no band of empty sea
+     above or below the map. Before this, the phone plate was a third water and
+     the desktop map floated clear of the bottom edge.
+
+     The sea is resized here too. It was built at the desktop height and left
+     there, which put the gradient's last stop a quarter of the way up every
+     phone map and a flat slab below it. */
   function layout() {
     var px = host.clientWidth || W;
     UI = W / px;
-    H = px < 560 ? 700 : 520;
+
+    var want = px < 560 ? 1.46 : 2.03;            // plate shape we would like
+    WORLD = worldFrame(want);
+
+    HIT_R = px < 560 ? 16 : 11;
+    markers.forEach(function (m) { m.hit.setAttribute("r", HIT_R); });
+    H = Math.round(Math.max(420, Math.min(760, (W - PAD * 2) / frameAspect(WORLD) + PAD * 2)));
+
     if (svg) svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    if (seaRect) seaRect.setAttribute("height", H);
   }
 
   var resizeTimer = null;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      var prev = view ? view.bounds : WORLD;
+      var wasWorld = state.view === "world";
       layout();
-      view = fitView(prev);
+      view = fitView(wasWorld ? WORLD : (view ? view.bounds : WORLD));
       render();
       hideTip();
     }, 140);
@@ -484,7 +612,8 @@
 
       // The body carries the displacement, so the group stays on the true point.
       var body = el("g", { class: "fmap-pin-body" });
-      body.appendChild(el("circle", { class: "fmap-hit", r: 11 }));
+      var hit = el("circle", { class: "fmap-hit", r: HIT_R });
+      body.appendChild(hit);
       if (p.summited) body.appendChild(el("circle", { class: "fmap-halo", r: 12 }));
 
       var d = glyph(p.kind);
@@ -502,7 +631,7 @@
       });
 
       gMark.appendChild(g);
-      return { place: p, node: g, body: body, leader: leader, anchor: anchor,
+      return { place: p, node: g, body: body, hit: hit, leader: leader, anchor: anchor,
                x: 0, y: 0, dx: 0, dy: 0 };
     });
   }
@@ -650,8 +779,8 @@
 
       var t = el("text", {
         class: "fmap-cluster-n",
-        y: 4 * UI,
-        "font-size": (12 * UI).toFixed(1)
+        y: 4.4 * UI,
+        "font-size": (13 * UI).toFixed(1)
       });
       t.textContent = String(n);
       node.appendChild(t);

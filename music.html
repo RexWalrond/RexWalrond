@@ -679,7 +679,8 @@
 
     var art = ALBUM_ART[t.album];
     var artHTML = art
-      ? '<img class="rank-art" src="' + art + '" alt="" loading="lazy" width="40" height="40">'
+      ? '<img class="rank-art" src="' + art + '" alt="" loading="lazy" width="40" height="40"' +
+        ' data-fallback="' + escAttr((t.name || "?").charAt(0)) + '" data-fallback-class="rank-art">'
       : '<span class="rank-art rank-art--fallback" aria-hidden="true">' + esc((t.name || "?").charAt(0)) + '</span>';
 
     return (
@@ -1105,11 +1106,32 @@
       " · " + fmt(s.zbHours) + " of those hours were Zach Bryan";
   }
 
+  /* Album art comes off Apple's CDN, so any one of them can fail — a dropped
+     connection on a phone, or a URL that has since moved. Without this the row
+     keeps a broken-image glyph, which looks worse than no art at all. There is
+     already a fallback for art we never had (the title's first letter); reuse
+     it for art that did not arrive. Error events do not bubble, but they do
+     capture, so one listener covers every image on the page. */
+  document.addEventListener("error", function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== "IMG") return;
+    // the hero has no letter fallback — it just steps aside
+    if (img.id === "pickArt") { img.style.visibility = "hidden"; return; }
+    if (!img.hasAttribute("data-fallback")) return;
+    var span = document.createElement("span");
+    span.className = img.getAttribute("data-fallback-class") + " " +
+                     img.getAttribute("data-fallback-class").split(" ")[0] + "--fallback";
+    span.setAttribute("aria-hidden", "true");
+    span.textContent = img.getAttribute("data-fallback");
+    if (img.parentNode) img.parentNode.replaceChild(span, img);
+  }, true);
+
   // ------------------------ everything-else lists ------------------------
 
   function rotaRow(rank, art, artClass, title, sub, value, unit, pct) {
     var media = art
-      ? '<img class="rota-art ' + artClass + '" src="' + art + '" alt="" loading="lazy" width="44" height="44">'
+      ? '<img class="rota-art ' + artClass + '" src="' + art + '" alt="" loading="lazy" width="44" height="44"' +
+        ' data-fallback="' + escAttr(title.charAt(0)) + '" data-fallback-class="rota-art ' + artClass + '">'
       : '<span class="rota-art ' + artClass + ' rota-art--fallback" aria-hidden="true">' + esc(title.charAt(0)) + '</span>';
     return (
       '<li class="rota-row' + (rank <= 3 ? ' rota-row--top' : '') + '">' +

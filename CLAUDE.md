@@ -224,6 +224,29 @@ animation and leave every reveal element fully visible.
   carrée with x compressed by cos(lat0). That makes it an affine transform of
   one set of lon/lat paths, so geometry is built once and every view change
   (and every fly-to frame) is just a new transform string on one `<g>`.
+- **The antimeridian has to be handled explicitly.** Three rings in `geo.js`
+  cross it — Antarctica, Afro-Eurasia and Fiji — and their longitudes jump from
+  +179 to −180 between consecutive points. Drawn naively that jump is a straight
+  segment back across the whole plate: a cream band over the Arctic, a green
+  line at 16°S and a slab along the bottom, on every load. `ringsToPath` unwraps
+  each ring first (add or subtract a turn to keep it continuous), then does two
+  things that follow from unwrapping. A ring that unwraps a full turn encircles
+  a pole, so it gets two points at the pole itself or the cap is sliced off by
+  the closing segment. And an unwrapped ring lives in one 360° window, so it is
+  drawn again a turn either side — only where that copy can actually land on the
+  globe, otherwise the path data triples for nothing. Don't "simplify" this back
+  to a plain M/L/Z per ring.
+- **The plate and the world view are fitted to each other**, in that order.
+  `layout()` picks the plate shape the breakpoint wants (squarer on a phone,
+  wide on a desktop), `worldFrame()` grows the places' own bounding box to that
+  shape, and then the plate takes its real height back from the frame. So the
+  default view fills the plate and there is never a band of empty sea above or
+  below the map. Past ~300° of longitude the frame snaps to the whole globe
+  rather than cutting a slice out of one side, which is why the desktop view is
+  a complete world map and the phone view stops either side of the Atlantic —
+  every place is still inside it. The sea rect is resized here too: it used to
+  be built at the desktop height and left there, which put the gradient's last
+  stop a quarter of the way up every phone map.
 - **Clustering, then displacement.** Two problems at two zooms. At world scale
   32 markers can't each have a spot, so points within `CLUSTER_R` collapse into
   a disc with a count; clicking it flies in until the group resolves. Once
@@ -243,6 +266,12 @@ animation and leave every reveal element fully visible.
 - Markers carry `id="place-<id>"` counterparts on the trip cards and site rows;
   "Read the write-up" dispatches `fieldmap:jump`, which trips.html uses to open
   the right tab before scrolling.
+- **Touch sizing.** Marker glyphs, hit areas and the clustering and separation
+  distances are authored in CSS pixels and multiplied by `UI` at use, so they
+  stay the same size under a finger as under a cursor. `HIT_R` widens on narrow
+  screens — a pin's glyph is ~16px, a fine mouse target and a poor thumb one.
+  The zoom cluster goes to a horizontal row on a phone: stacked, three 40px
+  buttons were 132px of a 256px plate and sat on top of two markers.
 - Adding a place: add it to `places.js` and it appears on the map immediately.
   Add the card/row by hand with the matching `id` to wire the two together.
 
@@ -360,6 +389,24 @@ discrete weights, which is 23 font files instead of 43.
 ## General conventions
 
 - Mobile breakpoint used throughout: `max-width: 640px`
+- **Phones need bigger, not smaller.** Several mobile blocks had been shrinking
+  type and padding to fit the narrow column, which produced 22px tap targets and
+  9.5px mono. Touch wants the opposite: ≥40px on anything tappable, and a floor
+  of ~11px on the small mono labels. A form field under 16px makes iOS zoom the
+  whole page on focus, which leaves the reader scrolled sideways.
+- The theme toggle is `position: fixed` on desktop and **absolute on a phone**,
+  so it scrolls away with the header. There is nowhere on a 390px screen a
+  corner-pinned disc can float without landing on something right-aligned
+  further down — a chart's unit, a coverage row's rating.
+- `.wrap::before`'s fade is a percentage of its own width, so the desktop's 26%
+  ramp ate 100px at each end of a phone screen and the text nearest the margins
+  sat on bare background. Narrow it at the breakpoint; the column needs the
+  cover more than the soft edge. This was not cosmetic: measured at 390px
+  against the worst point across the column, **sunrise was 4.09:1 and sunset
+  3.53:1 — both below AA** — while the same phases pass comfortably on a
+  desktop. The 7% ramp puts every phase at 4.87:1 or better on a phone
+  (first-light is now the tightest). Re-measure on a phone viewport, not just a
+  desktop one, after touching the scrim or any sky palette.
 - Supabase is the backend for anything that needs to persist across devices;
   `localStorage` is fine for per-reader state (theme, sandbox ranking)
 - Always test new interactive features respect `prefers-reduced-motion`

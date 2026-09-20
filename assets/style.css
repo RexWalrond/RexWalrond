@@ -495,8 +495,13 @@ body {
 .theme-toggle[data-mode="night"] .t-rays { display: none; }
 .theme-toggle[data-mode="night"] .t-moon { display: block; }
 
+/* On a phone the toggle stops being fixed and scrolls away with the header.
+   A 34px disc pinned to the corner of a 390px screen lands on whatever is
+   right-aligned further down the page — the unit on a chart, the rating on a
+   coverage row — and covers it. There is nowhere on a narrow screen it can
+   float without hitting something, so it rides the page instead. */
 @media (max-width: 640px) {
-  .theme-toggle { right: 12px; top: 12px; width: 34px; height: 34px; }
+  .theme-toggle { position: absolute; right: 12px; top: 12px; width: 36px; height: 36px; }
 }
 
 /* ---------------------------- reveal-on-scroll ---------------------------- */
@@ -556,6 +561,15 @@ body {
 
 @media (max-width: 640px) {
   .wrap { padding: 14vw 22px 16vw; }
+
+  /* The fade is a percentage of the scrim's own width, so on a phone the
+     26% ramp ate 100px of a 390px screen at each end and the text nearest
+     the margins sat on bare background — legible over sky, not over the
+     hub's treeline. Narrow the ramp; the column needs the cover more than
+     it needs the soft edge. */
+  .wrap::before {
+    background: linear-gradient(90deg, transparent 0%, var(--scrim) 7%, var(--scrim) 93%, transparent 100%);
+  }
 }
 
 .eyebrow {
@@ -773,6 +787,11 @@ footer .dot { color: var(--ink-faint); }
   margin-bottom: 40px;
 }
 .back-link:hover { color: var(--ember); }
+
+@media (max-width: 640px) {
+  /* 12px of mono is a 19px-tall tap target; give it the padding to clear 40. */
+  .back-link { padding: 11px 2px; margin: -11px 0 30px; }
+}
 
 .page-head h1 {
   font-family: var(--font-display);
@@ -1278,9 +1297,9 @@ footer .dot { color: var(--ink-faint); }
   .trip-toggle-btn {
     flex: 1 1 0;
     min-width: 0;
-    padding: 10px 4px;
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
+    padding: 13px 4px;
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
   }
 }
 
@@ -1726,8 +1745,8 @@ footer .dot { color: var(--ink-faint); }
 
 @media (max-width: 640px) {
   .chart-grid { grid-template-columns: 1fr; gap: 22px; }
-  .range-bar { gap: 10px; }
-  .range-btn { padding: 7px 11px; font-size: 10px; }
+  .range-bar { gap: 8px; }
+  .range-btn { padding: 11px 14px; font-size: 11px; }
   .chart { height: 104px; }
   .chart-stats { gap: 10px 14px; }
 }
@@ -1951,7 +1970,7 @@ footer .dot { color: var(--ink-faint); }
 @media (max-width: 640px) {
   .tabbar { gap: 20px; }
   .tabbar-label { font-size: 17px; }
-  .tabbar-meta { font-size: 9.5px; letter-spacing: 0.06em; }
+  .tabbar-meta { font-size: 10.5px; letter-spacing: 0.04em; }
 }
 
 /* ==================== On Repeat: listening snapshot ==================== */
@@ -2763,6 +2782,17 @@ body.mood-repeat .glow {
   .rank-controls-bar { row-gap: 12px; }
   .rank-move { opacity: 1; }
   .rank-del { opacity: 1; }
+
+  /* Dragging is off on touch, so these arrows are the only way to reorder a
+     track on a phone — and they were 22x13. Give each one a proper target and
+     let the pair span the row. */
+  .rank-move { flex: 0 0 38px; justify-content: center; gap: 2px; }
+  .rank-move button { font-size: 12px; padding: 10px 0; width: 38px; }
+
+  .rank-seg button { font-size: 11px; padding: 10px 14px; }
+  .rank-text-btn { font-size: 11px; padding: 10px 0; }
+  .rank-search { font-size: 16px; padding-block: 10px; }
+  .rank-num { font-size: 14px; min-height: 34px; }
 }
 
 /* ------------------------- Field Notes: the map ------------------------- */
@@ -2781,7 +2811,7 @@ body.mood-repeat .glow {
 }
 
 @media (max-width: 640px) {
-  .map-section { --bleed: calc(100vw - 24px); margin-bottom: 34px; }
+  .map-section { --bleed: calc(100vw - 16px); margin-bottom: 34px; }
 }
 
 .map-intro {
@@ -3089,9 +3119,17 @@ body.mood-repeat .glow {
 }
 
 @media (max-width: 640px) {
-  .fmap-bar { gap: 10px; }
-  .fmap-chip, .fmap-view { font-size: 10.5px; padding: 5px 10px; }
+  .fmap-bar { gap: 10px 12px; }
+  /* These were shrunk for the narrow column and came out 24px tall, which is
+     a hard thing to hit with a thumb and a hard thing to read at 10.5px.
+     Touch wants them bigger than the desktop version, not smaller. */
+  .fmap-chip, .fmap-view {
+    font-size: 11.5px;
+    padding: 10px 14px;
+    letter-spacing: 0.06em;
+  }
   .fmap-card-stats { gap: 16px; }
+  .fmap-legend { gap: 8px 14px; font-size: 10.5px; }
   .fmap-tip { display: none; }
 }
 
@@ -3151,7 +3189,7 @@ body.mood-repeat .glow {
   text-anchor: middle;
   font-family: var(--font-mono);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   fill: var(--paper);
   pointer-events: none;
 }
@@ -3212,8 +3250,16 @@ body.mood-repeat .glow {
 .fmap-stage.is-panning .fmap-pin-body { transition: none; }
 
 @media (max-width: 640px) {
-  .fmap-zoom { right: 7px; bottom: 7px; gap: 6px; }
-  .fmap-zoom-btn { width: 40px; height: 40px; font-size: 17px; }
+  /* Stacked, these were 132px of a 256px plate and sat over Africa with two
+     markers behind them. In a row along the bottom edge they stay thumb-sized
+     and cover a strip of sea instead. */
+  .fmap-zoom {
+    right: 8px;
+    bottom: 8px;
+    grid-auto-flow: column;
+    gap: 7px;
+  }
+  .fmap-zoom-btn { width: 38px; height: 38px; font-size: 17px; }
 }
 
 /* ------------------------------ hub: intro ------------------------------ */
@@ -3274,7 +3320,7 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
 @media (max-width: 640px) {
   /* stacked, because a row that wraps mid-figure reads worse than two lines */
   .link-head { flex-direction: column; gap: 6px; }
-  .link-stat { font-size: 10.5px; gap: 10px; }
+  .link-stat { font-size: 11px; gap: 10px; }
 }
 
 /* ========================= the sky, by time of day ========================= */
@@ -3766,4 +3812,42 @@ a.link-row:focus-visible .link-stat strong { color: var(--ember); }
   .cloud--0 { display: none; }
   .cloud { width: 46vw; }
   .windbreak { height: 15vh; min-height: 84px; }
+}
+
+/* ---------------------- phones: legibility floors ----------------------- */
+/* Mono runs small by design here — eyebrows, units, tags and column heads are
+   meant to sit under the thing they label, not compete with it. Several had
+   drifted to 9.5 and 10px, which is fine on a desktop at arm's length and not
+   fine on a phone. These lift the smallest of them to 11px without touching
+   the desktop sizes, and widen the letter-spacing back out so the extra size
+   does not make them look crowded. */
+@media (max-width: 640px) {
+  .chart-unit,
+  .cov-rating,
+  .cov-disclaimer,
+  .range-meta,
+  .status-tag,
+  .link-flag,
+  .pick-eyebrow { font-size: 11px; }
+
+  /* The figure captions under a stat run smaller still — 9px on The Log's
+     avg/median/low/high and 9.5px on a trip's distance/gain/high point. */
+  .chart-stats small,
+  .trip-stats small,
+  .trip-tag,
+  .rank-tag,
+  .rank-storage-note,
+  .trip-note,
+  .ch-rank, .ch-track, .ch-dur { font-size: 10.5px; }
+
+  /* Footer links are a 22px target, and the two sit 10px apart. */
+  footer { gap: 4px; }
+  footer a { padding: 10px 6px; }
+
+  /* iOS zooms the whole page in when a focused field is under 16px, which on
+     the ranking search left the reader scrolled sideways into a layout they
+     did not ask for. */
+  .rank-add summary { padding: 10px 0; }
+  .rank-add-form input { font-size: 16px; padding-block: 10px; }
+  .rank-add-form button { padding-block: 11px; }
 }
