@@ -53,11 +53,12 @@ uses it.)
 - `404.html` — served automatically by GitHub Pages on a bad URL
 - `quant.html` ("The Work") — healthcare equity research + personal quant
   projects. Structurally built; the coverage rows are still clearly-labelled
-  placeholders waiting on real calls. **The page opens on a "coming soon" line
-  on purpose.** It used to describe a specific project (diet and sleep data
-  "pulled apart the way I'd pull apart a 10-K") that did not exist; Rex asked
-  for it out. Don't write specifics back in — no named projects, methods or
-  findings here until one actually ships.
+  placeholders waiting on real calls. **The page opens on "Coming soon." and
+  nothing else, on purpose.** It used to describe a specific project (diet and
+  sleep data "pulled apart the way I'd pull apart a 10-K") that did not exist,
+  and a longer coming-soon sentence was tried and cut too — Rex wanted it
+  short. Don't expand it back out: no named projects, methods or findings here
+  until one actually ships.
 
 ### assets/
 
