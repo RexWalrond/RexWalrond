@@ -30,9 +30,16 @@ research + hands-on startup operating + hard science background), not from
 adding a label like "aspiring VC." Note that the research leg is now described
 without naming where it happened, which makes it carry less weight than it did
 — worth revisiting with Rex rather than compensating with stronger claims. Be very cautious with any copy that
-edges toward claiming investing credentials he doesn't have. As of this file's
-writing, three bio/tagline rewrite options were drafted but not yet approved —
-check with Rex before changing index.html's bio or tagline copy.
+edges toward claiming investing credentials he doesn't have. Check with Rex
+before changing index.html's tagline copy; three rewrites were drafted and none
+chosen.
+
+**The hub has no bio paragraph, on purpose.** There was one under the tagline
+and Rex asked for it gone — he wanted the front page cleaner. So the header is
+now eyebrow, name, rule, tagline, and straight into the four rows. Don't add
+prose back to fill the space; if the hub ever needs more, it is a question for
+Rex, not a gap to patch. (`.intro` is still in the stylesheet because 404.html
+uses it.)
 
 ## File structure
 
