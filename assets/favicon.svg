@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The site's signature: a ridgeline that is also a chart. -->
+  <rect width="32" height="32" rx="6" fill="#1e2b26"/>
+  <path d="M2 24 L8 16 L12 20 L18 9 L23 17 L27 12 L30 16" fill="none"
+        stroke="#b5652f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

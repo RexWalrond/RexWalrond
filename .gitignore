@@ -1,0 +1,15 @@
+# Working notes — these are read by Claude Code locally and must never be
+# published. GitHub Pages serves every file on main, so a committed .md is a
+# live web page.
+CLAUDE.md
+NEXT.md
+AGENTS.md
+PRIVATE.md
+*.local.md
+
+# Secrets and local cruft
+.env*
+.DS_Store
+
+# Temporary render harness for the social card
+_og.html

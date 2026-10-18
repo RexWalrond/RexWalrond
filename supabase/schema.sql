@@ -1,0 +1,1435 @@
+-- Canonical "On Repeat" ranking — run this once in the Supabase SQL editor
+-- (Project -> SQL Editor -> New query) after creating the project.
+--
+-- Design: a single row holding the whole ranking as a JSON array, matching
+-- the shape the frontend already uses (state.tracks). Public read, writes
+-- locked to one email via row-level security -- see music.html's
+-- EDITOR_EMAIL constant, which must match exactly.
+
+create table if not exists ranking_state (
+  id int primary key default 1,
+  tracks jsonb not null,
+  updated_at timestamptz not null default now(),
+  constraint single_row check (id = 1)
+);
+
+alter table ranking_state enable row level security;
+
+drop policy if exists "Public can read ranking" on ranking_state;
+create policy "Public can read ranking"
+  on ranking_state for select
+  using (true);
+
+-- Only rexwalrond@gmail.com may update the row. If you sign up with a
+-- different email, update this (and EDITOR_EMAIL in music.html) to match.
+drop policy if exists "Owner can update ranking" on ranking_state;
+create policy "Owner can update ranking"
+  on ranking_state for update
+  using (auth.jwt() ->> 'email' = 'rexwalrond@gmail.com')
+  with check (auth.jwt() ->> 'email' = 'rexwalrond@gmail.com');
+
+-- Seed with the current 127-track order (safe to re-run: no-ops if the row
+-- already exists -- use the UPDATE below instead if you want to re-seed).
+insert into ranking_state (id, tracks)
+values (1, $json$
+[
+  {
+    "id": "t1",
+    "name": "Condemned - Live",
+    "album": "Studio A Recordings (Live)",
+    "year": "2021",
+    "duration": "2:36",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t2",
+    "name": "Flying or Crying - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:02",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t3",
+    "name": "Condemned",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "2:54",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t4",
+    "name": "Condemned - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:10",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t5",
+    "name": "Heading South",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:30",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t6",
+    "name": "Heading South",
+    "album": "Heading South",
+    "year": "2019",
+    "duration": "2:51",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t7",
+    "name": "Heading South - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:28",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t8",
+    "name": "God Speed - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "4:14",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t9",
+    "name": "Something in the Orange - Z&E's Version",
+    "album": "Something in the Orange",
+    "year": "2022",
+    "duration": "4:14",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t10",
+    "name": "Heavy Eyes",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:10",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t11",
+    "name": "Whiskey Fever",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:32",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t12",
+    "name": "Something in the Orange",
+    "album": "Something in the Orange",
+    "year": "2022",
+    "duration": "3:48",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t13",
+    "name": "God Speed",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "4:13",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t14",
+    "name": "Oklahoma City",
+    "album": "Oklahoma City",
+    "year": "2020",
+    "duration": "4:39",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t15",
+    "name": "Blue Jean Baby",
+    "album": "Blue Jean Baby",
+    "year": "2025",
+    "duration": "2:12",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t16",
+    "name": "Oklahoma City - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "4:31",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t17",
+    "name": "Oklahoma City",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "4:00",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t18",
+    "name": "Flying or Crying",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "2:49",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t19",
+    "name": "No Cure",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "2:41",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t20",
+    "name": "No Cure - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "2:52",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t21",
+    "name": "Oak Island",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "3:59",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t22",
+    "name": "Hey Driver",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:47",
+    "live": false,
+    "feat": "The War and Treaty",
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t23",
+    "name": "Birmingham",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "3:26",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t24",
+    "name": "Letting Someone Go",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:59",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t25",
+    "name": "This Road I Know",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:24",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t26",
+    "name": "Codeine Pills - Part One",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:16",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t27",
+    "name": "Madeline",
+    "album": "Madeline (feat. Gabriella Rose)",
+    "year": "2025",
+    "duration": "2:25",
+    "live": false,
+    "feat": "Gabriella Rose",
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t28",
+    "name": "From Austin",
+    "album": "From Austin",
+    "year": "2022",
+    "duration": "3:27",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t29",
+    "name": "Leaving",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:27",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t30",
+    "name": "Poems and Closing Time",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "2:41",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t31",
+    "name": "Overtime",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:10",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t32",
+    "name": "Washington Lilacs",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "2:47",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t33",
+    "name": "Cold Damn Vampires",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "4:52",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t34",
+    "name": "Messed up Kid",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "4:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t35",
+    "name": "Hell or Highwater - Live",
+    "album": "Studio A Recordings (Live)",
+    "year": "2021",
+    "duration": "2:51",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t36",
+    "name": "Loom",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "2:43",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t37",
+    "name": "Doing Fine",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:04",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t38",
+    "name": "Dawns",
+    "album": "Dawns (feat. Maggie Rogers)",
+    "year": "2023",
+    "duration": "4:50",
+    "live": false,
+    "feat": "Maggie Rogers",
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t39",
+    "name": "Rattlesnake",
+    "album": "Rattlesnake (feat. Zach Bryan)",
+    "year": "2025",
+    "duration": "4:53",
+    "live": false,
+    "feat": null,
+    "guest": "Jack Van Cleaf",
+    "explicit": true
+  },
+  {
+    "id": "t40",
+    "name": "Traveling Man",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "3:17",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t41",
+    "name": "Oklahoma Smokeshow",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:31",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t42",
+    "name": "Revival",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:41",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t43",
+    "name": "A Boy Like You",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "4:48",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t44",
+    "name": "Shivers Down Spines",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:00",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t45",
+    "name": "If She Wants a Cowboy",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:12",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t46",
+    "name": "Jake's Piano - Long Island",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "5:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t47",
+    "name": "Open the Gate",
+    "album": "Open the Gate",
+    "year": "2022",
+    "duration": "3:54",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t48",
+    "name": "Open the Gate - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "4:12",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t49",
+    "name": "Don't Give up on Me",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:23",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t50",
+    "name": "Summertime's Close",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:06",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t51",
+    "name": "Driving",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:23",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t52",
+    "name": "Starved - demo",
+    "album": "Starved",
+    "year": "2022",
+    "duration": "3:44",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t53",
+    "name": "Starved",
+    "album": "Starved",
+    "year": "2022",
+    "duration": "4:42",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t54",
+    "name": "Starved - Live from Detroit",
+    "album": "Starved",
+    "year": "2022",
+    "duration": "6:15",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t55",
+    "name": "Anita - Part Two",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:43",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t56",
+    "name": "Better Days",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "3:32",
+    "live": false,
+    "feat": "John Mayer",
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t57",
+    "name": "Hope Again",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:01",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t58",
+    "name": "Let You Down",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "3:29",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t59",
+    "name": "Snow",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "2:58",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t60",
+    "name": "Tishomingo",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:08",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t61",
+    "name": "East Side of Sorrow",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:29",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t62",
+    "name": "Motorcycle Drive By",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "2:41",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t63",
+    "name": "Quittin' Time",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:40",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t64",
+    "name": "Quittin' Time - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:57",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t65",
+    "name": "November Air",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "4:03",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t66",
+    "name": "Me and Mine",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:09",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t67",
+    "name": "From a Lover's Point of View",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:04",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t68",
+    "name": "Pink Skies",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "3:49",
+    "live": false,
+    "feat": "Watchhouse",
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t69",
+    "name": "Dear Miss",
+    "album": "Dear Miss",
+    "year": "2025",
+    "duration": "3:09",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t70",
+    "name": "Pink Skies",
+    "album": "Pink Skies",
+    "year": "2024",
+    "duration": "3:14",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t71",
+    "name": "Crooked Teeth",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "3:17",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t72",
+    "name": "Fifth of May",
+    "album": "The Greatest Day of My Life",
+    "year": "2022",
+    "duration": "2:58",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t73",
+    "name": "Fear and Friday's (Poem)",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "1:47",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t74",
+    "name": "Boons",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "3:05",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t75",
+    "name": "High Road",
+    "album": "High Road",
+    "year": "2024",
+    "duration": "3:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t76",
+    "name": "Lucky Enough (Poem)",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "2:42",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t77",
+    "name": "Country Roads",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:28",
+    "live": true,
+    "feat": "Charles Wesley Godwin, Jonathan Peyton, Abigail Peyton",
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t78",
+    "name": "Late July",
+    "album": "Late July",
+    "year": "2022",
+    "duration": "2:58",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t79",
+    "name": "Purple Gas",
+    "album": "The Great American Bar Scene",
+    "year": "2024",
+    "duration": "3:00",
+    "live": false,
+    "feat": "Noeline Hofmann",
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t80",
+    "name": "Cold Blooded",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:25",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t81",
+    "name": "Hopefully",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:57",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t82",
+    "name": "All the Time",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t83",
+    "name": "Come as You Are",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "4:45",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t84",
+    "name": "Sweet DeAnn",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:24",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t85",
+    "name": "Sweet DeAnn - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:04",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t86",
+    "name": "Old Man",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "4:01",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t87",
+    "name": "Moon in Oklahoma",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "2:59",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t88",
+    "name": "Billy Stay",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "5:16",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t89",
+    "name": "Man Thats Never Known You",
+    "album": "DeAnn",
+    "year": "2019",
+    "duration": "3:05",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t90",
+    "name": "Memphis; The Blues",
+    "album": "Memphis; The Blues (feat. J.R. Carroll)",
+    "year": "2025",
+    "duration": "3:09",
+    "live": false,
+    "feat": "J.R. Carroll",
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t91",
+    "name": "El Dorado",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:02",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t92",
+    "name": "Someday (Maggie's)",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "4:25",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t93",
+    "name": "The Good I'll Do",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:31",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t94",
+    "name": "Ninth Cloud",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:23",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t95",
+    "name": "Ticking",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "4:02",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t96",
+    "name": "Burn, Burn, Burn",
+    "album": "Burn, Burn, Burn",
+    "year": "2022",
+    "duration": "4:28",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t97",
+    "name": "Matt and Audie",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "2:06",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t98",
+    "name": "Mine",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "2:58",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t99",
+    "name": "Mine Again",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:44",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t100",
+    "name": "Summertime Blues",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:01",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t101",
+    "name": "Holy Roller",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "3:36",
+    "live": false,
+    "feat": "Sierra Ferrell",
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t102",
+    "name": "'68 Fastback",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:13",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t103",
+    "name": "Sun to Me",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "2:43",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t104",
+    "name": "Quiet, Heavy Dreams",
+    "album": "Quiet, Heavy Dreams",
+    "year": "2020",
+    "duration": "2:54",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t105",
+    "name": "Fear and Friday's",
+    "album": "Zach Bryan",
+    "year": "2023",
+    "duration": "2:51",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t106",
+    "name": "Sober Side of Sorry",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:33",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t107",
+    "name": "Highway Boys - Live",
+    "album": "All My Homies Hate Ticketmaster (Live from Red Rocks)",
+    "year": "2022",
+    "duration": "3:39",
+    "live": true,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t108",
+    "name": "This World's A Giant",
+    "album": "This World's A Giant",
+    "year": "2024",
+    "duration": "3:36",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t109",
+    "name": "She's Alright",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:49",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t110",
+    "name": "Elisabeth",
+    "album": "Elisabeth",
+    "year": "2020",
+    "duration": "3:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t111",
+    "name": "Highway Boys",
+    "album": "Highway Boys",
+    "year": "2022",
+    "duration": "3:40",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t112",
+    "name": "Happy Instead",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "4:09",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t113",
+    "name": "The Outskirts",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:18",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t114",
+    "name": "Darling",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:57",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t115",
+    "name": "The Greatest Day of My Life",
+    "album": "The Greatest Day of My Life",
+    "year": "2022",
+    "duration": "3:58",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t116",
+    "name": "Younger Years",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:25",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t117",
+    "name": "Jamie",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:40",
+    "live": false,
+    "feat": "Charles Wesley Godwin",
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t118",
+    "name": "Half Grown",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:27",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t119",
+    "name": "Twenty So",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "3:19",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t120",
+    "name": "Us Then",
+    "album": "Summertime Blues",
+    "year": "2022",
+    "duration": "2:46",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t121",
+    "name": "Morning Time",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:45",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": true
+  },
+  {
+    "id": "t122",
+    "name": "Blue",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:38",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t123",
+    "name": "High Beams",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:20",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t124",
+    "name": "Right Now the Best",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:10",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t125",
+    "name": "Corinthians (Proctor's)",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "3:51",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t126",
+    "name": "You Are My Sunshine",
+    "album": "American Heartbreak",
+    "year": "2022",
+    "duration": "2:57",
+    "live": false,
+    "feat": null,
+    "guest": null,
+    "explicit": false
+  },
+  {
+    "id": "t127",
+    "name": "We're Onto Something",
+    "album": "We're Onto Something (feat. Zach Bryan)",
+    "year": "2025",
+    "duration": "3:42",
+    "live": false,
+    "feat": null,
+    "guest": "Kings of Leon",
+    "explicit": false
+  }
+]
+$json$::jsonb)
+on conflict (id) do nothing;
